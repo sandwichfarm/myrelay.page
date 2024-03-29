@@ -1,0 +1,50 @@
+<script lang="ts">
+  import { browser } from '$app/environment';
+
+  import { getContext, onMount, onDestroy, tick } from 'svelte';
+
+
+  import { MY_RELAY_PAGE } from '$lib/contextKeys';
+  import type { Writable } from 'svelte/store';
+  import type { MyRelayPage } from '$lib/core/main';
+  import * as Avatar from "$lib/components/ui/avatar";
+
+  import { Button } from "$lib/components/ui/button/index.js";
+
+  const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
+
+  let mrp: MyRelayPage | undefined;
+
+  const login = async () => {
+    if(!mrp?.ndk) return //console.log(`no ndk service found`)
+    await mrp?.ndk.login()
+    MRP.set(mrp)
+  }
+
+  const logout = async () => {
+    if(!mrp?.ndk) return //console.log(`no ndk service found`)
+    mrp?.ndk.logout()
+    MRP.set(mrp)
+  }
+
+  MRP.subscribe(async (_mrp: MyRelayPage) => { mrp = _mrp});
+
+</script>
+{#if browser && window?.nostr}
+  <div class="absolute -top-16 -right-10">
+    {#if mrp?.ndk && (typeof mrp?.ndk?.user === 'undefined' || mrp?.ndk?.user === null)}
+      <Button variant="outline" on:click={login}>login</Button>
+    {:else if mrp?.ndk?.user?.profile}
+      <div class="flex items-center space-x-4">
+        <Avatar.Root class="inline-block border-slate-500 border-2">
+          <Avatar.Image src="{mrp?.ndk?.user?.profile?.image}" alt="@{mrp?.ndk?.user?.profile?.name || 'anonymous'}" />
+          <Avatar.Fallback>@{mrp?.ndk?.user?.profile?.name || 'anonymous'}</Avatar.Fallback>
+        </Avatar.Root>
+        <span>
+          <span class="block">{ mrp?.ndk?.user?.profile?.name }</span>
+          <span class="block cursor-pointer text-xs" on:click={logout}>logout</span>
+        </span>
+      </div>
+    {/if}
+  </div>
+{/if}
