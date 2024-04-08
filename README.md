@@ -84,7 +84,7 @@ docker build .
 ```
 
 ### notes
-You can test relays on localhost by appending `?url=relay.snort.social` for instance. 
+You can test relays on localhost by appending `?url=wss://relay.snort.social` for instance. 
 
 Image is not yet on a registry. 
 
