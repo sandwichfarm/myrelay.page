@@ -71,7 +71,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 
 ## dev
 
-_early alpha_, things will change, but have at it. 
+_early alpha_, things will change, history will be full of haphazard commit messages, force pushes to reset history eminent ... but have at it. 
 
 ### build 
 
