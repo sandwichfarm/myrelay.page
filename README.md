@@ -13,45 +13,45 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 **Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
 
 ## features 
-- General
+- general
   - [x] `tailwind`  
   - [x] `shadcn-svelete` UI components 
-  - [x] Progressive load w/skeletons
+  - [x] progressive load w/skeletons
 - blocks
   - [x] nip-11
   - [x] operator profile/feed
   - [x] map
   - [x] relay feed
   - [ ] speed test (need to patch @nostrwatch/nocap)
-- Stateful meta-data 
+- stateful meta-data 
   - [x] nip-11
   - [x] operator profile
   - [x] operator notes
   - [x] notes from relay
   - [x] NIP-19 encoded nevent jumps
-  - [x] Relay Geodata
+  - [x] relay Geodata
   - [x] NIP-66 Monitor Data
-  - [ ] Uptime
+  - [ ] uptime
 - parsing
   - [x] notes: images
   - [x] notes: videos
   - [ ] notes: spotify
   - [ ] notes: NIP-19 encoded `nostr:` links
-- Authed User Interactivity
-  - [x] Login
-  - [x] Add relay to relay list [`10002`]
-  - [x] Zap relay operator
-  - [ ] Following relay operator  
+- authed User Interactivity
+  - [x] login
+  - [x] add relay to relay list [`10002`]
+  - [x] zap relay operator
+  - [ ] follow relay operator  
   - [x] "People you follow who are here"
   - [ ] "Notes you have here"
-- No-build Customization via NIP-78
+- no-build customization via NIP-78
   - general
-    - [ ] Theme
-    - [ ] Show/hide blocks
-    - [ ] Per block customization
-    - [ ] Hide login
-    - [ ] Disable "Join Relay"
-  - Runtime-imported CSR blocks (svelte)
+    - [ ] theme
+    - [ ] show/hide blocks
+    - [ ] per block customization
+    - [ ] hide login
+    - [ ] disable "Join Relay"
+  - tuntime-imported CSR blocks (svelte)
     - [ ] http/https  
       - [ ] custom block imports 
       - [ ] custom block options
@@ -61,7 +61,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
     - [ ] blossom
       - [ ] custom block imports 
       - [ ] custom block options
-  - Internationalization (i18n)
+  - internationalization (i18n)
     - [ ] i18n mapped language
     - [ ] NIP-78 overrides
 
