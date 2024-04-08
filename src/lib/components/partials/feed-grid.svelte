@@ -10,7 +10,6 @@
   let [minColWidth, maxColWidth, gap] = [200, 800, 20];
 </script>
 
-
 <Masonry
   items={notes}
   {minColWidth}
@@ -20,6 +19,3 @@
   >
   <Note note={item} pointer={pointers[item.id]} />
 </Masonry>
-<!-- 
-bind:masonryWidth={width}
-bind:masonryHeight={height} -->

@@ -1,18 +1,18 @@
 <script lang="ts">
-  // import { Nocap } from '@nostrwatch/nocap'
-  // import { onMount, getContext } from 'svelte';
+  import { Nocap } from '@nostrwatch/nocap'
+  import { onMount, getContext } from 'svelte';
 
-  // import { MY_RELAY_PAGE } from '$lib/contextKeys';
+  import { MY_RELAY_PAGE } from '$lib/contextKeys';
 
   let results: any = {}
 
-  // const Mrp = getContext(MY_RELAY_PAGE);
+  const Mrp = getContext(MY_RELAY_PAGE);
 
-  // Mrp.subscribe((mrp) => {
-  //   // const url = mrp.url 
-  //   // const nocap = new Nocap(url)
-  //   // results = nocap.check(['open', 'read', 'write'])
-  // });
+  Mrp.subscribe((mrp) => {
+    // const url = mrp.url 
+    // const nocap = new Nocap(url)
+    // results = nocap.check(['open', 'read', 'write'])
+  });
 
 
 </script>

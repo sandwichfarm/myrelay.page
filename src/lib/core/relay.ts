@@ -21,12 +21,17 @@ export class MRPRelay {
     this._info = new MRPNip11(this.url)
   }
 
-  public async init(){
+  public async init(signal){
     await this.info?.init()
+    signal.emit('mrp:changed')
     if(!this.info?.pubkey) return
     this.owner = new MRPUser(this.$, this.info.pubkey)
     await this.owner.init()
+    signal.emit('mrp:changed')
+    await this.owner.fetchNotes()
+    signal.emit('mrp:changed')
     await this.fetchRelayNotes()
+    signal.emit('mrp:changed')
   }
 
   async fetchOwnerFeed(opts: any){
@@ -35,8 +40,9 @@ export class MRPRelay {
 
   async fetchRelayNotes(){
     const exclude = { pubkey: this.owner?.pubkey as string }
-    const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$, exclude)
-    const $feed: MRPFeed = new MRPFeed(this.$, { kinds: [1], limit: 10 }, relays, relays)
+    const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$)
+    console.log('relay', this.url)
+    const $feed: MRPFeed = new MRPFeed(this.$, { kinds: [1], limit: 10 }, relays, relays, exclude)
     await $feed.fetch()
     this._relayFeed = $feed
     this._feedPointers = $feed.pointers

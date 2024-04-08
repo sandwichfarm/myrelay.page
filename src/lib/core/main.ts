@@ -1,11 +1,15 @@
 import { MRPEditor } from './editor'
 import { MRPConfig } from './config'
 import { NDKService } from './services/ndk'
-import type { NDKRelay, NDKTag } from '@nostr-dev-kit/ndk';
+import NDK, { NDKRelay, NDKRelaySet, NDKUser, type NDKTag } from '@nostr-dev-kit/ndk';
 import { ComponentLoader } from './component-loader';
+import type { NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
 import type { MRPUser } from './user';
 import type { RelayMetaParsed } from './relay-meta';
 import type { DD } from './geocoded';
+import { MRPFeed } from './feed';
+
+import { EventEmitter } from 'tseep';
 
 export class MyRelayPage {
   private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://monitorpag.es', 'wss://relaypag.es', 'wss://history.nostr.watch'] as string[])
@@ -14,7 +18,9 @@ export class MyRelayPage {
   private _editor: MRPEditor;
   private _config: MRPConfig;
   private _loader: ComponentLoader;
-  
+  private _userFollowsOnRelay: NDKUser[] = []
+  private _promises: Promise<any>[] = []
+  signal: EventEmitter<any> = new EventEmitter()
 
   constructor(url?: string){
     this.url = url
@@ -27,13 +33,82 @@ export class MyRelayPage {
 
   async init(){
     //console.log(`MyRelayPage: ndk: init()`)
-    await this.ndk?.init()
-    //console.log(`MyRelayPage: config: init()`)
     await this.config?.init()
-    //console.log(`MyRelayPage: editor: init()`)
+    this.signal.emit("mrp:changed", this)
+    
     await this._loader.init(this._config)
-    //console.log(`MyRelayPage: loader: init()`)
+    this.signal.emit("mrp:changed", this)
+    
+    await this.ndk?.init(this.signal)
+    this.signal.emit("mrp:changed", this)
+    
     await this.editor?.init()
+    this.signal.emit("mrp:changed", this)
+
+    this.bindHandlers()
+  }
+
+  bindHandlers(){
+    // this.ndk?.$.once("mrp:login", async () => {
+    //   await this.userFollowsOnRelay(this.ndk?.$)
+    // });
+  }
+
+  async getUserFollowsOnRelay() {
+    await this.ndk.user?.getFollows();
+    if (!this.ndk.user?.follows) return;
+  
+    console.log('relay', this.url)
+
+    const relay = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), new NDK({explicitRelayUrls:[this.url as string]}));
+    
+    const promises = Array.from(this.ndk.user.follows).map(follow => {
+      return this.ndk.$.fetchEvent({
+        kinds: [10002, 3],
+        authors: [follow.pubkey]
+      }, { groupable: true, closeOnEose: false });
+    }, relay);
+  
+    const results = await Promise.allSettled(promises);
+    
+    let pubkeyResults = results
+      .filter( result => result.value !== null)
+      .filter( ( result) => {
+        console.log('result', result)
+        if(result.value.kind === 10002) {
+          try {
+          return result?.value?.tags.find(tag => {
+            const url = new URL(tag[1]).toString()
+            const includes = url === this.url
+            return tag[0] === 'r' && includes
+          })
+        }
+        catch(e){ return false }
+        }
+        if(result.value.kind === 3 && result.value.content.length > 0){
+          try {
+            const json = JSON.parse(result.value.content)
+            return Object.keys(json).find(key => {
+              const url = new URL(key).toString()
+              return url === this.url
+            })
+          }
+          catch(e){ return false }
+        } 
+      })
+      .map(result => result.value.pubkey); // Assuming `result.value` is the Set<NDKEvent>.
+      
+    pubkeyResults = Array.from(new Set(pubkeyResults))
+  
+    for (const follow of this.ndk.user.follows) {
+      if (!pubkeyResults.includes(follow.pubkey)) continue;
+      await follow.fetchProfile();
+      this._userFollowsOnRelay.push(follow);
+    }
+  }
+  
+  get userFollowsOnRelay(): NDKUser[] | undefined {
+    return this._userFollowsOnRelay
   }
 
   set url(url: string | undefined){

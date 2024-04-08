@@ -46,6 +46,7 @@ export class MRPNip11 {
   private _limitations: Limitations | undefined;
   private _payments_url: string | undefined;
   private _fees: Fees | undefined
+  loaded: boolean = false;
 
   constructor(url: string){
     this.url = url
@@ -53,6 +54,7 @@ export class MRPNip11 {
 
   async init(){
     this._json = await this.fetch()
+    this.loaded = true
     if(!this._json) return 
     this.set(this._json)
   }

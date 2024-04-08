@@ -23,8 +23,6 @@ export class ComponentLoader {
     'monitors': 'monitors',
     'relay-feed': 'relay-feed',
     // 'feed': 'feed',
-    
-    
   }
   private _componentsDef: Components = {}
   private _components: Record<string, NodeModule> = {}

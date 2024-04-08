@@ -13,7 +13,7 @@
   const mrp_context = getContext(MY_RELAY_PAGE);
 
   let dd: DD = { lat: 0, lon: 0 }
-  let data: MapData
+  let data: MapData = { areas: [], points: [], links: [] }
 
   mrp_context.subscribe((_mrp) => {
     dd = _mrp.dd
@@ -35,17 +35,18 @@
       links: monitorLinks
     };
   });
-  const pointLabel = (d: MapPoint) => d.label
+  const pointLabel = (d: MapPoint) => d?.label
   // const pointLabelPosition = (d: MapPoint) => d.position || 'Bottom'
 </script>
 <div class="bg-gradient-to-b from-gray-100 to-white mt-10 pt-0 h-80  pb-5 px-5 rounded-lg relative">
-  <h3 class="py-5 absolute top w-full mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight mb-2 block w-full">
+  <h3 class="py-5 absolute top w-full mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight block">
   geo
   </h3>
   <VisSingleContainer {data}>
     <VisTopoJSONMap 
       mapFitToPoints={true} 
       topojson={WorldMapTopoJSON} 
+      disableZoom={true}
       {pointLabel} 
     />
   </VisSingleContainer>

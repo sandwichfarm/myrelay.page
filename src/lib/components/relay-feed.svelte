@@ -1,5 +1,6 @@
 <script lang="ts">
-  import FeedGrid from '$lib/components/partials/feed.grid.svelte'
+  import FeedGrid from '$lib/components/partials/feed-grid.svelte'
+  import FeedGridSkeleton from '$lib/components/partials/feed-grid.skeleton.svelte'
 
   import { get } from 'svelte/store';
 
@@ -20,24 +21,25 @@
   let feed: NDKEvent[] = []
 
   MRP.subscribe((mrp) => {
-    if (!mrp.ndk?.relay) {
+    if (!mrp?.ndk?.relay) {
       notes.set([]); 
     } else {
-      let relay = mrp.ndk.relay
-      let $feed = relay.feed 
-      feed = $feed.notes || []
+      let relay = mrp?.ndk?.relay
+      let $feed = relay?.feed 
+      feed = $feed?.notes || []
       notes.set(feed || [])
-      pointers.set($feed.pointers)
+      pointers.set($feed?.pointers)
       //console.log(Array.from(feed)[0])
     }
   });
 </script> 
 <div class="mt-10 p-2h-80 bg-gradient-to-b from-gray-100 to-white py-5 px-5 rounded-lg">
-
-  <h3 class="mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight mb-2 block w-full">
+  <h3 class="mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight block w-full">
     relay feed
   </h3>
-  {#if $notes.length}
+  {#if $notes?.length}
     <FeedGrid notes={$notes} pointers={$pointers} /> 
+  {:else}
+    <FeedGridSkeleton />
   {/if}
 </div>

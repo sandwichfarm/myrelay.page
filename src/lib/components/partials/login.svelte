@@ -16,13 +16,16 @@
   let mrp: MyRelayPage | undefined;
 
   const login = async () => {
-    if(!mrp?.ndk) return //console.log(`no ndk service found`)
+    if(!mrp?.ndk) return 
     await mrp?.ndk.login()
+    MRP.set(mrp)
+    await mrp?.getUserFollowsOnRelay()
+    console.log('follows set:', mrp.userFollowsOnRelay)
     MRP.set(mrp)
   }
 
   const logout = async () => {
-    if(!mrp?.ndk) return //console.log(`no ndk service found`)
+    if(!mrp?.ndk) return 
     mrp?.ndk.logout()
     MRP.set(mrp)
   }
@@ -31,7 +34,7 @@
 
 </script>
 {#if browser && window?.nostr}
-  <div class="absolute -top-16 -right-10">
+  <div class="absolute -top-12 -right-10">
     {#if mrp?.ndk && (typeof mrp?.ndk?.user === 'undefined' || mrp?.ndk?.user === null)}
       <Button variant="outline" on:click={login}>login</Button>
     {:else if mrp?.ndk?.user?.profile}

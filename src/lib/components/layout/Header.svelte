@@ -13,6 +13,7 @@
   import Nips from '$lib/components/partials/nips.svelte';
   import LimitationsBoolean from '$lib/components/partials/limitations.boolean.svelte';
   import LimitationsNumber from '$lib/components/partials/limitations.number.svelte';
+  import Software from '$lib/components/partials/software.svelte';
   import PayRelay from '$lib/components/partials/pay-relay.svelte';
 
   const MRP = getContext(MY_RELAY_PAGE);
@@ -49,10 +50,17 @@
     </p>
   {/if}
 
+  
+
   <LimitationsBoolean />
   <LimitationsNumber />
 
+  
+
   <Nips />
+
+  <Software />
+  
   <Login />
   
 </div>

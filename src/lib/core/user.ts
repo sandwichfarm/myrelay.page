@@ -4,8 +4,7 @@ import { type NDKUserProfile, NDKRelay, type NDKEvent } from '@nostr-dev-kit/ndk
 export class MRPUser {
   private $: NDK;
   private _user: NDKUser;
-  private _profile: NDKUserProfile | null = null;
-  private _relays: string[] | undefined;
+  private _follows: Set<NDKUser> | undefined;
   private _relayList: NDKRelayList | undefined;
   private _feed: NDKEvent[] = new Set();
   private _feedPointers: Record<string, EventPointer> = {}
@@ -33,6 +32,13 @@ export class MRPUser {
   async fetchRelayList(){
     // if(!this?.pubkey)
     this.relayList = await NDKRelayList.forUser(this.pubkey, this.$)
+  }
+
+  async getFollows(){
+    if(!this.user) return
+    console.log('getting follows')
+    this.follows = await this.user.follows()
+    console.log(`got follows ${this.follows.size}`)
   }
 
   hasRelay(url: string): boolean {
@@ -71,6 +77,14 @@ export class MRPUser {
   hasPhoto(): boolean {
     return typeof this.photo === 'string' ? true : false;
   } 
+
+  private set follows(follows: Set<NDKUser>){
+    this._follows = follows
+  }
+
+  get follows(): Set<NDKUser> | undefined {
+    return this._follows
+  }
 
   private set relayList(relayList: NDKRelayList | undefined){
     this._relayList = relayList

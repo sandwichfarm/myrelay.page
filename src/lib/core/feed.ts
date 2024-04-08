@@ -25,9 +25,10 @@ export class MRPFeed {
   }
 
   async fetch(){
-    //console.log('options: ', this.filter, this.relays)
-    const feed = await this.$.fetchEvents(this.filter, undefined, this.relays)
-    //console.log(`feed: ${feed?.size}`)
+    console.log('relays: ', Array.from(this.relays.relays).map( relay => relay.url))
+    const ndk = new NDK({explicitRelayUrls: Array.from(this.relays.relays).map( relay => relay.url)}) 
+    await ndk.connect()
+    const feed = await ndk.fetchEvents(this.filter, undefined, this.relays)
     if(!feed?.size) return 
     this.notes = Array.from(feed)
     this.notes = this.notes.sort( (a: NDKEvent, b: NDKEvent) => b.created_at as number - a.created_at as number )

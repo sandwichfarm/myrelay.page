@@ -5,6 +5,7 @@
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import type { MRPRelay } from '$lib/core/relay';
   import type { MyRelayPage } from '$lib/core/main';
+    import Skeleton from '../ui/skeleton2/Skeleton.svelte';
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   const relay: Writable<MRPRelay> = writable();
@@ -29,6 +30,14 @@
       { nip }
     </a>
   {/each} 
+{:else}
+<Skeleton count={1} width={40} />
+<Skeleton count={1} width={40} />
+<Skeleton count={1} width={40} />
+<Skeleton count={1} width={40} />
+<Skeleton count={1} width={40} />
+<Skeleton count={1} width={40} />
+<Skeleton count={1} width={40} />
 {/if}
 
 

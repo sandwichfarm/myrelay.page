@@ -26,10 +26,12 @@ export class NDKService {
     this._monitors = new MRPMonitors(this.$, url)
   }
 
-  public async init(){
+  public async init(signal){
     await this.$.connect();
-    await this._relay.init()
+    await this._relay.init(signal)
+    signal.emit('mrp:changed')
     await this.monitors.init()
+    signal.emit('mrp:changed')
   }
 
   get $(): NDK {
@@ -47,11 +49,13 @@ export class NDKService {
     await this.user.init();
     await this.$.connect();
     this._authed = true;
+    this.$.emit('mrp:login')
   }
 
   public logout(){
     this.user = undefined
     this._authed = false
+    this.$.emit('mrp:logout')
   }
 
   async toggleRelay(relay: string){
