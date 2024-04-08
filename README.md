@@ -32,6 +32,11 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] Relay Geodata
   - [x] NIP-66 Monitor Data
   - [ ] Uptime
+- parsing
+  - [x] notes: images
+  - [x] notes: videos
+  - [ ] notes: spotify
+  - [ ] notes: NIP-19 encoded `nostr:` links
 - Authed User Interactivity
   - [x] Login
   - [x] Add relay to relay list [`10002`]
