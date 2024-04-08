@@ -31,7 +31,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] NIP-19 encoded nevent jumps
   - [x] relay Geodata
   - [ ] NIP-66 Monitor Data
-    - [ ] seen by monitors
+    - [x] seen by monitors
     - [ ] round-trip time of monitors
     - [ ] map reactiveness
     - [ ] ssl
