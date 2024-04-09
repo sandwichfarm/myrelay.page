@@ -217,7 +217,7 @@ export class MRPNip11 {
             },
         }).catch(console.error);
 
-        if (!response.ok) {
+        if (!response?.ok) {
             throw new Error(`Failed to fetch data from ${url}: ${response.status} ${response.statusText}`);
         }
         

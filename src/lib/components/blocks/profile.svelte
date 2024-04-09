@@ -7,7 +7,7 @@
     // import * as Avatar from "$lib/components/ui/avatar";
 
     import UserAvatar from "$lib/components/partials/avatar.svelte";
-    import ProfileSkeleton from "$lib/components/profile.skeleton.svelte";
+    import ProfileSkeleton from "$lib/components/blocks/profile.skeleton.svelte";
 
     import * as nip19 from 'nostr-tools/nip19'
     

@@ -7,7 +7,7 @@
   import type NDK from '@nostr-dev-kit/ndk';
 
   import UserAvatar from "$lib/components/partials/avatar.svelte";
-    import Badge from './ui/badge/badge.svelte';
+    import Badge from '$lib/components/ui/badge/badge.svelte';
 
   const mrp_context: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   const MAX_LENGTH = 72

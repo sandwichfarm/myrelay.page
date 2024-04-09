@@ -5,7 +5,7 @@
   import { parseMP4s, parseImages } from '$lib/utils';
   import Time from 'svelte-time';
 
-  import Badge from './ui/badge/badge.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
   
   const mrp_context = getContext(MY_RELAY_PAGE);
 

@@ -62,7 +62,7 @@ export class ComponentLoader {
   private async loadComponent(name: string): Promise<NodeModule | undefined> {
     let $component;
     if(this._componentsDef[name]){
-      $component = await import(`../components/${this._componentsDef[name]}.svelte`).catch(ComponentLoader.errorHandler)
+      $component = await import(`../components/blocks/${this._componentsDef[name]}.svelte`).catch(ComponentLoader.errorHandler)
       this._components[name] = $component?.default? $component.default: $component
     }
   }

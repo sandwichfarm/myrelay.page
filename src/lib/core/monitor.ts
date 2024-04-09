@@ -56,8 +56,8 @@ export type FetchRelaysOptions = {
  * @implements NDKKind.RelayMonitor
  * @example
  * ```javascript
- * import { NDK } from "@nosplatform/ndk";
- * import { RelayMonitor } from "@nosplatform/ndk/dist/events/kinds/nip66/relay-monitor";
+ * import { NDK } from "@nostr-dev-kit/ndk";
+ * import { RelayMonitor } from "@nostr-dev-kit/ndk/dist/events/kinds/nip66/relay-monitor";
  * 
  * const ndk = new NDK();
  * const monitorEvent = {...}

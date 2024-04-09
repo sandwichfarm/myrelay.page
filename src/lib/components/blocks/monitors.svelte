@@ -10,18 +10,20 @@
   let monitors: MRPMonitors
 
   mrp_context.subscribe((_mrp) => {
-    ////console.log('inside profile')
-    monitors = _mrp.ndk?.monitors
-    ////console.log(monitors)
-    ////console.log(monitors.operators)
+    monitors = _mrp?.ndk?.monitors
   });
 
   onMount(async (): Promise<void>=>{
+
   })
 
   onDestroy(() => {
 
   });
+
+  let activateLink = (): undefined => {
+
+  }
 
 </script>
 
@@ -32,7 +34,7 @@
   </span>
   <ul>
     {#each monitors.all as monitor}
-    <Badge variant="outline">
+    <Badge variant="outline" class="cursor-pointer" on:hover={activateLink()}>
       {monitor.profile?.name} 
       {#if monitor?.operator}
       [{monitors.operators[monitor.operator]?.name}]
