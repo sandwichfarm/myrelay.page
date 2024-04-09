@@ -1,4 +1,4 @@
-# myrelay.page <sup>v0.0.1</sup>
+# myrelay.page <sub>v0.0.1</sub>
 
 Your relay is awesome, its landing page should be too.
 
@@ -21,6 +21,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] `tailwind`  
   - [x] `shadcn-svelete` UI components 
   - [x] progressive load w/skeletons
+  - [ ] mobile compat
 - blocks
   - [x] nip-11
   - [x] operator profile/feed
