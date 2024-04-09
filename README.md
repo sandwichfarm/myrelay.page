@@ -46,6 +46,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] notes: images
   - [x] notes: videos
   - [ ] notes: spotify
+  - [ ] notes: tidal
   - [ ] notes: NIP-19 encoded `nostr:` links
 - authed User Interactivity
   - [x] login
