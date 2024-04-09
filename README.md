@@ -1,4 +1,4 @@
-# myrelay.page <sub>v0.0.1</sub>
+# myrelay.page
 
 Your relay is awesome, its landing page should be too.
 
