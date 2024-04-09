@@ -1,6 +1,8 @@
-# myrelay.page
+# myrelay.page <sup>v0.0.1</sup>
 
 Your relay is awesome, its landing page should be too.
+
+_**A nostr.watch R&D project made possible by [OpenSats](https://opensats.org)**_
 
 <img width="1544" alt="Screen Shot 2024-04-09 at 12 34 04 AM" src="https://github.com/sandwichfarm/myrelay.page/assets/299465/5298b48a-2a6e-4c89-b5af-d3e3bd830c81">
 
@@ -11,6 +13,8 @@ That websocket URI representing your relay is floating all of the internet now. 
 SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-115`. 
 
 **Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
+
+
 
 ## features 
 - general
