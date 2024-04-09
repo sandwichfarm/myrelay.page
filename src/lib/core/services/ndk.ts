@@ -3,9 +3,9 @@ import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 
 import type { NDKSigner } from '@nostr-dev-kit/ndk';
 
-import { MRPRelay } from '../relay';
-import { MRPUser } from '../user';
-import { MRPMonitors } from '../monitors';
+import { MRPRelay } from '../MRPRelay';
+import { MRPUser } from '../MRPUser';
+import { MRPMonitors } from '../MRPMonitors';
 
 
 export class NDKService {

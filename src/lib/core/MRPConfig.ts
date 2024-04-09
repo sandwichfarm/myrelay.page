@@ -3,7 +3,7 @@ import type { NDKFilter } from '@nostr-dev-kit/ndk';
 
 import type { NDKTag } from '@nostr-dev-kit/ndk';
 import { AppConfig } from './kinds/app-config';
-import { MRPUser } from './user';
+import { MRPUser } from './MRPUser';
 
 export class MRPConfig {
   private readonly _kind: NDKKind = NDKKind.AppSpecificData;

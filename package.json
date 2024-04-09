@@ -36,6 +36,7 @@
     "mode-watcher": "0.3.0",
     "nostr-zap": "0.22.0",
     "paneforge": "0.0.2",
+    "promise-deferred": "2.0.4",
     "svelte": "4.2.12",
     "svelte-geolocation": "0.3.0",
     "svelte-preprocess": "5.1.3",

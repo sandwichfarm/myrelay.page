@@ -1,9 +1,9 @@
 import NDK, { NDKRelay, NDKRelaySet, NDKEvent } from '@nostr-dev-kit/ndk';
 import { MRPNip11 } from '$lib/core/schemata/nip11';
-import { MRPUser } from './user';
+import { MRPUser } from './MRPUser';
 
 import type { EventPointer } from 'nostr-tools/nip19';
-import { MRPFeed } from './feed';
+import { MRPFeed } from './MRPFeed';
 
 export class MRPRelay {
   private $: NDK;

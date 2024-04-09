@@ -1,13 +1,13 @@
 import { MRPEditor } from './editor'
-import { MRPConfig } from './config'
+import { MRPConfig } from './MRPConfig'
 import { NDKService } from './services/ndk'
 import NDK, { NDKRelay, NDKRelaySet, NDKUser, type NDKTag } from '@nostr-dev-kit/ndk';
 import { ComponentLoader } from './component-loader';
 import type { NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
-import type { MRPUser } from './user';
-import type { RelayMetaParsed } from './relay-meta';
-import type { DD } from './geocoded';
-import { MRPFeed } from './feed';
+import type { MRPUser } from './MRPUser';
+import type { RelayMetaParsed } from './kinds/relay-meta';
+import type { DD } from './kinds/geocoded';
+import { MRPFeed } from './MRPFeed';
 
 import { EventEmitter } from 'tseep';
 

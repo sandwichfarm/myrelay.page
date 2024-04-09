@@ -1,9 +1,9 @@
 import NDK, { NDKRelaySet, type NDKEvent, NDKRelay, type NDKUserProfile, NDKUser } from "@nostr-dev-kit/ndk";
-import { RelayMonitor } from "./monitor";
-import { RelayMeta } from "./relay-meta";
-import { RelayDiscovery } from "./relay-discovery";
-import type { RelayMetaParsed } from "./relay-meta";
-import type { DD } from "./geocoded"; 
+import { RelayMonitor } from "./kinds/monitor";
+import { RelayMeta } from "./kinds/relay-meta";
+import { RelayDiscovery } from "./kinds/relay-discovery";
+import type { RelayMetaParsed } from "./kinds/relay-meta";
+import type { DD } from "./kinds/geocoded"; 
 
 type RelayMetaDictionary = Record<string, RelayMeta[]>
 type RelayDiscoveryDictionary = Record<string, RelayDiscovery[]>

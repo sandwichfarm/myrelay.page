@@ -1,5 +1,5 @@
 import type { R } from "vitest/dist/reporters-P7C2ytIv.js"
-import type { MRPConfig } from "./config"
+import type { MRPConfig } from "./MRPConfig"
 
 type Components = {
   [key: string]: string
