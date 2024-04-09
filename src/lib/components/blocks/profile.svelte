@@ -75,9 +75,9 @@
 </script>
 {#if browser}
   {#if profile}
-  <div class="grid grid-cols-5 grid-flow-col mt-10 p-2h-80  py-5 px-5 rounded-lg bg-gradient-to-b from-gray-100 to-white">
+  <div class="grid grid-cols-5 grid-flow-col block-container">
       <div class="items-center col-span-2 ">
-        <h3 class="mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight">
+        <h3 class="title">
           relay operator
         </h3>
         <div class="profile-card  p-5 text-white max-w-xs block bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-lg ">

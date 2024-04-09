@@ -5,21 +5,26 @@ import type { NDKTag } from '@nostr-dev-kit/ndk';
 import { AppConfig } from './kinds/app-config';
 import { MRPUser } from './MRPUser';
 
-export class MRPConfig {
+import { MRPData } from './MRPData';
+import type { MRPState } from './MRP';
+
+export class MRPConfig extends MRPData {
   private readonly _kind: NDKKind = NDKKind.AppSpecificData;
   private _$: NDK;
+  private $: MRPState;
   private _operator: MRPUser;
   private _event: AppConfig | undefined;
 
-  constructor( $: NDK, operator: MRPUser ){
-    this._$ = $
+  constructor( $state: MRPState, operator: MRPUser ){
+    super($state.signal, 'config')
+    this.$ = $state
     this._operator = operator
   }
 
   async init(){
     const event = await this.fetch()
     if(typeof event === 'undefined' || event === null) return 
-    this.event = new AppConfig(this.$, event.rawEvent())
+    this.event = new AppConfig(this.$.ndk, event.rawEvent())
   }
 
   async fetch(): Promise<NDKEvent | null> {
@@ -28,7 +33,7 @@ export class MRPConfig {
         kinds: [this.kind],
         authors: [this.operator?.pubkey]
       }
-      return this.$.fetchEvent(filter);
+      return this.$.ndk.fetchEvent(filter);
     }
     return null
   }
@@ -43,14 +48,6 @@ export class MRPConfig {
 
   private get kind(): NDKKind {
     return this._kind
-  }
-
-  private get $(): NDK {
-    return this._$
-  }
-
-  private set $( $: NDK ){
-    this._$ = $
   }
 
   get event(): AppConfig | undefined{

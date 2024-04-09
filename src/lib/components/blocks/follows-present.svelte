@@ -2,7 +2,7 @@
   import { getContext, onMount, onDestroy, tick } from 'svelte';
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import type { NDKUser } from '@nostr-dev-kit/ndk';
-  import type { MyRelayPage } from '$lib/core/main';
+  import type { MyRelayPage } from '$lib/core/MRP';
   import type { Writable } from 'svelte/store';
   import type NDK from '@nostr-dev-kit/ndk';
 

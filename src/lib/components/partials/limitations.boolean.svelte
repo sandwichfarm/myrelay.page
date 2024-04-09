@@ -5,7 +5,7 @@
 
   import { Badge } from "$lib/components/ui/badge";
   
-  import type { MyRelayPage } from '$lib/core/main';
+  import type { MyRelayPage } from '$lib/core/MRP';
   import type { MRPRelay } from '$lib/core/relay';
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';

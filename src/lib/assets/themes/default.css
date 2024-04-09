@@ -1,0 +1,38 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  /* 
+  body {}
+  
+  h1 {}
+  h2 {}
+  h3 {}
+  h4 {}
+  h5 {}
+
+  p {}
+  code {} 
+  */
+}
+
+@layer components {
+  /* container */
+  #mrp-container {  
+    @apply bg-white
+  }
+
+  /* blocks */
+  .block-container {
+    @apply bg-gradient-to-b from-gray-100 to-white;
+    @apply mt-10 py-5 px-5;
+    @apply rounded-lg;
+  }
+  
+  .block-container .title {
+    @apply mb-2;
+    @apply text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight;
+  }
+  
+}

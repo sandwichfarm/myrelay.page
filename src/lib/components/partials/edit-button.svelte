@@ -5,19 +5,16 @@
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import type { Writable } from 'svelte/store';
-  import type { MyRelayPage } from '$lib/core/main';
-
-  import { isOwnerAuthed } from "$lib/utils";
+  import type { MyRelayPage } from '$lib/core/MRP';
 
   import { Button } from "$lib/components/ui/button/index.js";
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
 
   let mrp: MyRelayPage | undefined;
+  let userIsOperator: boolean = false
 
   MRP.subscribe(async (_mrp: MyRelayPage) => { mrp = _mrp});
-
-  $: isOwner = mrp?.ndk?.relay? isOwnerAuthed(mrp.ndk.relay): false;
 
   const edit = async () => {
     if(!mrp?.editor) return
@@ -26,6 +23,6 @@
   }
 
 </script>
-{#if browser && isOwner }
+{#if browser }
   <Button variant="outline" on:click={edit}>edit</Button>
 {/if}

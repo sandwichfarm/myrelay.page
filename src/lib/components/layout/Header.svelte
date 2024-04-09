@@ -6,7 +6,7 @@
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import type { MRPRelay } from '$lib/core/relay';
-  import type { NDKService } from '$lib/core/services/ndk';
+  import type { MRPNDKWrapper } from '$lib/core/services/ndk';
 
   import Login from '$lib/components/partials/login.svelte';
   import ToggleRelay from '$lib/components/partials/toggle-relay.svelte';
@@ -17,7 +17,7 @@
   import PayRelay from '$lib/components/partials/pay-relay.svelte';
 
   const MRP = getContext(MY_RELAY_PAGE);
-  const ndk: Writable<NDKService> = writable();
+  const ndk: Writable<MRPNDKWrapper> = writable();
   const relay: Writeable<MRPRelay> = writable();
 
   let url:string

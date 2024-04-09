@@ -4,15 +4,18 @@ import { RelayMeta } from "./kinds/relay-meta";
 import { RelayDiscovery } from "./kinds/relay-discovery";
 import type { RelayMetaParsed } from "./kinds/relay-meta";
 import type { DD } from "./kinds/geocoded"; 
+import type { MRPState } from "./MRP";
+import { MRPData } from "./MRPData";
 
 type RelayMetaDictionary = Record<string, RelayMeta[]>
 type RelayDiscoveryDictionary = Record<string, RelayDiscovery[]>
 
-export class MRPMonitors {
-  private readonly monitorEventRelays: string[] = ['wss://history.nostr.watch', 'wss://monitorpag.es']
+export class MRPMonitors extends MRPData {
+  private readonly monitorEventRelays: string[] = ['wss://history.nostr.watch', 'wss://monitorpag.es', 'wss://relaypag.es']
   private readonly livenessThreshold: number = Math.round(Date.now()/1000)-60*60*2
 
-  private $: NDK;
+  private ndk: NDK;
+  private $: MRPState;
   private relaySet: NDKRelaySet;
   private _monitors: Set<RelayMonitor> = new Set();
   private _monitorEvents: Set<NDKEvent> = new Set();
@@ -21,14 +24,15 @@ export class MRPMonitors {
   private _operators: Record<string, NDKUserProfile> = {};
   private _url: string; 
 
-  constructor(ndk: NDK, url: string){
-    this.$ = ndk 
-    this._url = url 
-    this.relaySet = new NDKRelaySet(new Set(this.monitorEventRelays.map((relay: string) => new NDKRelay(relay))), this.$)
+  constructor($state: MRPState, url: string){
+    super($state.signal, 'monitor')
+    this.$ = $state;
+    this._url = url;
+    this.relaySet = new NDKRelaySet(new Set(this.monitorEventRelays.map((relay: string) => new NDKRelay(relay))), $state.ndk)
   }
 
   async init(){
-    const metaEvents = await this.$.fetchEvents({ kinds: [30066], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet)
+    const metaEvents = await this.$.ndk.fetchEvents({ kinds: [30066], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet)
     const dedupedMetaEvents = new Set(Array.from(metaEvents).map((event: NDKEvent) => new RelayMeta(this.$, event.rawEvent())))
     Array.from(dedupedMetaEvents).forEach((event: RelayMeta) => {
       if(!this._relayMeta[event.pubkey]){
@@ -37,7 +41,7 @@ export class MRPMonitors {
       this._relayMeta[event.pubkey].push(event)
     })
 
-    const discoveryEvents = await this.$.fetchEvents({ kinds: [30166], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet)
+    const discoveryEvents = await this.$.ndk.fetchEvents({ kinds: [30166], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet)
     const dedupedDiscoveryEvents = new Set(Array.from(discoveryEvents).map((event: NDKEvent) => new RelayDiscovery(this.$, event.rawEvent())))
     Array.from(dedupedDiscoveryEvents).forEach((event: RelayDiscovery) => {
       if(!this._relayDiscovery[event.pubkey]){
@@ -49,12 +53,12 @@ export class MRPMonitors {
     const authors = Array.from(new Set(this.getAllRelayMeta().map((event: NDKEvent) => event.pubkey) ))
     ////console.log(`authors: ${authors}`)
     
-    const monitorEvents = await this.$.fetchEvents({ kinds: [10166], authors }, null, this.relaySet)
+    const monitorEvents = await this.$.ndk.fetchEvents({ kinds: [10166], authors }, null, this.relaySet)
 
     const operators = new Set()
 
     for await ( const event of monitorEvents) {
-      const monitor: RelayMonitor = new RelayMonitor(this.$, event.rawEvent())
+      const monitor: RelayMonitor = new RelayMonitor(this.$.ndk, event.rawEvent())
       await monitor.init()
       this._monitors.add(monitor)
       operators.add(monitor.operator)
@@ -62,7 +66,7 @@ export class MRPMonitors {
 
     Array.from(operators).forEach(async (operator) => {
       ////console.log(`operator: ${operator}`)
-      const profile: NDKUserProfile | null = await this.$.getUser({ pubkey: operator as string }).fetchProfile()
+      const profile: NDKUserProfile | null = await this.$.ndk.getUser({ pubkey: operator as string }).fetchProfile()
       if(!profile) return 
       this._operators[operator as string] = profile
     })

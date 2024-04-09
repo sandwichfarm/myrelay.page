@@ -9,7 +9,7 @@
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import { writable } from 'svelte/store';
   import type { Writable } from 'svelte/store';
-  import type { MyRelayPage } from '$lib/core/main';
+  import type { MyRelayPage } from '$lib/core/MRP';
 
   import NDK, { NDKEvent } from '@nostr-dev-kit/ndk';
   import type { EventPointer } from 'nostr-tools/nip19';
@@ -33,8 +33,8 @@
     }
   });
 </script> 
-<div class="mt-10 p-2h-80 bg-gradient-to-b from-gray-100 to-white py-5 px-5 rounded-lg">
-  <h3 class="mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight block w-full">
+<div class="block-container">
+  <h3 class="title block w-full">
     relay feed
   </h3>
   {#if $notes?.length}

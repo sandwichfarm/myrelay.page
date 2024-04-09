@@ -10,11 +10,11 @@
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
 
   import type { Writable } from 'svelte/store';
-  import type { NDKService } from '$lib/core/services/ndk';
+  import type { MRPNDKWrapper } from '$lib/core/services/ndk';
 
   const MRP = getContext(MY_RELAY_PAGE);
 
-  const ndkw: Writable<NDKService> = writable();
+  const ndkw: Writable<MRPNDKWrapper> = writable();
 
   let url:string
 

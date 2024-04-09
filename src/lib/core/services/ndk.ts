@@ -6,56 +6,52 @@ import type { NDKSigner } from '@nostr-dev-kit/ndk';
 import { MRPRelay } from '../MRPRelay';
 import { MRPUser } from '../MRPUser';
 import { MRPMonitors } from '../MRPMonitors';
+import type { MRPState } from '../MRP';
 
+import { EventEmitter } from 'tseep';
 
-export class NDKService {
+export class MRPNDKWrapper {
   
-  private _$: NDK;
+  private $: MRPState;
+  private _ndk: NDK;
   private _user: MRPUser | undefined; 
   private _relay: MRPRelay;
   private _monitors: MRPMonitors;
   private _authed: boolean = false
 
-  constructor(defaultRelays: Set<string>, url: string) {
-    this._$ = new NDK({
+  constructor(signal: EventEmitter<any>, defaultRelays: Set<string>, url: string) {
+    this._ndk = new NDK({
       cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'myrelay.page' }),
       explicitRelayUrls: Array.from(defaultRelays),
       blacklistRelayUrls: ['wss://nostr1.tunnelsats.com/', 'wss://relay.nostr.info/', 'wss://nostr-relay.wlvs.space/', 'wss://relayer.fiatjaf.com/']
     });
+    this.$ = { signal, ndk: this._ndk }
     this._relay = new MRPRelay(this.$, url)
     this._monitors = new MRPMonitors(this.$, url)
   }
 
-  public async init(signal){
-    await this.$.connect();
+  public async init(signal: EventEmitter<any>){
+    await this.ndk.connect();
     await this._relay.init(signal)
     signal.emit('mrp:changed')
     await this.monitors.init()
     signal.emit('mrp:changed')
   }
 
-  get $(): NDK {
-    return this._$
-  }
-
-  set $( $: NDK ){
-    this._$ = $
-  }
-
   public async login(){
     this.signer = new NDKNip07Signer();
     const user = await this.signer.user();
-    this.user = new MRPUser(this.$, user);
+    this.user = new MRPUser(this.$, user, 'currentUser');
     await this.user.init();
-    await this.$.connect();
+    await this.ndk.connect();
     this._authed = true;
-    this.$.emit('mrp:login')
+    this.ndk.emit('mrp:login')
   }
 
   public logout(){
     this.user = undefined
     this._authed = false
-    this.$.emit('mrp:logout')
+    this.ndk.emit('mrp:logout')
   }
 
   async toggleRelay(relay: string){
@@ -140,11 +136,11 @@ export class NDKService {
   }
 
   get signer(): NDKSigner | undefined {
-    return this.$.signer
+    return this.ndk.signer
   }
 
   private set signer(signer: NDKSigner){
-    this.$.signer = signer
+    this.ndk.signer = signer
   }
 
   get user(): MRPUser | undefined {
@@ -157,13 +153,13 @@ export class NDKService {
 
   // public async sign (kind: NDKKind, event: NDKEvent | NostrEvent ){
   //   if(event as NostrEvent){
-  //     return this.$.sign(kind, event as NostrEvent)
+  //     return this.ndk.sign(kind, event as NostrEvent)
   //   }
-  //   return this.$.sign(kind, event as NDKEvent)
+  //   return this.ndk.sign(kind, event as NDKEvent)
   // }
 
   // public async publish ( event: NDKEvent ) {
-  //   return this.$.publish(event as NDKEvent)
+  //   return this.ndk.publish(event as NDKEvent)
   // }
 
 }

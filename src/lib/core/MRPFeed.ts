@@ -1,8 +1,16 @@
 import NDK, { NDKEvent, NDKRelay, NDKRelaySet } from "@nostr-dev-kit/ndk";
 import type { EventPointer } from "nostr-tools/nip19"
+import { MRPData } from "./MRPData";
+import type { MRPState } from "./MRP";
 
-export class MRPFeed {
-  private $: NDK; 
+export interface MRPFeedOptions {
+  filter: Record<string, any>;
+  relays: NDKRelaySet;
+  pointerRelays?: NDKRelaySet;
+  exclude?: Record<string, string | number | boolean>;
+}
+
+export class MRPFeed extends MRPData {
   private _notes: NDKEvent[] = [];
   private _pointers: Record<string, EventPointer> = {};
   private _pointerRelays: string[] = [];
@@ -11,17 +19,15 @@ export class MRPFeed {
   private _exclude: Record<string, string | number | boolean> | undefined = {};
 
   constructor(
-      _$: NDK, 
-      filter: Record<string, any>, 
-      relays: NDKRelaySet, 
-      pointerRelays?: NDKRelaySet, 
-      exclude?: Record<string, string | number | boolean>
+      $state: MRPState,
+      slug: string,
+      options: MRPFeedOptions,
     ){
-    this.$ = _$
-    this.filter = filter
-    this.relays = relays
-    this.pointerRelays = MRPFeed.relaySetToArray(pointerRelays? pointerRelays: this.relays);
-    this.exclude = exclude
+    super($state.signal, slug)
+    this.filter = options.filter
+    this.relays = options.relays
+    this.pointerRelays = MRPFeed.relaySetToArray(options.pointerRelays? options.pointerRelays: this.relays);
+    this.exclude = options.exclude
   }
 
   async fetch(){

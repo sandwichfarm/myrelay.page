@@ -1,5 +1,5 @@
 import { EventEmitter } from 'tseep';
-import Deferred from 'deferred-deferred';
+import Deferred from 'promise-deferred';
 
 type Timeout = ReturnType<typeof setTimeout>;
 
@@ -16,8 +16,8 @@ export class MRPResolver {
     if ($timeout) clearTimeout($timeout);
     this.resolved.set(key, result);
     deferred.resolve(result);
-    this.signal.removeListener(`ready:${key}`, this.onReady);
-    this.signal.removeListener(`fail:${key}`, this.onFail);
+    this.signal.removeListener(`${key}:ready`, this.onReady);
+    this.signal.removeListener(`${key}:fail`, this.onFail);
   }
 
   private onReady(key: string, deferred: Deferred<boolean>, $timeout?: Timeout): void{
@@ -25,12 +25,12 @@ export class MRPResolver {
     if ($timeout) clearTimeout($timeout);
     this.resolved.set(key, result);
     deferred.resolve(result);
-    this.signal.removeListener(`ready:${key}`, this.onReady);
-    this.signal.removeListener(`fail:${key}`, this.onFail);
+    this.signal.removeListener(`${key}:ready`, this.onReady);
+    this.signal.removeListener(`${key}:fail`, this.onFail);
   }
   
   async ready(key: string, timeout?: number): Promise<boolean> {
-    if(this.resolved.get(key)) {
+    if(this.resolved.get(key) === true) {
       return true;
     }
 
@@ -43,8 +43,8 @@ export class MRPResolver {
       }, timeout);
     }
 
-    this.signal.on(`ready:${key}`, () => this.onReady(key, deferred, $timeout));
-    this.signal.on(`fail:${key}`, () => this.onFail(key, deferred, $timeout));
+    this.signal.on(`${key}:ready`, () => this.onReady(key, deferred, $timeout));
+    this.signal.on(`${key}:fail`, () => this.onFail(key, deferred, $timeout));
 
     return deferred.deferred;
   }

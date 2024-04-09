@@ -1,8 +1,8 @@
-import { MRPEditor } from './editor'
+import { MRPEditor } from './MRPEditor'
 import { MRPConfig } from './MRPConfig'
-import { NDKService } from './services/ndk'
+import { MRPNDKWrapper } from './services/ndk'
 import NDK, { NDKRelay, NDKRelaySet, NDKUser, type NDKTag } from '@nostr-dev-kit/ndk';
-import { ComponentLoader } from './component-loader';
+import { ComponentLoader } from './MRPBlockLoader';
 import type { NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
 import type { MRPUser } from './MRPUser';
 import type { RelayMetaParsed } from './kinds/relay-meta';
@@ -11,10 +11,17 @@ import { MRPFeed } from './MRPFeed';
 
 import { EventEmitter } from 'tseep';
 
+export interface MRPState {
+  ndk: NDK;
+  signal: EventEmitter<any>;
+}
+
 export class MyRelayPage {
   private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://monitorpag.es', 'wss://relaypag.es', 'wss://history.nostr.watch'] as string[])
+
+  private $: MRPState;
   private _url: string;
-  private _ndk: NDKService;
+  private _ndk: MRPNDKWrapper;
   private _editor: MRPEditor;
   private _config: MRPConfig;
   private _loader: ComponentLoader;
@@ -25,8 +32,10 @@ export class MyRelayPage {
   constructor(url?: string){
     this.url = url
     if(!this.url) throw new Error(`No valid URL provided/detected: ${this.url}`)
-    this._ndk = new NDKService(this.defaultRelays, this.url)
-    this._config = new MRPConfig(this.ndk.$, this.owner as MRPUser) 
+    this._ndk = new MRPNDKWrapper(this.signal, this.defaultRelays, this.url)
+
+    this.$ = { signal: this.signal, ndk: this._ndk.$ }
+    this._config = new MRPConfig(this.$, this.owner as MRPUser) 
     this._editor = new MRPEditor()
     this._loader = new ComponentLoader()
   }
@@ -63,7 +72,7 @@ export class MyRelayPage {
     const relay = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), new NDK({explicitRelayUrls:[this.url as string]}));
     
     const promises = Array.from(this.ndk.user.follows).map(follow => {
-      return this.ndk.$.fetchEvent({
+      return this.ndk.$.ndk.fetchEvent({
         kinds: [10002, 3],
         authors: [follow.pubkey]
       }, { groupable: true, closeOnEose: false });
@@ -136,7 +145,7 @@ export class MyRelayPage {
     return this.ndk?.monitors?.getMonitorsDD()
   }
 
-  get ndk (): NDKService {
+  get ndk (): MRPNDKWrapper {
     return this._ndk
   }
 

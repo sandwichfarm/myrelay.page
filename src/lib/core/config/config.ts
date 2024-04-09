@@ -13,6 +13,7 @@ import NDK, { NDKEvent, NDKKind } from "@nostr-dev-kit/ndk";
 import { AppConfig } from "../kinds/app-config";
 
 import type { EventEmitter } from 'tseep';
+import { MRPState } from "../MRP";
 
 export class Config {
 
@@ -20,26 +21,26 @@ export class Config {
   private readonly namespace: `myrelay.page`;
   private signal: EventEmitter<any>;
 
-  private _$: NDK;
+  private $: MRPState;
   private _type: string; //operator, user 
   private _event: AppConfig | null;
   private _data: any; 
   private _pubkey: string | undefined;
 
-  constructor($: NDK, signal: EventEmitter<any>, pubkey?: string){
-    this._$ = $
-    this.signal = signal
+  constructor($state: MRPState, pubkey?: string){
+    this.$ = $state
+    this.signal = $state.signal
     this._pubkey = pubkey
   }
 
   create(){
     if(this?.event) return 
-    this.event = new AppConfig(this.$)
+    this.event = new AppConfig(this.$.ndk)
     this.signal.emit('config:created', this.event)
   }
 
   async fetch(): Promise<AppConfig | null> {
-    const config: AppConfig | null = (await this.$.fetchEvent({ kinds: [this.kind], authors: [this.pubkey] })) as AppConfig
+    const config: AppConfig | null = (await this.$.ndk.fetchEvent({ kinds: [this.kind], authors: [this.pubkey] })) as AppConfig
     if(config === null) return null
     this.event = new AppConfig(this.$, config?.rawEvent())
     this.signal.emit(`config:fetched:${this.type}`, this.event)

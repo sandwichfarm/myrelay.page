@@ -5,7 +5,7 @@
   import { WorldMapTopoJSON } from '@unovis/ts/maps'
   
   import { MapPointLabelPosition, type MapData, type MapLink } from '@unovis/ts'
-  import type {DD} from '$lib/core/geocoded'
+  import type {DD} from '$lib/core/kinds/geocoded'
 
   import { getContext } from 'svelte';
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
@@ -13,7 +13,7 @@
   import Geolocation from 'svelte-geolocation'
   import { writable } from 'svelte/store';
   import type {Writable} from 'svelte/store'  
-  import type { MyRelayPage } from '$lib/core/main';
+  import type { MyRelayPage } from '$lib/core/MRP';
 
   import crosshair from '$lib/assets/images/crosshair.svg';
 
@@ -172,7 +172,7 @@
     {/if}
   {/if} -->
 </Geolocation>
-<div class="bg-gradient-to-b from-gray-100 to-white mt-10 pt-0 h-80  pb-5 px-5 rounded-lg relative">
+<div class="block-container relative  pt-0">
   <h3 class="py-5 absolute top w-full mb-2 text-gray-600 scroll-m-20 text-xl font-extrabold tracking-tight block">
   <span on:click="{() => (getPosition = true)}" class="opacity-50 cursor-pointer hover:opacity-65 inline-block absolute top-3 right-5">
     <img src={crosshair} alt="crosshair" style="fill: transparent; pointer-events: visible;" class="h-8 w-8" />

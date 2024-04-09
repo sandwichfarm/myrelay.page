@@ -3,10 +3,12 @@ import { MRPNip11 } from '$lib/core/schemata/nip11';
 import { MRPUser } from './MRPUser';
 
 import type { EventPointer } from 'nostr-tools/nip19';
-import { MRPFeed } from './MRPFeed';
+import { MRPFeed, type MRPFeedOptions } from './MRPFeed';
+import type { MRPState } from './MRP';
+import { MRPData } from './MRPData';
 
-export class MRPRelay {
-  private $: NDK;
+export class MRPRelay extends MRPData {
+  private $: MRPState;
   private _url: string;
   private _info: MRPNip11 | undefined;
   private _owner: MRPUser | undefined;
@@ -14,9 +16,9 @@ export class MRPRelay {
   private _feedPointers: Record<string, EventPointer>
   private _favicon: string | ArrayBuffer | null | undefined;
 
-  constructor(_$: NDK, url: string){
-    //console.log(`MRPRelay: constructor(): ${url}`)
-    this.$ = _$
+  constructor($state: MRPState, url: string){
+    super($state.signal, 'relay')
+    this.$ = $state
     this.url = url
     this._info = new MRPNip11(this.url)
   }
@@ -40,14 +42,18 @@ export class MRPRelay {
 
   async fetchRelayNotes(){
     const exclude = { pubkey: this.owner?.pubkey as string }
-    const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$)
+    const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$.ndk)
     console.log('relay', this.url)
-    const $feed: MRPFeed = new MRPFeed(this.$, { kinds: [1], limit: 10 }, relays, relays, exclude)
+    const feedOptions: MRPFeedOptions = { 
+      filter: { kinds: [1], limit: 10 },
+      relays, 
+      pointerRelays: relays, 
+      exclude
+    }
+    const $feed: MRPFeed = new MRPFeed(this.$, 'relayNotes', feedOptions)
     await $feed.fetch()
     this._relayFeed = $feed
     this._feedPointers = $feed.pointers
-    // const relay = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$)
-    // this._relayFeed = await this.$.fetchEvents({ kinds: [1], limit: 20 }, undefined, relay)
   }
 
   get feedPointers(): Record<string, EventPointer> {
@@ -59,7 +65,8 @@ export class MRPRelay {
   }
 
   subscribeRelayNotes(){
-    this.$.subscribe({ kinds: [1] }, undefined, new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$))
+    const relaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$.ndk)
+    this.$.ndk.subscribe({ kinds: [1] }, undefined, relaySet)
   }
 
   get httpUrl(): URL {

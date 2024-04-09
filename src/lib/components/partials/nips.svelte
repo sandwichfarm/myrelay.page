@@ -4,7 +4,7 @@
   import { getContext } from 'svelte';
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import type { MRPRelay } from '$lib/core/relay';
-  import type { MyRelayPage } from '$lib/core/main';
+  import type { MyRelayPage } from '$lib/core/MRP';
     import Skeleton from '../ui/skeleton2/Skeleton.svelte';
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);

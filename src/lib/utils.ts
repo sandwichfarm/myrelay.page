@@ -61,8 +61,12 @@ export const flyAndScale = (
     };
 };
 
-export const isOwnerAuthed = async (relay: MRPRelay): Promise<boolean> => {
-    return (await window.nostr?.getPublicKey() === relay.owner?.pubkey)
+export const isOperator = async (relay: MRPRelay): Promise<boolean> => {
+    const user = await window.nostr?.getPublicKey(),
+          operator = await relay.owner?.pubkey
+    console.log('isOperator', user, operator, user === operator)
+    if(typeof user === 'undefined' || typeof operator === 'undefined') return false
+    return (user === operator)
 }
 
 export const parseImages = (text: string): string => {
