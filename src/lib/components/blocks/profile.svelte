@@ -82,7 +82,7 @@
         </h3>
         <div class="profile-card  p-5 text-white max-w-xs block bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-lg ">
             <div class="flex items-center space-x-4">
-              <UserAvatar photo={owner?.photo} name={profile?.name} />
+              <UserAvatar photo={owner?.photo} name={profile?.name} showTooltip={false} />
 
               <span class="inline-block truncate text-ellipsis overflow-hidden max-w-40">
                 {#if profile?.name}
