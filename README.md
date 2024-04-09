@@ -7,7 +7,7 @@ _**A nostr.watch R&D project made possible by [OpenSats](https://opensats.org)**
 <img width="1544" alt="Screen Shot 2024-04-09 at 12 34 04 AM" src="https://github.com/sandwichfarm/myrelay.page/assets/299465/5298b48a-2a6e-4c89-b5af-d3e3bd830c81">
 
 ## why
-That websocket URI representing your relay is floating all of the internet now. It's canonical `https` shouldn't be a `500`, a blank page or some random page. + I both need to do this to eat my own dog food and it's something I've wanted to do since early 2023.  
+That websocket URI representing your relay is floating all over the internet now. It's canonical `https` shouldn't be a `500`, a blank page or some random page. + I both need to do this to eat my own dog food and it's something I've wanted to do since early 2023.  
 
 ## overview 
 SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-115`. 
