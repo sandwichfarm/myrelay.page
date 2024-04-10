@@ -1,6 +1,6 @@
 import type { MRPState } from "$lib/core/MRP";
 import { MRPData } from "$lib/core/MRPData";
-import { Nip11, type Nip11Json } from "$lib/core/schemata/Nip11";
+import { Nip11, type Nip11Json } from "$lib/core/schemata/nip11";
 import {currentOriginMatchesRelayOrigin } from '$lib/utils';
 
 export { MRPData } from "$lib/core/MRPData";
