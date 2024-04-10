@@ -1,5 +1,4 @@
 import NDK, { NDKRelay, NDKRelaySet, NDKEvent } from '@nostr-dev-kit/ndk';
-import { Nip11, type Nip11Json } from '$lib/core/schemata/nip11';
 import { MRPUser } from './MRPUser';
 
 import type { EventPointer } from 'nostr-tools/nip19';
@@ -7,7 +6,6 @@ import { MRPFeed, type MRPFeedOptions } from './MRPFeed';
 import type { MRPState } from './MRP';
 import { MRPData, MRPStage, MRPStatus } from './MRPData';
 import { MRPInfoDocument } from './MRPInfoDocument';
-import { EventEmitter } from 'tseep';
 
 export class MRPRelay extends MRPData {
   private $: MRPState;

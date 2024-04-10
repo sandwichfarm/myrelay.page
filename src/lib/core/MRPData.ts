@@ -1,6 +1,4 @@
 import { EventEmitter } from 'tseep';
-import { MRPResolver } from './MRPResolver';
-import type { MRPState } from './MRP';
 
 export enum MRPStage {
   Inactive = 'inactive',

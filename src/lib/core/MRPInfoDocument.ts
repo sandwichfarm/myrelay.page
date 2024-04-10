@@ -1,10 +1,10 @@
-import type { MRPState } from "$lib/core/MRP";
-import { MRPData } from "$lib/core/MRPData";
-import { Nip11, type Nip11Json } from "$lib/core/schemata/nip11";
+import type { MRPState } from "./MRP";
+import { MRPData } from "./MRPData";
+import { Nip11, type Nip11Json } from "./schemata/nip11";
 import {currentOriginMatchesRelayOrigin } from '$lib/utils';
 
-export { MRPData } from "$lib/core/MRPData";
-export { Nip11 } from "$lib/core/schemata/nip11";
+export { MRPData } from "./MRPData";
+export { Nip11 } from "./schemata/nip11";
 
 export class MRPInfoDocument {
   private $: MRPState;
@@ -22,11 +22,9 @@ export class MRPInfoDocument {
       .then((json: Nip11Json | undefined) => {
         if(!json) return this.complete(false)
         this.set(json)
-        console.log('wtf', this)
         this.complete(true, this)
       })
       .catch( (err) => {
-        console.log('got here')
         this.error(err)
       })
   }

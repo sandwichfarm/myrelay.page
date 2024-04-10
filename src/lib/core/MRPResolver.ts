@@ -46,6 +46,6 @@ export class MRPResolver {
     this.signal.on(`${key}:ready`, () => this.onReady(key, deferred, $timeout));
     this.signal.on(`${key}:fail`, () => this.onFail(key, deferred, $timeout));
 
-    return deferred.deferred;
+    return deferred.promise;
   }
 }
