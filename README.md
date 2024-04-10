@@ -14,8 +14,6 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 
 **Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
 
-
-
 ## features 
 - general
   - [x] `tailwind`  
@@ -103,9 +101,6 @@ Image is not yet on a registry.
 
 Depending on your relay software, you'll need to do some proxying to direct websocket, NIP-11 and/or NIP-05 traffic to your relay, and `https` traffic without `application/nostr+json` to a page. 
 
-#### nginx/haproxy/caddy
-_examples soon_, see https://relaypag.es for a quick example. 
-
-#### apache
-_examples never_
+#### nginx/caddy/haproxy
+_examples soon_, see https://relaypag.es for a live example 
 
