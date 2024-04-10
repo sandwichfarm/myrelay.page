@@ -10,7 +10,7 @@ import type { MRPState } from './MRP';
 
 import { EventEmitter } from 'tseep';
 
-export class MRPNDKWrapper {
+export class MRPNostr {
   
   private $: MRPState;
   private _ndk: NDK;
@@ -30,8 +30,11 @@ export class MRPNDKWrapper {
     this._monitors = new MRPMonitors(this.$, url)
   }
 
-  public async init(){
+  public async connect(){
     await this.ndk.connect();
+  }
+
+  public async init(){
     this._relay.init()
     this.monitors.init()
   }
