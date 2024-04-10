@@ -47,7 +47,7 @@ export class MRPRelay extends MRPData {
       pointerRelays: relays, 
       exclude
     }
-    const $feed: MRPFeed = new MRPFeed(this.$, 'relayNotes', feedOptions)
+    const $feed: MRPFeed = new MRPFeed(this.$, 'relayFeed', feedOptions)
     await $feed.fetch()
     this._relayFeed = $feed
     this._feedPointers = $feed.pointers

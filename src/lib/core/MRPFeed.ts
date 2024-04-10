@@ -31,11 +31,11 @@ export class MRPFeed extends MRPData {
   }
 
   async fetch(){
-    console.log('relays: ', Array.from(this.relays.relays).map( relay => relay.url))
+    this.begin()
     const ndk = new NDK({explicitRelayUrls: Array.from(this.relays.relays).map( relay => relay.url)}) 
     await ndk.connect()
-    const feed = await ndk.fetchEvents(this.filter, undefined, this.relays)
-    if(!feed?.size) return 
+    const feed = await ndk.fetchEvents(this.filter, undefined, this.relays).catch( err => this.error(err))
+    if(!feed?.size) return this.complete(false)
     this.notes = Array.from(feed)
     this.notes = this.notes.sort( (a: NDKEvent, b: NDKEvent) => b.created_at as number - a.created_at as number )
     this.notes.forEach( (event: NDKEvent) => {
@@ -50,6 +50,7 @@ export class MRPFeed extends MRPData {
     for(const exclude in this.exclude){
       this.notes = this.notes.filter( (note: NDKEvent) => this.exclude[exclude] !== note[exclude] )
     }
+    if(this?.notes?.length) return this.complete(true)
   }
 
   private set pointerRelays(relays: string[]){
