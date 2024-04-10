@@ -4,8 +4,7 @@ Your relay is awesome, its landing page should be too.
 
 _**A nostr.watch R&D project made possible by [OpenSats](https://opensats.org)**_
 
-<img width="1185" alt="Screen Shot 2024-04-10 at 5 26 19 AM" src="https://github.com/sandwichfarm/myrelay.page/assets/299465/cdb7c145-a593-4782-a49d-5069bb976876">
-
+<img width="1019" alt="Screen Shot 2024-04-10 at 5 26 19 AM" src="https://github.com/sandwichfarm/myrelay.page/assets/299465/338cd5d3-21a5-492a-8e2d-ac1d128acfa2">
 
 ## why
 That websocket URI representing your relay is floating all over the internet now. It's canonical `https` shouldn't be a `500`, a blank page or some random page. + I both need to do this to eat my own dog food and it's something I've wanted to do since early 2023.  
