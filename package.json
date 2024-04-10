@@ -33,6 +33,7 @@
     "cmdk-sv": "0.0.16",
     "embla-carousel-svelte": "8.0.0",
     "formsnap": "1.0.0",
+    "jsonpack": "1.1.5",
     "lucide-svelte": "0.363.0",
     "mode-watcher": "0.3.0",
     "nostr-zap": "0.22.0",

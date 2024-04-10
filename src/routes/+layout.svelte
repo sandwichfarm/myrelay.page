@@ -43,18 +43,6 @@
         mrp.set(_mrp);
       });
 
-      _mrp.$.signal.on('info:completed', function() { 
-        console.log('layout', 'info:completed', ...arguments)
-      });
-
-      // (['info', 'monitor', 'config', 'operator', 'currentUser', 'relay'] as string[]).forEach( (slug: string) => {
-      //   ['pending', 'errored', 'completed'].forEach( (stage: string) => {
-      //     _mrp.$.signal.on(`${slug}:${stage}`, () => { 
-      //       console.log(`${slug}:${stage}`, ...arguments) 
-      //     })
-      //   })
-      // });
-
       mrp.set(_mrp);
       await _mrp.init();
       mrp.set(_mrp);  

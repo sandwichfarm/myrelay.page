@@ -64,7 +64,7 @@ export type FetchRelaysOptions = {
  * const monitor = new RelayMonitor(ndk, monitorEvent);
  * const online = await monitor.fetchOnlineRelays();
  * 
- * ////console.log(online)
+ * console.log(online)
  * ```
  */
 export class RelayMonitor extends NDKEventGeoCoded {

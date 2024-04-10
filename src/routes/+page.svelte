@@ -9,7 +9,6 @@
 
   mrp_context.subscribe((_mrp) => {
     mrp = _mrp
-    ////console.log(mrp?.loader?.components)
   });
 
 </script>

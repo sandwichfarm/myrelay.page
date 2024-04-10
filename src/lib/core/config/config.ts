@@ -14,7 +14,7 @@ import { AppConfig } from "../kinds/app-config";
 
 import type { EventEmitter } from 'tseep';
 import { MRPState } from "../MRP";
-
+ 
 export class Config {
 
   private readonly kind: NDKKind.AppSpecificData;
@@ -39,7 +39,7 @@ export class Config {
   }
 
   async fetch(): Promise<AppConfig | null> {
-    if(!this.$?.ndk) return
+    if(!this.$?.ndk) return null
     const config: AppConfig | null = (await this.$.ndk.fetchEvent({ kinds: [this.kind], authors: [this.pubkey] })) as AppConfig
     if(config === null) return null
     this.event = new AppConfig(this.$.ndk, config?.rawEvent())

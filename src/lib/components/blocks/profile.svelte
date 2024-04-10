@@ -51,7 +51,6 @@
       await tick()
       if(browser && (owner?.lud16 || owner?.lud06) && !ownerZapInitialized) {
         const el = document?.querySelector('#relay-operator-zap')
-        console.log('element', el)
         window?.nostrZap?.initTarget(el)
         ownerZapInitialized = true;
       }

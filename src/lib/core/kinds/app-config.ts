@@ -1,6 +1,7 @@
 import NDK, { NDKEvent, NDKKind } from '@nostr-dev-kit/ndk';
-
 import type { NDKTag, NostrEvent } from '@nostr-dev-kit/ndk';
+
+import jsonpack from 'jsonpack';
 
 type ComponentVisible = {
   [key: string]: boolean
@@ -48,7 +49,7 @@ export class AppConfig extends NDKEvent {
     }
     else {
       try {
-        json = JSON.parse(this.content)
+        json = jsonpack.unpack(this.content)
       }
       catch(e){
         throw new Error(`Error parsing content: ${e}`)
@@ -60,7 +61,7 @@ export class AppConfig extends NDKEvent {
   set(key: string, payload: Json){
     const json = this.parseConfig()
     json[key] = payload
-    this.content = JSON.stringify(json) 
+    this.content = jsonpack.pack(json)
   }
 
   // get colors(): Colors | undefined{
