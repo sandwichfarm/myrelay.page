@@ -10,14 +10,13 @@ import type { MRPState } from './MRP';
 
 export class MRPConfig extends MRPData {
   private readonly _kind: NDKKind = NDKKind.AppSpecificData;
-  private _$: NDK;
-  private $: MRPState;
+  private _$: MRPState;
   private _operator: MRPUser;
   private _event: AppConfig | undefined;
 
   constructor( $state: MRPState, operator: MRPUser ){
     super($state.signal, 'config')
-    this.$ = $state
+    this._$ = $state
     this._operator = operator
   }
 
@@ -38,6 +37,14 @@ export class MRPConfig extends MRPData {
       return this.$.ndk.fetchEvent(filter);
     }
     return null
+  }
+
+  get $(): MRPState {
+    return this._$
+  }
+
+  set $(state: MRPState){
+    this._$ = state
   }
 
   private get operator(): MRPUser {

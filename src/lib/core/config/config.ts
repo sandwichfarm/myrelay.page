@@ -19,31 +19,31 @@ export class Config {
 
   private readonly kind: NDKKind.AppSpecificData;
   private readonly namespace: `myrelay.page`;
-  private signal: EventEmitter<any>;
 
-  private $: MRPState;
+  private _$: MRPState;
   private _type: string; //operator, user 
   private _event: AppConfig | null;
   private _data: any; 
   private _pubkey: string | undefined;
 
   constructor($state: MRPState, pubkey?: string){
-    this.$ = $state
-    this.signal = $state.signal
+    this._$ = $state
     this._pubkey = pubkey
   }
 
   create(){
     if(this?.event) return 
+    if(!this.$?.ndk) return
     this.event = new AppConfig(this.$.ndk)
-    this.signal.emit('config:created', this.event)
+    this.$.signal.emit('config:created', this.event)
   }
 
   async fetch(): Promise<AppConfig | null> {
+    if(!this.$?.ndk) return
     const config: AppConfig | null = (await this.$.ndk.fetchEvent({ kinds: [this.kind], authors: [this.pubkey] })) as AppConfig
     if(config === null) return null
     this.event = new AppConfig(this.$.ndk, config?.rawEvent())
-    this.signal.emit(`config:fetched:${this.type}`, this.event)
+    this.$.signal.emit(`config:fetched`, this.type, this.event)
     return this.event
   }
 
@@ -51,7 +51,7 @@ export class Config {
     if(!this?.event) return false
     this.data[key] = config;
     this.event.set(key, this.data[key])
-    this.signal.emit(`config:updated:${this.type}:${key}`, this.event)
+    this.$.signal.emit(`config:updated`, this.type, key, this.event)
     return true
   }
 
@@ -59,7 +59,7 @@ export class Config {
     let error = false;
     await this.event?.publish().catch((err) => error=true)
     if(!error){
-      this.signal.emit(`config:published:${this.type}`, this.event)
+      this.$.signal.emit(`config:published`, this.type, this.event)
     }
     return error
   }
@@ -84,11 +84,11 @@ export class Config {
     this._event = event
   }
 
-  private get $(){
+  private get $(): MRPState{
     return this._$
   }
 
-  private set $($: NDK){
+  private set $($: MRPState){
     this._$ = $
   }
 
