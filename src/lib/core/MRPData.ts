@@ -27,7 +27,6 @@ export class MRPData {
   }
 
   protected get signal(): EventEmitter<any> | undefined {
-    if(this.slug === 'info') console.log('signal?', this?.$?.signal? this.$.signal: this._signal)
     return this?.$?.signal? this.$.signal: this._signal;
   }
 
@@ -47,7 +46,6 @@ export class MRPData {
 
   private emit(arg1?:any, arg2?:any, arg?:any){
     if(!this?.signal) return console.warn('No signal found for MRPData instance')
-    console.log('emit?', this.key(), ...arguments)
     this.signal.emit(this.key(), ...arguments);
   }
 
