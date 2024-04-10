@@ -1,10 +1,10 @@
-import type { MRPState } from "./MRP";
-import { MRPData } from "./MRPData";
-import { Nip11, type Nip11Json } from "./schemata/Nip11";
+import type { MRPState } from "$lib/core/MRP";
+import { MRPData } from "$lib/core/MRPData";
+import { Nip11, type Nip11Json } from "$lib/core/schemata/Nip11";
 import {currentOriginMatchesRelayOrigin } from '$lib/utils';
 
-export { MRPData } from "./MRPData";
-export { Nip11 } from "./schemata/Nip11";
+export { MRPData } from "$lib/core/MRPData";
+export { Nip11 } from "$lib/core/schemata/Nip11";
 
 export class MRPInfoDocument {
   private $: MRPState;
