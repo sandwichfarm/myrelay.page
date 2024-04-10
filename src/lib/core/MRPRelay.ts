@@ -1,11 +1,13 @@
 import NDK, { NDKRelay, NDKRelaySet, NDKEvent } from '@nostr-dev-kit/ndk';
-import { MRPNip11 } from '$lib/core/schemata/nip11';
+import { Nip11, type Nip11Json } from '$lib/core/schemata/nip11';
 import { MRPUser } from './MRPUser';
 
 import type { EventPointer } from 'nostr-tools/nip19';
 import { MRPFeed, type MRPFeedOptions } from './MRPFeed';
 import type { MRPState } from './MRP';
-import { MRPData } from './MRPData';
+import { MRPData, MRPStage, MRPStatus } from './MRPData';
+import { MRPInfoDocument } from './MRPInfoDocument';
+import { EventEmitter } from 'tseep';
 
 export class MRPRelay extends MRPData {
   private $: MRPState;
@@ -20,20 +22,18 @@ export class MRPRelay extends MRPData {
     super($state.signal, 'relay')
     this.$ = $state
     this.url = url
-    this._info = new MRPNip11(this.url)
+    this._info = new MRPInfoDocument(this.$, this.url)
   }
 
-  public async init(signal){
-    await this.info?.init()
-    signal.emit('mrp:changed')
-    if(!this.info?.pubkey) return
-    this.owner = new MRPUser(this.$, this.info.pubkey)
-    await this.owner.init()
-    signal.emit('mrp:changed')
-    await this.owner.fetchNotes()
-    signal.emit('mrp:changed')
-    await this.fetchRelayNotes()
-    signal.emit('mrp:changed')
+  public async init(){
+    this.$.signal.on('info:completed', async (stage: MRPStage, status: MRPStatus) => {
+      if(status === MRPStatus.Failure ) return
+      this.owner = new MRPUser(this.$, this.info.pubkey, 'operator')
+      await this.owner.init()
+      await this.owner.fetchNotes()
+    })
+    this.info?.init()
+    this.fetchRelayNotes()
   }
 
   async fetchOwnerFeed(opts: any){
@@ -43,7 +43,6 @@ export class MRPRelay extends MRPData {
   async fetchRelayNotes(){
     const exclude = { pubkey: this.owner?.pubkey as string }
     const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$.ndk)
-    console.log('relay', this.url)
     const feedOptions: MRPFeedOptions = { 
       filter: { kinds: [1], limit: 10 },
       relays, 

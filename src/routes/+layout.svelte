@@ -18,9 +18,9 @@
   export const prerender = true;
   export const trailingSlash = 'always';
 
-  let _mrp: Writable<MyRelayPage | null> = writable(null)
+  let mrp: Writable<MyRelayPage> = writable()
 
-  setContext(MY_RELAY_PAGE, _mrp);
+  setContext(MY_RELAY_PAGE, mrp);
   setContext(THEME_CSS, theme);
 
   const mount = async () => {
@@ -34,15 +34,36 @@
       if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page')){
         const params = new URLSearchParams(window.location.search);
         url = params.get('url') || "wss://monitorpag.es"
-      }
-      const mrp = new MyRelayPage(url)
-      _mrp.set(mrp)
-      mrp.signal.on('mrp:changed', () => { _mrp.set(mrp) })
-      await mrp.init()     
+      };
+
+      const _mrp = new MyRelayPage(url);
+
+      _mrp.$.signal.on('state:changed', () => { 
+        // console.log('state:changed', ...arguments)
+        mrp.set(_mrp);
+      });
+
+      _mrp.$.signal.on('info:completed', function() { 
+        console.log('layout', 'info:completed', ...arguments)
+      });
+
+      // (['info', 'monitor', 'config', 'operator', 'currentUser', 'relay'] as string[]).forEach( (slug: string) => {
+      //   ['pending', 'errored', 'completed'].forEach( (stage: string) => {
+      //     _mrp.$.signal.on(`${slug}:${stage}`, () => { 
+      //       console.log(`${slug}:${stage}`, ...arguments) 
+      //     })
+      //   })
+      // });
+
+      mrp.set(_mrp);
+      await _mrp.init();
+      mrp.set(_mrp);  
     }
   }
 
-  onMount(mount);
+  onMount(async () => {
+    await mount().catch(console.error)
+  });
 
 </script>
 

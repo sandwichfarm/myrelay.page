@@ -25,15 +25,16 @@ export class MRPMonitors extends MRPData {
   private _url: string; 
 
   constructor($state: MRPState, url: string){
-    super($state.signal, 'monitor')
+    super($state.signal, 'monitors')
     this.$ = $state;
     this._url = url;
     this.relaySet = new NDKRelaySet(new Set(this.monitorEventRelays.map((relay: string) => new NDKRelay(relay))), $state.ndk)
   }
 
   async init(){
+    this.begin()
     const metaEvents = await this.$.ndk.fetchEvents({ kinds: [30066], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet)
-    const dedupedMetaEvents = new Set(Array.from(metaEvents).map((event: NDKEvent) => new RelayMeta(this.$, event.rawEvent())))
+    const dedupedMetaEvents = new Set(Array.from(metaEvents).map((event: NDKEvent) => new RelayMeta(this.$.ndk, event.rawEvent())))
     Array.from(dedupedMetaEvents).forEach((event: RelayMeta) => {
       if(!this._relayMeta[event.pubkey]){
         this._relayMeta[event.pubkey] = []
@@ -41,8 +42,8 @@ export class MRPMonitors extends MRPData {
       this._relayMeta[event.pubkey].push(event)
     })
 
-    const discoveryEvents = await this.$.ndk.fetchEvents({ kinds: [30166], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet)
-    const dedupedDiscoveryEvents = new Set(Array.from(discoveryEvents).map((event: NDKEvent) => new RelayDiscovery(this.$, event.rawEvent())))
+    const discoveryEvents = await this.$.ndk.fetchEvents({ kinds: [30166], "#d": [new URL(this._url).toString()], since: this.livenessThreshold }, null, this.relaySet).catch( err => this.error(err) )
+    const dedupedDiscoveryEvents = new Set(Array.from(discoveryEvents).map((event: NDKEvent) => new RelayDiscovery(this.$.ndk, event.rawEvent())))
     Array.from(dedupedDiscoveryEvents).forEach((event: RelayDiscovery) => {
       if(!this._relayDiscovery[event.pubkey]){
         this._relayDiscovery[event.pubkey] = []
@@ -51,9 +52,10 @@ export class MRPMonitors extends MRPData {
     })
 
     const authors = Array.from(new Set(this.getAllRelayMeta().map((event: NDKEvent) => event.pubkey) ))
-    ////console.log(`authors: ${authors}`)
     
-    const monitorEvents = await this.$.ndk.fetchEvents({ kinds: [10166], authors }, null, this.relaySet)
+    const monitorEvents: Set<NDKEvent> | void = await this.$.ndk.fetchEvents({ kinds: [10166], authors }, null, this.relaySet).catch( err => this.error(err) )
+
+    if(!monitorEvents) return this.complete(false)
 
     const operators = new Set()
 
@@ -65,12 +67,12 @@ export class MRPMonitors extends MRPData {
     }
 
     Array.from(operators).forEach(async (operator) => {
-      ////console.log(`operator: ${operator}`)
       const profile: NDKUserProfile | null = await this.$.ndk.getUser({ pubkey: operator as string }).fetchProfile()
       if(!profile) return 
       this._operators[operator as string] = profile
     })
-    
+
+    if(!this.isError) this.complete(true)
   } 
 
   getRtt(): RelayMetaParsed | undefined {  

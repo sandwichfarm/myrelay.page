@@ -1,57 +1,96 @@
 import { EventEmitter } from 'tseep';
 import { MRPResolver } from './MRPResolver';
+import type { MRPState } from './MRP';
 
-enum MRPStatus {
+export enum MRPStage {
   Inactive = 'inactive',
   Pending = 'pending',
-  Failed = 'failed',
+  Errored = 'errored',
   Completed = 'completed',
 }
 
+export enum MRPStatus {
+  Success = 'success',
+  Failure = 'failure',
+}
+
 export class MRPData {
-  private signal: EventEmitter<any>;
-  private status: MRPStatus = MRPStatus.Inactive;
-  private slug: string;
+  private stage: MRPStage = MRPStage.Inactive;
+  private status: MRPStatus;
+  protected _signal: EventEmitter<any>;
+  protected slug: string;
+  // protected $: MRPState | null;
   
   constructor(signal: EventEmitter<any>, slug: string) {
-    this.signal = signal;
+    this._signal = signal;
     this.slug = slug;
   }
 
-  get isInactive() {
-    return this.status === MRPStatus.Inactive;
+  protected get signal(): EventEmitter<any> | undefined {
+    if(this.slug === 'info') console.log('signal?', this?.$?.signal? this.$.signal: this._signal)
+    return this?.$?.signal? this.$.signal: this._signal;
   }
 
-  get isPending() {
-    return this.status === MRPStatus.Pending;
+  protected set signal(signal: EventEmitter<any>){
+    this._signal = signal
   }
 
-  get isFailed() {
-    return this.status === MRPStatus.Failed;
+
+  private key(){
+    return `${this.slug}:${this.stage}`
   }
 
-  get isCompleted() {
-    return this.status === MRPStatus.Completed;
+  protected changed(){
+    if(!this?.signal) return console.warn('No signal found for MRPData instance')
+    this.signal.emit(`state:changed`, this.stage, this.status);
   }
 
-  pending() {
-    this.status = MRPStatus.Pending;
-    this.signal.emit(`${this.slug}:pending`, this.status);
+  private emit(arg1?:any, arg2?:any, arg?:any){
+    if(!this?.signal) return console.warn('No signal found for MRPData instance')
+    console.log('emit?', this.key(), ...arguments)
+    this.signal.emit(this.key(), ...arguments);
   }
 
-  failed() {
-    this.status = MRPStatus.Failed;
-    this.signal.emit(`${this.slug}:failed`, this.status);
+  begin() {
+    this.stage = MRPStage.Pending;
+    this.emit(this.stage);
+    this.changed();
   }
 
-  complete() {
-    this.status = MRPStatus.Completed;
-    this.signal.emit(`${this.slug}:completed`, this.status);
+  error(err: Error) {
+    this.stage = MRPStage.Errored;
+    this.status = MRPStatus.Failure;
+    this.emit(this.stage, this.status, err);
+    this.changed();
+  }
+
+  complete(success: boolean = true, data?: any) {
+    this.stage = MRPStage.Completed;
+    this.status = success ? MRPStatus.Success: MRPStatus.Failure;
+    this.emit(this.stage, this.status, data);
     this.ready();
+    this.changed();
   }
 
   ready(){
-    this.signal.emit(`${this.slug}:ready`, this.status);
+    this.signal.emit(`${this.slug}:ready`, this.stage, this.status);
+    this.changed();
+  }
+
+  get isInactive() {
+    return this.stage === MRPStage.Inactive;
+  }
+
+  get isPending() {
+    return this.stage === MRPStage.Pending;
+  }
+
+  get isError() {
+    return this.stage === MRPStage.Errored;
+  }
+
+  get isComplete() {
+    return this.stage === MRPStage.Completed;
   }
 
 }

@@ -42,7 +42,7 @@ export class Config {
   async fetch(): Promise<AppConfig | null> {
     const config: AppConfig | null = (await this.$.ndk.fetchEvent({ kinds: [this.kind], authors: [this.pubkey] })) as AppConfig
     if(config === null) return null
-    this.event = new AppConfig(this.$, config?.rawEvent())
+    this.event = new AppConfig(this.$.ndk, config?.rawEvent())
     this.signal.emit(`config:fetched:${this.type}`, this.event)
     return this.event
   }
@@ -55,7 +55,7 @@ export class Config {
     return true
   }
 
-  async publish(): boolean{
+  async publish(): Promise<boolean> {
     let error = false;
     await this.event?.publish().catch((err) => error=true)
     if(!error){

@@ -56,7 +56,6 @@
 
   mrp_context.subscribe((_mrp) => {
     dd = _mrp.dd 
-    console.log('dd', dd)
     if(!dd?.lat || !dd?.lon) return 
 
     relayMapPoint = { 
@@ -70,9 +69,7 @@
     const monitorMapPoints: MapPoint[] = []
     const monitorLinks: MapLink[] = []
     const monitors = _mrp.ndk.monitors.all
-    console.log('monitors', monitors)
     for ( const monitor of monitors) {
-      console.log(monitor.geohash)
       const dd = monitor.dd
       const rtt =  _mrp.ndk?.monitors?.metaEventsFor(monitor.pubkey)?.[0].rtt?.open || undefined
       
@@ -104,7 +101,6 @@
         links: [...d.links || [], ...monitorLinks]
       }
     });
-    console.log('data', $data)
     
   });
   const addUserLocationToMap = (e: CustomEvent): void => {
@@ -133,14 +129,12 @@
       d.links = [...d.links || [], link ]
       return d
     })
-    console.log('points', $data)
   }
 
   const pointLabel = (d: MapPoint) => d?.label
   const pointLabelPosition = (d: MapPoint): MapPointLabelPosition => d.position || MapPointLabelPosition.Bottom
   const pointLabelTextBrightnessRatio = (d: MapPoint): number => d.brightness || 0.90
   const linkColor = (d: MapLink): ColorAccessor<LinkDatum> => {
-    console.log(`link color: `, d)
     return d?.color ?? 'gray'
   }
   // const linkWidth = (d: MapLink): number => d?.width || 2

@@ -1,8 +1,10 @@
 import type { R } from "vitest/dist/reporters-P7C2ytIv.js"
 import type { MRPConfig } from "./MRPConfig"
+import type { MRPState } from "./MRP"
+import { MRPData } from "./MRPData"
 
 type Components = {
-  [key: string]: string
+  [key: string]: string | boolean
 }
 
 type ComponentOption = {
@@ -15,7 +17,7 @@ type $Component = {
   module: NodeModule
 }
 
-export class ComponentLoader {
+export class BlockLoader extends MRPData {
   private readonly defaultComponents: Components = {
     // 'speedtest': 'speedtest',
     'profile': 'profile',
@@ -24,23 +26,27 @@ export class ComponentLoader {
     'relay-feed': 'relay-feed',
     // 'feed': 'feed',
   }
+  private $: MRPState
   private _componentsDef: Components = {}
   private _components: Record<string, NodeModule> = {}
-  private _config: { [key: string]: boolean } | undefined
+  private _config: MRPConfig | undefined
 
-  constructor(){}
+  constructor($state: MRPState, config: MRPConfig | undefined){
+    super($state.signal, 'blockLoader')
+    this.$ = $state
+    if(!config) return
+    this._config = config
+  }
 
-  async init(config: MRPConfig | undefined){
-    if(config?.componentVisible && Object.keys(config?.componentVisible)?.length){
-      ////console.log('config.componentVisible', config?.componentVisible)
+  async init(){
+    this.begin()
+    if(this._config?.componentVisible && Object.keys(this._config?.componentVisible)?.length){
       this._config = { ...config.componentVisible, ...this.defaultComponents }
-      // this._config = {}
     }
     else {
-      ////console.log('this.defaultComponents')
       this._componentsDef = this.defaultComponents
     }
-    await this.loadComponents().catch(ComponentLoader.errorHandler)
+    await this.loadComponents().catch(BlockLoader.errorHandler)
   }
 
   private set componentDef( component: ComponentOption ){
@@ -56,25 +62,26 @@ export class ComponentLoader {
       name: name,
       url: url
     } as ComponentOption
-    await this.loadComponent(name).catch(ComponentLoader.errorHandler)
+    await this.loadComponent(name).catch(BlockLoader.errorHandler)
   }
 
   private async loadComponent(name: string): Promise<NodeModule | undefined> {
     let $component;
     if(this._componentsDef[name]){
-      $component = await import(`../components/blocks/${this._componentsDef[name]}.svelte`).catch(ComponentLoader.errorHandler)
+      $component = await import(`../components/blocks/${this._componentsDef[name]}.svelte`).catch(BlockLoader.errorHandler)
       this._components[name] = $component?.default? $component.default: $component
     }
+    return $component 
   }
 
   async loadComponents(){
     for(let name in this._componentsDef){
-      await this.loadComponent(name).catch(ComponentLoader.errorHandler)
+      await this.loadComponent(name).catch(BlockLoader.errorHandler)
     }
   }
 
   static errorHandler(error: Error){
-    console.error(`ComponentLoader: ${error}`)
+    console.error(`BlockLoader: ${error}`)
   }
 
   get components(): Record<string, NodeModule> {

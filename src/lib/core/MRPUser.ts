@@ -28,15 +28,16 @@ export class MRPUser extends MRPData {
   }
 
   async init(){
-    if(!this.user) return 
+    this.begin()
+    if(!this.user) return this.complete(false)
     await this.setRelays()
     await this.user.fetchProfile()
     await this.fetchRelayList()
+    this.complete(true)
   }
 
   async fetchRelayList(){
-    // if(!this?.pubkey)
-    this.relayList = await NDKRelayList.forUser(this.pubkey, this.$.ndk)
+    this.relayList = await NDKRelayList.forUser(this.pubkey as string, this.$.ndk)
   }
 
   async getFollows(){
@@ -47,7 +48,6 @@ export class MRPUser extends MRPData {
   }
 
   hasRelay(url: string): boolean {
-    // if(!this?.relayList) return false
     return this?.relayList?.tags.filter( tag => tag[0] === 'r' && tag[1] === url)?.length > 0? true: false;
   }
 
@@ -59,7 +59,8 @@ export class MRPUser extends MRPData {
             new NDKRelay(relay)
           )
         ), 
-      this.$.ndk)
+      this.$.ndk
+    )
     if(!this?.user || !this?.relays) return
     let filter = { kinds: [1], authors: [this.pubkey as string], limit: 3 }
     if(opts?.filter) filter = {...opts.filter, ...filter }
@@ -73,6 +74,7 @@ export class MRPUser extends MRPData {
         kind: event.kind,
       } as EventPointer;
     })
+    this.changed()
   } 
 
   get photo(): string | undefined {

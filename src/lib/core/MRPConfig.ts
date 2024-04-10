@@ -22,9 +22,11 @@ export class MRPConfig extends MRPData {
   }
 
   async init(){
+    this.begin()
     const event = await this.fetch()
-    if(typeof event === 'undefined' || event === null) return 
+    if(typeof event === 'undefined' || event === null) return this.complete(false)
     this.event = new AppConfig(this.$.ndk, event.rawEvent())
+    this.complete(true, this.event)
   }
 
   async fetch(): Promise<NDKEvent | null> {

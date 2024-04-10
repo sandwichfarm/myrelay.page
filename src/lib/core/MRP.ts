@@ -1,8 +1,9 @@
 import { MRPEditor } from './MRPEditor'
 import { MRPConfig } from './MRPConfig'
-import { MRPNDKWrapper } from './services/ndk'
+import { MRPNDKWrapper } from './MRPNDKWrapper'
 import NDK, { NDKRelay, NDKRelaySet, NDKUser, type NDKTag } from '@nostr-dev-kit/ndk';
-import { ComponentLoader } from './MRPBlockLoader';
+// import type { NDK } from '@nostr-dev-kit/ndk';
+import { BlockLoader } from './MRPBlockLoader';
 import type { NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
 import type { MRPUser } from './MRPUser';
 import type { RelayMetaParsed } from './kinds/relay-meta';
@@ -12,47 +13,44 @@ import { MRPFeed } from './MRPFeed';
 import { EventEmitter } from 'tseep';
 
 export interface MRPState {
-  ndk: NDK;
   signal: EventEmitter<any>;
+  ndk?: NDK;
 }
 
 export class MyRelayPage {
   private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://monitorpag.es', 'wss://relaypag.es', 'wss://history.nostr.watch'] as string[])
-
-  private $: MRPState;
   private _url: string;
   private _ndk: MRPNDKWrapper;
   private _editor: MRPEditor;
   private _config: MRPConfig;
-  private _loader: ComponentLoader;
+  private _loader: BlockLoader;
   private _userFollowsOnRelay: NDKUser[] = []
   private _promises: Promise<any>[] = []
-  signal: EventEmitter<any> = new EventEmitter()
+
+  public $: MRPState = { signal: new EventEmitter() }
 
   constructor(url?: string){
     this.url = url
     if(!this.url) throw new Error(`No valid URL provided/detected: ${this.url}`)
-    this._ndk = new MRPNDKWrapper(this.signal, this.defaultRelays, this.url)
-
-    this.$ = { signal: this.signal, ndk: this._ndk.$ }
+    this._ndk = new MRPNDKWrapper(this.$.signal, this.defaultRelays, this.url)
+    this.$.ndk = this._ndk.ndk
     this._config = new MRPConfig(this.$, this.owner as MRPUser) 
     this._editor = new MRPEditor()
-    this._loader = new ComponentLoader()
+    this._loader = new BlockLoader(this.$, this._config)
   }
 
   async init(){
-    //console.log(`MyRelayPage: ndk: init()`)
     await this.config?.init()
-    this.signal.emit("mrp:changed", this)
+    this.$.signal.emit("mrp:changed", this)
     
-    await this._loader.init(this._config)
-    this.signal.emit("mrp:changed", this)
+    await this._loader.init()
+    this.$.signal.emit("mrp:changed", this)
     
     await this.ndk?.init(this.signal)
-    this.signal.emit("mrp:changed", this)
+    this.$.signal.emit("mrp:changed", this)
     
     await this.editor?.init()
-    this.signal.emit("mrp:changed", this)
+    this.$.signal.emit("mrp:changed", this)
 
     this.bindHandlers()
   }
@@ -157,7 +155,7 @@ export class MyRelayPage {
     return this._config
   }
 
-  get loader(): ComponentLoader {
+  get loader(): BlockLoader {
     return this._loader
   }
 

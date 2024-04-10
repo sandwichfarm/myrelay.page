@@ -3,10 +3,10 @@ import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 
 import type { NDKSigner } from '@nostr-dev-kit/ndk';
 
-import { MRPRelay } from '../MRPRelay';
-import { MRPUser } from '../MRPUser';
-import { MRPMonitors } from '../MRPMonitors';
-import type { MRPState } from '../MRP';
+import { MRPRelay } from './MRPRelay';
+import { MRPUser } from './MRPUser';
+import { MRPMonitors } from './MRPMonitors';
+import type { MRPState } from './MRP';
 
 import { EventEmitter } from 'tseep';
 
@@ -30,12 +30,10 @@ export class MRPNDKWrapper {
     this._monitors = new MRPMonitors(this.$, url)
   }
 
-  public async init(signal: EventEmitter<any>){
+  public async init(){
     await this.ndk.connect();
-    await this._relay.init(signal)
-    signal.emit('mrp:changed')
-    await this.monitors.init()
-    signal.emit('mrp:changed')
+    this._relay.init()
+    this.monitors.init()
   }
 
   public async login(){

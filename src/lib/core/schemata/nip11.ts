@@ -1,5 +1,4 @@
 // import { RelayInformation } from 'nostr-tools/nip11';
-import {currentOriginMatchesRelayOrigin } from '$lib/utils';
 
 export type Limitations = {
   payment_required: boolean;
@@ -20,7 +19,7 @@ export type SubscriptionFee = {
   period: number;
 };
 
-export type Nip11 = {
+export type Nip11Json = {
   description?: string;
   name?: string;
   pubkey?: string;
@@ -34,8 +33,7 @@ export type Nip11 = {
   [key: string]: any;
 }
 
-export class MRPNip11 {
-  private _url: string;
+export class Nip11 {
   private _json: any;
   private _description: string | undefined;
   private _name: string | undefined;
@@ -48,18 +46,16 @@ export class MRPNip11 {
   private _fees: Fees | undefined
   loaded: boolean = false;
 
-  constructor(url: string){
-    this.url = url
+  constructor(json: Nip11Json){
+    this.json = json
+    this.set(this.json as Nip11Json)
   }
 
-  async init(){
-    this._json = await this.fetch()
-    this.loaded = true
-    if(!this._json) return 
-    this.set(this._json)
+  static fromJson(json: Nip11Json){
+    return new Nip11(json)
   }
 
-  private set( nip11: Nip11 ){
+  protected set( nip11: Nip11Json ){
     this.description = nip11.description
     this.name = nip11.name
     this.pubkey = nip11.pubkey
@@ -69,11 +65,14 @@ export class MRPNip11 {
     this.limitations = nip11.limitation
     this.payments_url = nip11.payments_url || nip11.payment_url
     this.fees = nip11.fees
-    //console.log(nip11)
   }
 
   get json(): any {
     return this._json
+  }
+
+  private set json(json: any){
+    this._json = json
   }
 
   get nips(): number[] | undefined {
@@ -178,55 +177,6 @@ export class MRPNip11 {
 
   public nipIsSupported(nip: number): boolean | undefined {
     return this.supported_nips?.includes(nip)
-  }
-
-  private set url(url: string){
-    const nip11Url = new URL(url)
-    nip11Url.protocol = nip11Url.protocol === 'wss:' ? 'https:' : 'http:'
-    this._url = nip11Url.toString()
-  }
-
-  private get url(): string {
-    return this._url
-  }
-
-  randomHash(): string {
-    let letters: string = '0123456789bcdefghjkmnpqrstuvwxyz'; 
-    let hash: string = ''; 
-    for (let i = 0; i < 24; i++) 
-      hash += letters[(Math.floor(Math.random() * 16))]; 
-    return hash;
-  }
-
-  async fetch(): Promise<Nip11 | undefined> {
-    let url: string = this.url; 
-
-    if (currentOriginMatchesRelayOrigin(url)) {
-        const urlObj = new URL(url);
-        url = urlObj.pathname + urlObj.search;
-    }
-
-    try {
-        url = `${url}?c=${this.randomHash()}`;
-        //console.log(`url: ${url}`)
-        //console.log('nip-11 fetch from', url);
-        const response = await fetch(url, {
-            cache: "no-store",
-            headers: {
-                Accept: 'application/nostr+json'
-            },
-        }).catch(console.error);
-
-        if (!response?.ok) {
-            throw new Error(`Failed to fetch data from ${url}: ${response.status} ${response.statusText}`);
-        }
-        
-        const relayInfo = await response.json();
-        return relayInfo as Nip11;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
   }
 }
 
