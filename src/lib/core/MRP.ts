@@ -18,7 +18,7 @@ export interface MRPState {
 }
 
 export class MyRelayPage {
-  private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://monitorpag.es', 'wss://relaypag.es', 'wss://history.nostr.watch'] as string[])
+  private readonly defaultRelays: Set<string> = new Set(['wss://monitorpag.es', 'wss://relaypag.es', 'wss://history.nostr.watch'] as string[])
   private _url: string;
   private _ndk: MRPNostr;
   private _editor: MRPEditor;
@@ -58,8 +58,6 @@ export class MyRelayPage {
     await this.ndk.user?.getFollows();
     if (!this.ndk.user?.follows) return;
   
-    console.log('relay', this.url)
-
     const relay = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), new NDK({explicitRelayUrls:[this.url as string]}));
     
     const promises = Array.from(this.ndk.user.follows).map(follow => {
@@ -74,7 +72,6 @@ export class MyRelayPage {
     let pubkeyResults = results
       .filter( result => result.value !== null)
       .filter( ( result) => {
-        console.log('result', result)
         if(result.value.kind === 10002) {
           try {
           return result?.value?.tags.find(tag => {
