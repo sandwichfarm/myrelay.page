@@ -1,0 +1,22 @@
+$YOUR_RELAY_URL {
+
+    #...other stuff
+
+    @websocket {
+        header Upgrade websocket
+    }
+    reverse_proxy @websocket http://127.0.0.1:7777 {
+        header_up X-Real-IP {remote_host}
+    }
+
+    @nostrJson header Accept application/nostr+json
+    reverse_proxy @nostrJson http://127.0.0.1:7777 {
+        header_down Content-Type "application/nostr+json; charset=utf-8"
+    }
+
+    root * /var/www/html
+    file_server
+
+}
+
+

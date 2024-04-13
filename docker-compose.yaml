@@ -1,0 +1,7 @@
+services:
+  myrelaypage:
+    image: myrelaypage
+    container_name: myrelaypage
+    restart: always
+    ports:
+      - "8080:80"

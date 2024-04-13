@@ -1,0 +1,168 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+
+
+
+@layer base {
+  body { 
+    @apply bg-slate-950;
+  }
+  /* body { 
+    @apply bg-slate-250;
+  } */
+}
+
+@layer components {
+  #mrp-theme-body {  
+    @apply bg-purple-50 dark:bg-purple-950 
+  }
+
+  #mrp-bg-tint { 
+    @apply dark:bg-black/70
+  }
+
+  #mrp-wrapper {  
+    @apply mt-10 p-20 pt-16 max-w-screen-lg w-1/2 rounded-xl shadow-2xl dark:shadow-none 
+  }
+
+  .mrp-wrapper-bg {
+    @apply bg-white dark:bg-black/50;
+  }
+
+  .mrp-wrapper-text {}
+
+  /* blocks */
+
+  .mrp-block {
+    /* @apply mt-10 py-5 px-5 rounded-lg bg-gradient-to-b from-gray-100 to-white dark:from-slate-950/90 dark:via-black/50 dark:to-black/0 */
+    @apply mt-10 py-5 px-5 rounded-lg mrp-block-light dark:mrp-block-dark
+  }
+
+  .mrp-block-title {
+    @apply mb-2 scroll-m-20 text-xl font-extrabold tracking-tight text-gray-600 
+  }
+
+  /* notes */
+
+  .mrp-note {
+    @apply px-5 py-3 pb-10 min-h-max duration-500 max-h-72 relative rounded-lg shadow overflow-hidden
+  }
+
+  .mrp-note-bg {
+    @apply bg-white/90 dark:bg-black/90
+  }
+
+  .mrp-note-content {
+    @apply text-gray-900 dark:text-white/50
+  }
+
+  /* notes: jump */
+  .mrp-note-jump {
+    @apply absolute bottom-0 left-0 right-0 py-3 px-5 
+  }
+
+  .mrp-note-jump-text {
+    @apply text-xs font-bold text-black dark:text-white
+  }
+
+  .mrp-note-jump-bg {
+    @apply mrp-block-jump-light dark:mrp-block-jump-dark
+  }
+
+  /* profile: card  */
+
+  .mrp-profile-card {
+    @apply p-5 rounded-lg max-w-xs block dark:opacity-80 dark:text-black
+  }
+
+  .mrp-profile-card-bg {
+    @apply bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 
+  }
+
+  .mrp-profile-card-content {
+    @apply text-white
+  }
+}
+
+
+@layer utilities {
+
+  /* block: gradient animations */
+  @property --mrpBlockLight1 {
+    syntax: '<color>';
+    initial-value: theme(colors.gray.100);
+    inherits: false;
+  }
+
+  @property --mrpBlockLight2 {
+    syntax: '<color>';
+    initial-value: theme(colors.white/0);
+    inherits: false;
+  }
+
+  .mrp-block-light {
+    background: linear-gradient(var(--mrpBlockLight1), var(--mrpBlockLight2));
+    transition:
+      --mrpBlockLight1 0.5s ease-in-out,
+      --mrpBlockLight2 0.5s ease-in-out;
+  }
+
+  .mrp-block-dark {
+    --mrpBlockLight1: theme(colors.slate.950);
+    --mrpBlockLight2: theme(colors.black/0);
+  }
+
+
+
+
+  /* block: jump: gradient animations */
+  @property --mrpBlockJumpLight1 {
+    syntax: '<color>';
+    initial-value: theme(colors.white/0);
+    inherits: false;
+  }
+
+  @property --mrpBlockJumpLight2 {
+    syntax: '<color>';
+    initial-value: theme(colors.white/90);
+    inherits: false;
+  }
+
+  .mrp-block-jump-light {
+    background: linear-gradient(var(--mrpBlockJumpLight1), var(--mrpBlockJumpLight2));
+    transition:
+      --mrpBlockJumpLight1 0.5s ease-in-out,
+      --mrpBlockJumpLight2 0.5s ease-in-out;
+  }
+
+  .mrp-block-jump-dark {
+    --mrpBlockJumpLight1: theme(colors.black/0);
+    --mrpBlockJumpLight2: theme(colors.black/90);
+  }
+
+  /* map */
+  /* .mrp-map-light {
+    --vis-map-feature-color: #dce3eb
+    --vis-map-boundary-color: #ffffff
+    --vis-map-point-label-text-color-dark: #5b5f6d
+    --vis-map-point-label-text-color-light: #fff
+    --vis-map-point-label-font-weight: 600
+    --vis-map-point-label-font-size: 12px
+    --vis-map-point-label-font-family
+  }
+
+  .mrp-map-dark {
+    --vis-map-feature-color: #5b5f6d
+    --vis-map-boundary-color: #2a2a2a
+    --vis-map-point-label-text-color-dark: #fff
+    --vis-map-point-label-text-color-light: #5b5f6d
+  } */
+
+  /* 
+  .text-2xl {
+    @apply text-2xl;
+  }
+  */
+}
