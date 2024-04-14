@@ -5,7 +5,7 @@ import type { EventEmitter } from 'tseep';
 import type { MRPState } from "./MRP";
 import { MRPData } from "./MRPData";
 import { MRPUser } from "./MRPUser";
-import { TheaterIcon } from "lucide-svelte";
+import { GalleryThumbnailsIcon, TheaterIcon } from "lucide-svelte";
  
 export class MRPConfig extends MRPData {
 
@@ -16,6 +16,7 @@ export class MRPConfig extends MRPData {
   private pubkey: string | undefined;
   private relay: string | undefined
   private _changed: boolean = false;
+  private _configHash: string | undefined;
   
   public event: AppConfig;
 
@@ -59,10 +60,6 @@ export class MRPConfig extends MRPData {
     return this.event
   }
 
-  hasChanged(): boolean {
-    return this.event.changed
-  }
-
   configKey(): string {
     return `myrelay.page/${this?.relay}operator@${this.pubkey}`
   }
@@ -76,7 +73,7 @@ export class MRPConfig extends MRPData {
     await this.event?.publish(NDKRelaySet.fromRelayUrls(['wss://appdata.kindpag.es'], this.$.ndk as NDK)).catch((err) => { throw new Error(err) })
     if(!error){
       this.$.signal.emit(`config:published`, this.type, this.event)
-      this.event.changed = false
+      this.event.commitChanges()
     }
     return !error
   }

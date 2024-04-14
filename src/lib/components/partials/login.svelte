@@ -16,8 +16,10 @@
   let userIsOperator: boolean = false
 
   const _isOperator = () => {
-    return $MRP?.nostr?.relay?.owner && $MRP?.nostr?.authed
-      ? $MRP?.nostr?.relay?.owner?.pubkey === $MRP?.nostr?.user?.pubkey
+    const operator = $MRP?.nostr?.relay?.info?.pubkey || $MRP?.nostr?.relay?.owner?.pubkey
+    const currentUser = $MRP?.nostr?.user?.pubkey
+    return operator && $MRP?.nostr?.authed
+      ? operator === currentUser
       : false;
   }
 

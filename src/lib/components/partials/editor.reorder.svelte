@@ -10,7 +10,6 @@
 
   const up = () => {
     $MRP.loader.config.event.shiftBlockUp(key)
-    console.log('block order after', $MRP?.loader?.sortedKeys)
     MRP.set($MRP)
   }
   const down = () => {
@@ -20,14 +19,14 @@
 </script>
 
 {#if !$MRP?.loader?.config?.event?.blockIsFirst(key)}
-<a href="#" on:click={up}>
+<a href="{'#'}" on:click={up}>
   ▲
 </a>
 {/if}
 
 
 {#if !$MRP?.loader?.config?.event?.blockIsLast(key)}
-<a href="#" on:click={down}>
+<a href="{'#'}" on:click={down}>
   ▼
 </a>
 {/if}
