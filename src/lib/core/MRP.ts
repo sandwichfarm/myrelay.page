@@ -59,7 +59,7 @@ export class MyRelayPage extends MRPData {
     await this.nostr.user?.getFollows();
     if (!this.nostr.user?.follows) return;
 
-    console.log(`you follow ${this.nostr.user?.follows} nostriches`)
+    console.log(`you follow ${this.nostr.user?.follows?.size} nostriches`)
   
     const relay = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), new NDK({explicitRelayUrls:[this.url as string]}));
     
@@ -99,7 +99,7 @@ export class MyRelayPage extends MRPData {
       
     pubkeyResults = Array.from(new Set(pubkeyResults))
 
-    console.log(`${this.nostr.user?.follows} of them are lurking on ${this.url}`)
+    console.log(`${pubkeyResults?.length} of them are lurking on ${this.url}`)
   
     for (const follow of this.nostr.user.follows) {
       if (!pubkeyResults.includes(follow.pubkey)) continue;

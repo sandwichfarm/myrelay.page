@@ -77,8 +77,10 @@
 
 </script>
 {#if browser}
+  
   {#if profile}
   <Block headingClass="col-span-5" {key}>
+    
     <svelte:fragment slot="title">
       relay operator
     </svelte:fragment>
@@ -133,7 +135,7 @@
             {/each}
           </div>
           {:else}
-          {#if owner?.feed?.isComplete }
+          {#if owner?.isComplete }
           <div class="note min-h-max bg-white/90 dark:bg-black/90 px-5 py-3 pb-10 rounded-lg shadow transition-opacity duration-200 relative max-h-72 overflow-hidden text-3xl h-full mt-9 text-gray-300 italic flex items-center space-x-4 text-center">
               seems the operator is quiet, no notes
           </div>
@@ -146,7 +148,7 @@
     </svelte:fragment>
   </Block>
   {:else}
-    <ProfileSkeleton />
+    <ProfileSkeleton {key} />
   {/if} <!-- /!profile -->
 {/if} <!-- /browser -->
 

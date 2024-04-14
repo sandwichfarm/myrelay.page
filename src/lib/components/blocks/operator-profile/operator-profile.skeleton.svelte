@@ -3,8 +3,10 @@
     import SkeletonTheme from '$lib/components/ui/skeleton2/SkeletonTheme.svelte';
     
     import Block from '$lib/components/wrappers/block.svelte';
+
+    export let key: string;
 </script>
-<Block headingClass="col-span-5">
+<Block headingClass="col-span-5" {key}>
   <svelte:fragment slot="title">
     relay operator
   </svelte:fragment>

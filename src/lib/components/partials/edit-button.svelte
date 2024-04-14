@@ -19,21 +19,30 @@
   const toggleEdit = async () => {
     if(!mrp?.editor) return
     mrp?.editor?.toggle()
+    if($MRP?.loader?.config?.event?.changed) $MRP.loader.config.event.discardChanges()
     MRP.set(mrp)
   }
 
   const publish = async () => {
+    mrp?.editor?.toggle()
     await mrp?.loader?.config?.publish()
+    
   }
   
-  $: text = $MRP?.editor?.enabled ? 'finish' : 'editor'
+  $: text = $MRP?.editor?.enabled 
+    ? $MRP?.loader?.config?.event?.changed 
+      ? 'discard edits'
+      : 'leave editor' 
+    : 'edit'
+
+  
 </script>
 {#if browser }
-  <!-- {#if $MRP?.loader?.config?.hasChanged() } -->
+  {#if $MRP?.loader?.config?.event.changed } 
   <Button variant="outline" on:click={publish}>
-    Publish Changes
+    publish edits
   </Button>
-  <!-- {/if} -->
+  {/if}
   <Button variant="outline" on:click={toggleEdit}>
     {text}
   </Button> 

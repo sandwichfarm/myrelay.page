@@ -1,7 +1,9 @@
-import NDK, { NDKEvent, NDKKind } from '@nostr-dev-kit/ndk';
-import type { NDKTag, NostrEvent } from '@nostr-dev-kit/ndk';
-
 import jsonpack from 'jsonpack';
+import objectHash from 'object-hash';
+
+import NDK, { NDKEvent, NDKKind } from '@nostr-dev-kit/ndk';
+
+import type { NDKTag, NostrEvent } from '@nostr-dev-kit/ndk';
 
 
 type Colors = {
@@ -92,14 +94,18 @@ const defaults: ConfigObj = {
 }
 
 export class AppConfig extends NDKEvent {
-  private _config: any = {}
-  changed: boolean = false;
+  private _changed: boolean = false;
+  private _config: ConfigObj;
+  private _configUnchanged: ConfigObj;
+  private _configHash: string | undefined;  
+  private _configHashUnchanged: string | undefined;  
 
   constructor( ndk: NDK, event?: NostrEvent ){
     super(ndk, event)
     this.kind = NDKKind.AppSpecificData
     this.config = { ...defaults, ...this.parseConfig(this.content) }
-    this.content = jsonpack.pack(this.config)
+    this._configUnchanged = deepClone(this.config)
+    this.content = jsonpack.pack(this.config);
   }
 
   static from( ndk: NDK, rawEvent: NostrEvent ){
@@ -116,14 +122,54 @@ export class AppConfig extends NDKEvent {
     }
   }
 
+  commitChanges(){
+    this._configUnchanged = { ...this.config }
+    this.setConfigHash(true)
+  }
+
+  discardChanges(){
+    console.log(`hash of unchanged config`, objectHash(this._configUnchanged, { algorithm: 'sha1' }))  
+    console.log('discarding changes', this.deterministicHash)
+    this.config = deepClone( this._configUnchanged )
+    this.configHash = this.configHashUnchanged as string;
+    console.log('hash after', this.deterministicHash)
+  }
+
+  
+
   set config(config: ConfigObj) {
     this._config = this.deepProxy(config, () => {
       this.content = this.pack();
     });
+    this.setConfigHash(this?._configHashUnchanged? false: true)
   }
 
   get config(): ConfigObj {
     return this._config;
+  }
+
+  set changed(changed: boolean) {
+    this._changed = changed;
+  }
+
+  get changed(): boolean {
+    return this._changed
+  }
+  
+  get configHash(): string | undefined {
+    return this._configHash;
+  }
+
+  private set configHash(hash: string) {
+    this._configHash = hash;
+  }
+
+  private get configHashUnchanged(): string | undefined {
+    return this._configHashUnchanged;
+  }
+
+  private set configHashUnchanged(hash: string) {
+    this._configHashUnchanged = hash;
   }
 
   get contentUnpacked(): Json {
@@ -133,6 +179,16 @@ export class AppConfig extends NDKEvent {
       console.error(`Error unpacking content: ${e}`);
       return {};
     }
+  }
+
+  setConfigHash(setOriginal: boolean = false) {
+    const newHash = objectHash(this.config, { algorithm: 'sha1' });
+    if (setOriginal) {
+      this.configHashUnchanged = newHash;
+    }
+    this.configHash = newHash;
+    this.changed = this.configHash !== this.configHashUnchanged;
+    console.log(this.changed ? 'changed' : 'unchanged', this.configHash, this.configHashUnchanged);
   }
 
   private deepProxy(obj: any, callback: () => void): any {
@@ -152,6 +208,10 @@ export class AppConfig extends NDKEvent {
     });
   }
 
+  get deterministicHash(){
+    return objectHash(this.config, { algorithm: 'sha1' });
+  }
+
   get theme(): ConfigTheme {
     return this.config.general?.theme
   }
@@ -165,8 +225,7 @@ export class AppConfig extends NDKEvent {
   }
 
   private updateConfig(path: string[], value: any) {
-      this.changed = true
-      let current = this._config;
+        let current = this._config;
       for (let i = 0; i < path.length - 1; i++) {
           current = current[path[i]];
       }
@@ -181,32 +240,38 @@ export class AppConfig extends NDKEvent {
   }
 
   pack(): string {
-    return jsonpack.pack(this._config);
+    return jsonpack.pack(this.config);
   }
 
   setLoginEnabled(enabled: boolean) {
     this._config.general.login.enabled = enabled;
+    this.config = this._config;
     this.content = this.pack();
   }
 
   setJoinEnabled(enabled: boolean) {
     this._config.general.login.join.enabled = enabled;
+    this.config = this._config;
     this.content = this.pack();
   }
 
   setTheme(theme: ConfigTheme) {
     this._config.general.theme = theme;
+    this.config = this._config;
     this.content = this.pack();
   }
 
   setBlocks(blocks: ConfigBlocks) {
     this._config.blocks = blocks;
+    this.config = this._config;
     this.content = this.pack();
   }
 
   setBlockEnabled(key: string, enabled: boolean) {
+    
     if (this._config.blocks[key]) {
       this._config.blocks[key].enabled = enabled;
+      this.config = this._config;
       this.content = this.pack();
     }
   }
@@ -214,6 +279,7 @@ export class AppConfig extends NDKEvent {
   setBlockOrder(key: string, order: number) {
     if (this._config.blocks[key]) {
       this._config.blocks[key].order = order;
+      this.config = this._config;
       this.content = this.pack();
     }
   }
@@ -221,19 +287,22 @@ export class AppConfig extends NDKEvent {
   setBlockOptions(key: string, options: any) {
     if (this._config.blocks[key]) {
       this._config.blocks[key].options = options;
+      this.config = this._config;
       this.content = this.pack();
     }
   }
 
   disableBlock(key: string) {
-      this.setBlockEnabled(key, false);
+    this.setBlockEnabled(key, false);
   }
 
   enableBlock(key: string) {
-      this.setBlockEnabled(key, true);
+    this.setBlockEnabled(key, true);
   }
 
   toggleBlock(key: string) {
+    console.log(key, key, key)
+    console.log(key, this._config.blocks)
     const currentEnabledState = this._config.blocks[key].enabled;
     this.setBlockEnabled(key, !currentEnabledState);
   }
@@ -253,8 +322,6 @@ export class AppConfig extends NDKEvent {
   isJoinEnabled(): boolean {
     return this.config.general?.login?.join?.enabled
   }
-
-
 
   getBlock(key: string): ConfigBlock {
     return this.blocks?.[key]
@@ -282,6 +349,7 @@ export class AppConfig extends NDKEvent {
         break;
       }
     }
+    this.config = this._config;
   }
 
   shiftBlockUp(key: string): undefined {
@@ -298,4 +366,8 @@ export class AppConfig extends NDKEvent {
     }
   }
   
+}
+
+function deepClone(obj: any) {
+  return JSON.parse(JSON.stringify(obj));
 }
