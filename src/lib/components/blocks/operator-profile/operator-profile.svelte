@@ -80,15 +80,14 @@
   
   {#if profile}
   <Block headingClass="col-span-5" {key}>
-    
     <svelte:fragment slot="title">
       relay operator
     </svelte:fragment>
     <svelte:fragment slot="content">
-    <div class="grid grid-cols-5 grid-flow-col">
-      <div class="items-center col-span-2">
-        <div class="mrp-profile-card mrp-profile-card-content mrp-profile-card-bg">
-          <div class="flex items-center space-x-4">
+    <div class="w-full md:grid md:grid-cols-5 md:grid-flow-col">
+      <div class="items-center w-full md:col-span-2">
+        <div class="mrp-profile-card mrp-profile-card-content mrp-profile-card-bg sm:w-full mb-2 md:mb-0">
+          <div class="flex items-center space-x-2">
             <UserAvatar photo={owner?.photo} name={profile?.name} showTooltip={false} />
             <span class="inline-block truncate text-ellipsis overflow-hidden max-w-40">
               {#if profile?.name}
@@ -125,7 +124,7 @@
         </div>
       </div>
 
-      <div id="notes" class="col-span-3 flex flex-col justify-center"> 
+      <div id="notes" class="md:col-span-3 md:flex md:flex-col justify-center"> 
           {#if browser && relays && feedArray.length}
           <div class="feed w-full">
             {#each feedArray as note, index}  

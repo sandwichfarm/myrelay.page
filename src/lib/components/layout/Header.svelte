@@ -31,9 +31,9 @@
 
 </script>
 
-<div class="relative">
+<div class="relative my-2">
   {#if url}
-    <h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+    <h1 class="scroll-m-20 text-3xl md:text-4xl font-extrabold tracking-tight lg:text-5xl mb-6 my-2">
       <span class="flex items-center space-x-4">
         {#if $relay?.info?.icon}
           <img src={ $relay?.info.icon } class="max-w-20 max-h-20"/>
@@ -48,7 +48,7 @@
   {/if}
 
   {#if $relay?.info?.description}
-    <p class="text-xl text-muted-foreground mb-4">
+    <p class="text-lg md:text-xl text-muted-foreground mb-4">
       { $relay?.info?.description }
     </p>
   {/if}
@@ -56,7 +56,7 @@
   <LimitationsNumber />  
   <Nips />
   <Software />
-  <div class="absolute -top-12 -right-10 flex items-center space-x-4 text-right min-w-40">
+  <div class="absolute -top-16 -right-7 sm:-right-3 sm:mb-3 flex items-center space-x-4 text-right min-w-40">
     <Login />
     <ThemeMode class="inline-block" />
   </div>

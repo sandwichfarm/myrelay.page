@@ -24,7 +24,7 @@
   }
 
   #mrp-wrapper {  
-    @apply mt-10 p-20 pt-16 max-w-screen-lg w-1/2 rounded-xl shadow-2xl dark:shadow-none 
+    @apply p-5 mt-0 md:p-20 pt-16 max-w-screen-lg rounded-xl shadow-2xl dark:shadow-none lg:w-3/4 md:w-full sm:w-full sm:my-2 md:mt-10 sm:rounded-none
   }
 
   .mrp-wrapper-bg {
@@ -74,7 +74,7 @@
   /* profile: card  */
 
   .mrp-profile-card {
-    @apply p-5 rounded-lg max-w-xs block dark:opacity-80 dark:text-black
+    @apply p-5 rounded-lg md:max-w-xs block dark:opacity-80 dark:text-black
   }
 
   .mrp-profile-card-bg {
