@@ -7,21 +7,14 @@
   import type NDK from '@nostr-dev-kit/ndk';
 
   import UserAvatar from "$lib/components/partials/avatar.svelte";
-    import Badge from '$lib/components/ui/badge/badge.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+  import Block from '$lib/components/wrappers/block.svelte';
 
-  const mrp_context: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
+  const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   const MAX_LENGTH = 72
-  
-  let authed: boolean;
-  let followsRetrieved: boolean = false;
-  let followsOnRelay: NDKUser[] | undefined;
-  let ndk: NDK | undefinned 
 
-  mrp_context.subscribe(async (_mrp) => {
-    ndk = _mrp?.nostr.$
-    authed = _mrp?.nostr?.authed
-    followsOnRelay = _mrp?.userFollowsOnRelay
-  });
+  $: authed = $MRP?.nostr?.authed
+  $: followsOnRelay = $MRP?.userFollowsOnRelay > 500? "500+": $MRP.userFollowsOnRelay
 
   $: followsTruncated = (): [NDKUser[], number] => {
     if(!followsOnRelay) return [followsOnRelay, 0]
@@ -31,26 +24,26 @@
     return [followsOnRelay.slice(0, MAX_LENGTH) as NDKUser[], difference]
   }
 
-  
 </script>
 
-
 {#if authed && typeof followsOnRelay !== 'undefined' && followsOnRelay.length}
-<div class="mrp-block duration-200">
-  <h3 class="mrp-block-title">
+<Block>
+  <svelte:fragment slot="title">
     you follow <Badge class="text-lg">{followsOnRelay?.length}</Badge> people who hang out here
-  </h3>
- {#each followsTruncated()[0] as follow}
-  <span class="mr-1 inline-block">
-    <UserAvatar photo={follow?.profile?.image} name={follow?.profile?.name}  />
-  </span>
- {/each}
- {#if followsTruncated()[1] > 0}
-    <Badge class="ml-0 h-10 w-10 py-0 px-0 text-center shrink-0 overflow-hidden rounded-full inline-block">
-      <span class="text-lg mt-1 inline-block">+{followsTruncated()[1]}</span>
-    </Badge>
-  {/if}
-</div>
+  </svelte:fragment>
+  <svelte:fragment slot="content">
+    {#each followsTruncated()[0] as follow}
+      <span class="mr-1 inline-block">
+        <UserAvatar photo={follow?.profile?.image} name={follow?.profile?.name}  />
+      </span>
+    {/each}
+    {#if followsTruncated()[1] > 0}
+      <Badge class="ml-0 h-10 w-10 py-0 px-0 text-center shrink-0 overflow-hidden rounded-full inline-block">
+        <span class="text-lg mt-1 inline-block">+{followsTruncated()[1]}</span>
+      </Badge>
+    {/if}
+  </svelte:fragment>
+</Block>
 {/if}
 
 

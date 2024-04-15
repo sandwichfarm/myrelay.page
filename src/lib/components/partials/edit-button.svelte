@@ -5,28 +5,30 @@
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import type { Writable } from 'svelte/store';
-  import type { MyRelayPage } from '$lib/core/MRP';
+  import { MyRelayPage } from '$lib/core/MRP';
 
   import { Button } from "$lib/components/ui/button/index.js";
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
 
-  let mrp: MyRelayPage | undefined;
   let userIsOperator: boolean = false
 
-  MRP.subscribe(async (_mrp: MyRelayPage) => { mrp = _mrp });
-
   const toggleEdit = async () => {
-    if(!mrp?.editor) return
-    mrp?.editor?.toggle()
+    if(!$MRP?.editor) return
+    $MRP?.editor?.toggle()
     if($MRP?.loader?.config?.event?.changed) $MRP.loader.config.event.discardChanges()
-    MRP.set(mrp)
+    MRP.set($MRP)
   }
 
   const publish = async () => {
-    mrp?.editor?.toggle()
-    await mrp?.loader?.config?.publish()
-    
+    $MRP?.editor.toggle()
+    await $MRP?.loader?.config?.publish()
+    setTimeout(location.reload(), 1000)
+  }
+
+  const resetConfig = async () => {
+    $MRP?.loader?.config?.event?.reset()
+    MRP.set($MRP)
   }
   
   $: text = $MRP?.editor?.enabled 
@@ -35,15 +37,24 @@
       : 'leave editor' 
     : 'edit'
 
+  $: toggleClass = $MRP?.editor?.enabled 
+    ? $MRP?.loader?.config?.event?.changed 
+        ? 'bg-red-500'
+        : '' 
+      : ''
+
   
 </script>
 {#if browser }
   {#if $MRP?.loader?.config?.event.changed } 
-  <Button variant="outline" on:click={publish}>
+  <Button variant="outline" class="bg-red-700" on:click={resetConfig}>
+    reset config
+  </Button>
+  <Button variant="outline" class="bg-green-600" on:click={publish}>
     publish edits
   </Button>
   {/if}
-  <Button variant="outline" on:click={toggleEdit}>
+  <Button variant="outline" class={toggleClass} on:click={toggleEdit}>
     {text}
   </Button> 
 {/if}

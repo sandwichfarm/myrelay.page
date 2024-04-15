@@ -1,6 +1,6 @@
 <script lang="ts">
-  import FeedGrid from '$lib/components/blocks/relay-feed/feed-grid.svelte'
-  import FeedGridSkeleton from '$lib/components/blocks/relay-feed/feed-grid.skeleton.svelte'
+  import FeedGrid from '$lib/components/blocks/unique/relay-feed/feed-grid.svelte'
+  import FeedGridSkeleton from '$lib/components/blocks/unique/relay-feed/feed-grid.skeleton.svelte'
 
   import { get } from 'svelte/store';
 
@@ -39,6 +39,7 @@
   });
 
   $: showFeed = $MRP?.editor?.enabled || !$MRP?.nostr?.relay?.feed?.isComplete || $notes?.length 
+  
 </script> 
 
 {#if showFeed }

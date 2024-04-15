@@ -8,25 +8,17 @@
   export let MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   export let key: string = ""
 
-  const up = () => {
-    $MRP.loader.config.event.shiftBlockUp(key)
+  $: isRepeatable = key.includes(':')
+
+  const remove = async () => {
+    $MRP.loader.config.event.removeBlock(key)
     MRP.set($MRP)
   }
-  const down = () => {
-    $MRP.loader.config.event.shiftBlockDown(key)
-    MRP.set($MRP)
-  }
+
 </script>
 
-{#if !$MRP?.loader?.config?.event?.blockIsFirst(key)}
-<a href="{'#'}" on:click={up}>
-  ▲
-</a>
+{#if isRepeatable }
+  <a href="{`#remove-${key}`}" class="font-bold text-red-500" on:click={remove}>
+    remove
+  </a>
 {/if}
-
-{#if !$MRP?.loader?.config?.event?.blockIsLast(key)}
-<a href="{'#'}" on:click={down}>
-  ▼
-</a>
-{/if}
-

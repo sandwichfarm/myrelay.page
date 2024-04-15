@@ -11,11 +11,7 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"moduleResolution": "bundler",
-    "paths": {
-      "$lib": ["./src/lib"],
-      "$lib/*": ["./src/lib/*"]
-    }
+		"moduleResolution": "bundler"
 	},
 	"include": [
 		"@types/*"
