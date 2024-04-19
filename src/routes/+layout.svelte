@@ -71,7 +71,7 @@
   <link id="theme" rel="stylesheet" />
 </svelte:head>
 
-<div id="mrp-bg-tint" class="flex flex-col min-h-screen relative">
+<div id="mrp-bg-tint" class="flex flex-col min-h-screen relative overflow-hidden">
   <div class="flex-grow">
     <div class="flex flex-col items-center justify-center">
       <div id="mrp-wrapper" class="mrp-wrapper-bg mrp-wrapper-content transition-colors duration-200 ease-in-out">
