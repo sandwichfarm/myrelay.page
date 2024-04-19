@@ -22,6 +22,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] NIP-07 support
   - [ ] NIP-46 support
   - [x] mobile compat
+  - [x] options generic
 - unique blocks
   - [x] nip-11
   - [x] operator profile/feed
@@ -29,21 +30,22 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] relay feed
   - [ ] speed test (need to patch @nostrwatch/nocap)
 - repeatable blocks
-  - [ ] html
-  - [ ] image
-  - [ ] md  
+  - [x] html
+  - [x] image
+  - [x] md
+  - [x] feed
 - stateful meta-data 
   - [x] nip-11
   - [x] operator profile
   - [x] operator notes
   - [x] notes from relay
-  - [ ] long-form content feed
+  - [x] long-form content feed
   - [x] NIP-19 encoded nevent jumps
   - [x] relay Geodata
   - [ ] NIP-66 Monitor Data
     - [x] seen by monitors
     - [x] round-trip time of monitors
-    - [ ] map reactiveness
+    - [x] map reactiveness
     - [ ] ssl
   - [ ] uptime
 - parsing
@@ -61,12 +63,16 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [ ] "Notes you have here"
 - no-build customization via NIP-78
   - general
-    - [ ] theme import
+    - [ ] ~theme import~
     - [x] show/hide blocks
     - [x] order blocks
-    - [ ] per block customization
+    - [x] per block customization
     - [ ] hide login
     - [ ] disable join
+  - theming 
+    - [ ] default runtime themes
+    - [ ] theme selection
+    - [ ] theme customization
   - runtime-imported CSR blocks (svelte)
     - [ ] http/https  
       - [ ] custom block imports 
