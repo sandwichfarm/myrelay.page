@@ -34,7 +34,7 @@
 
     await import('nostr-zap')
     let url: string | undefined;
-    if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page') || window.location.host.includes('netlify.com')){
+    if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page') || window.location.host.includes('netlify')){
       const params = new URLSearchParams(window.location.search);
       url = params.get('url') || "wss://lunchbox.sandwich.farm"
     };
