@@ -37,7 +37,7 @@
 
   .mrp-block {
     /* @apply mt-10 py-5 px-5 rounded-lg bg-gradient-to-b from-gray-100 to-white dark:from-slate-950/90 dark:via-black/50 dark:to-black/0 */
-    @apply mt-10 py-5 px-5 rounded-lg mrp-block-light dark:mrp-block-dark
+    @apply mt-10 py-3 px-2 md:py-5 md:px-5 rounded-lg mrp-block-light dark:mrp-block-dark
   }
 
   .mrp-block-title {

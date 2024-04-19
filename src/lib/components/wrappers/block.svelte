@@ -64,7 +64,7 @@
   $: blockClass = noClass? '': 'mrp-block'
 </script>
 
-<section class="{blockClass} {$$props.class} duration-200 p-4 md:p-0">
+<section class="{blockClass} {$$props.class} duration-200">
   {#if $MRP.editor.enabled && $MRP.nostr.authed}
     <pre class="inline-block bg-gray-100 dark:bg-black/50 p-1">{key}</pre>
     {#if sortable}
