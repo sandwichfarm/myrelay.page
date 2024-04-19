@@ -30,7 +30,7 @@
 <Block noClass={true} sortable={false} {key}>a
   <svelte:fragment slot="content">
     {#if info?.description && options?.showDescription}
-    <p class="text-lg md:text-xl text-muted-foreground mb-4">
+    <p class="text-md md:text-xl text-muted-foreground mb-3 mt-0 pt-0">
       {#if options?.descriptionAlternateText.length}
         {options?.descriptionAlternateText}
       {:else}
@@ -51,7 +51,6 @@
   </svelte:fragment>
 </Block>
 {/if} <!-- /browser -->
-
 
 <style>
 

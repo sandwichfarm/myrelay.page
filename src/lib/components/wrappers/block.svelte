@@ -64,7 +64,7 @@
   $: blockClass = noClass? '': 'mrp-block'
 </script>
 
-<section class="{blockClass} duration-200 {$$props.class}">
+<section class="{blockClass} {$$props.class} duration-200 p-4 md:p-0">
   {#if $MRP.editor.enabled && $MRP.nostr.authed}
     <pre class="inline-block bg-gray-100 dark:bg-black/50 p-1">{key}</pre>
     {#if sortable}
@@ -76,7 +76,7 @@
   {/if}
   <div class="inner {innerClass}">
   <slot name="top" />
-  <h3 class="mrp-block-title block w-full {headingClass}">
+  <h3 class="mrp-block-title block w-full truncate text-ellipsis overflow-hidden {headingClass}">
     <slot name="title">{$MRP.loader.config.event.blocks[key]?.options?.blockHeading || ""}</slot>
   </h3>
   <slot name="content"></slot>

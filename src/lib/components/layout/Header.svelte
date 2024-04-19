@@ -29,7 +29,7 @@
 
 <div class="relative my-2">
   {#if url}
-    <h1 class="scroll-m-20 text-3xl md:text-4xl font-extrabold tracking-tight lg:text-5xl mb-6 my-2">
+    <h1 class="scroll-m-20 text-xl md:text-4xl font-extrabold tracking-tight lg:text-5xl mt-5 md:mt-0 md:mb-6 px-4 md:px-0 truncate text-ellipsis overflow-hidden">
       <span class="flex items-center space-x-4">
         {#if $relay?.info?.icon}
           <img src={ $relay?.info.icon } class="max-w-20 max-h-20"/>

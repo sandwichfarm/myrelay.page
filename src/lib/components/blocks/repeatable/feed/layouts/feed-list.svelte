@@ -24,6 +24,6 @@
     showSummary={true}
     summaryTruncate={true}
     summaryWordsLength={50}
-    headingClass="text-xl mb-4 font-bold text-black/95 dark:text-white/95"
-    class="w-full mb-5 text-black/70 dark:text-white/70" />
+    headingClass="text-xl py-1 px-2 mb-4 font-bold text-black/95 dark:text-white/95 uppercase letter-spacing-0.5 bg-black/20"
+    class="w-full my-5 py-5 border-b-2 border-b-black/10 dark:border-b-white/10 text-black/70 dark:text-white/70" />
 {/each}
