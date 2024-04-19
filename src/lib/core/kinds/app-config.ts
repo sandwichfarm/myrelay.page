@@ -1,5 +1,6 @@
 import jsonpack from 'jsonpack';
 import objectHash from 'object-hash';
+import deepMerge from 'deepmerge';
 
 import NDK, { NDKEvent, NDKKind } from '@nostr-dev-kit/ndk';
 
@@ -34,15 +35,14 @@ export type ConfigTheme = {
   customType: string
 }
 
+export type ConfigBlockOptions = {
+  [key: string]: any
+}
+
 export type ConfigBlock = {
   enabled: boolean,
   order: number,
-  options?: {
-    [key: string]: any
-  },
-  custom?: boolean,
-  customUrl?: string, 
-  customType?: string
+  options?: ConfigBlockOptions,
 }
 
 export type ConfigBlocks = {
@@ -53,9 +53,9 @@ export type ConfigObj = {
   general: {
     login: {
       enabled: boolean,
-      join: {
-        enabled: boolean
-      }
+    },
+    join: {
+      enabled: boolean
     },
     theme: ConfigTheme
   },
@@ -66,9 +66,9 @@ const defaults: ConfigObj = {
   general: {
     login: {
       enabled: true,
-      join: {
-        enabled: true 
-      }
+    },
+    join: {
+      enabled: true 
     },
     theme: {
       native: 'classic',
@@ -78,17 +78,25 @@ const defaults: ConfigObj = {
     }
   },
   blocks: {
+    'nip11': {
+      enabled: true,
+      order: -100
+    },
+    'follows-present': {
+      enabled: true,
+      order: -90
+    },
     'operator-profile': {
       enabled: true,
       order: 0
     },
-    'relay-feed': {
-      enabled: true,
-      order: 1
-    },
+    // 'feed:0': {
+    //   enabled: true,
+    //   order: 1
+    // },
     'map': {
       enabled: true,
-      order: 2
+      order: 1
     }
   }
 }
@@ -103,7 +111,7 @@ export class AppConfig extends NDKEvent {
   constructor( ndk: NDK, event?: NostrEvent ){
     super(ndk, event)
     this.kind = NDKKind.AppSpecificData
-    this.config = { ...defaults, ...this.parseConfig(this.content) }
+    this.config = deepMerge(defaults, this.parseConfig(this.content))
     this._configUnchanged = deepClone(this.config)
     this.content = jsonpack.pack(this.config);
   }
@@ -122,24 +130,29 @@ export class AppConfig extends NDKEvent {
     }
   }
 
+  reset(){
+    this.config = deepMerge({}, defaults)
+    this._configUnchanged = deepClone(this.config)
+    this.content = jsonpack.pack(this.config);
+  }
+
   commitChanges(){
     this._configUnchanged = { ...this.config }
     this.setConfigHash(true)
   }
 
   discardChanges(){
-    console.log(`hash of unchanged config`, objectHash(this._configUnchanged, { algorithm: 'sha1' }))  
-    console.log('discarding changes', this.deterministicHash)
+    // console.log(`hash of unchanged config`, objectHash(this._configUnchanged, { algorithm: 'sha1' }))  
+    // console.log('discarding changes', this.deterministicHash)
     this.config = deepClone( this._configUnchanged )
     this.configHash = this.configHashUnchanged as string;
-    console.log('hash after', this.deterministicHash)
-  }
-
-  
+    // console.log('hash after', this.deterministicHash)
+  }  
 
   set config(config: ConfigObj) {
     this._config = this.deepProxy(config, () => {
       this.content = this.pack();
+      // console.log('content packed', this.content)  
     });
     this.setConfigHash(this?._configHashUnchanged? false: true)
   }
@@ -188,7 +201,7 @@ export class AppConfig extends NDKEvent {
     }
     this.configHash = newHash;
     this.changed = this.configHash !== this.configHashUnchanged;
-    console.log(this.changed ? 'changed' : 'unchanged', this.configHash, this.configHashUnchanged);
+    // console.log(this.changed ? 'changed' : 'unchanged', this.configHash, this.configHashUnchanged);
   }
 
   private deepProxy(obj: any, callback: () => void): any {
@@ -267,8 +280,13 @@ export class AppConfig extends NDKEvent {
     this.content = this.pack();
   }
 
+  setBlock(name: string, block: ConfigBlock) {
+    this._config.blocks[name] = block;
+    this.config = this._config;
+    this.content = this.pack();
+  }
+
   setBlockEnabled(key: string, enabled: boolean) {
-    
     if (this._config.blocks[key]) {
       this._config.blocks[key].enabled = enabled;
       this.config = this._config;
@@ -276,20 +294,30 @@ export class AppConfig extends NDKEvent {
     }
   }
 
-  setBlockOrder(key: string, order: number) {
+  setBlockOrder(key: string, order: string | number) {
     if (this._config.blocks[key]) {
-      this._config.blocks[key].order = order;
+      this._config.blocks[key].order = typeof order === 'string'? parseInt(order): order;
       this.config = this._config;
       this.content = this.pack();
     }
   }
 
-  setBlockOptions(key: string, options: any) {
+  setBlockOptions(key: string, options: ConfigBlockOptions) {
     if (this._config.blocks[key]) {
       this._config.blocks[key].options = options;
       this.config = this._config;
       this.content = this.pack();
     }
+  }
+
+  setBlockOption(key: string, optionKey: string, optionValue: any): void {
+    if(!this._config.blocks?.[key]) return
+    if(!this._config.blocks[key]?.options) {
+      this._config.blocks[key].options = {} as ConfigBlockOptions
+    }
+    this._config.blocks[key].options![optionKey] = optionValue;
+    this.config = this._config;
+    this.content = this.pack();
   }
 
   disableBlock(key: string) {
@@ -301,8 +329,8 @@ export class AppConfig extends NDKEvent {
   }
 
   toggleBlock(key: string) {
-    console.log(key, key, key)
-    console.log(key, this._config.blocks)
+    // console.log(key, key, key)
+    // console.log(key, this._config.blocks)
     const currentEnabledState = this._config.blocks[key].enabled;
     this.setBlockEnabled(key, !currentEnabledState);
   }
@@ -341,7 +369,8 @@ export class AppConfig extends NDKEvent {
   
   private shiftOrder(key: string, direction: 'decrement' | 'increment'): void {
     const block = this.config.blocks[key];
-    let targetOrder = block.order + (direction === 'decrement' ? 1 : -1);
+    let targetOrder = block.order + (direction === 'decrement' ? -1 : 1);
+    console.log(key, block? 'block exists': 'block does not exist',  block, targetOrder)
     for (let key in this.config.blocks) {
       if (this.config.blocks[key].order === targetOrder) {
         this.config.blocks[key].order = block.order;
@@ -349,23 +378,52 @@ export class AppConfig extends NDKEvent {
         break;
       }
     }
+    console.log('new order', key, '=', this.config.blocks[key].order, 'should be', targetOrder, 'reordered?', targetOrder === block.order)
     this.config = this._config;
+    this.content = this.pack();
   }
 
   shiftBlockUp(key: string): undefined {
     if (this.config.blocks[key].order > 0) {
-      this.shiftOrder(key, 'increment');
+      this.shiftOrder(key, 'decrement');
     }
   }
 
   shiftBlockDown(key: string): undefined {
     const block = this.config.blocks[key];
     const maxOrder = Object.keys(this.config.blocks).length - 1;
+    console.log(key, block.order, maxOrder)
     if (block.order < maxOrder) {
-      this.shiftOrder(key, 'decrement');
+      console.log('shifting', key)
+      this.shiftOrder(key, 'increment');
     }
   }
-  
+
+  insertBlockAt(key: string, block: ConfigBlock): void {
+    Object.keys(this.config.blocks).forEach(blockKey => {
+      let currentBlock = this.config.blocks[blockKey];
+      if (currentBlock.order >= block.order) {
+        currentBlock.order++;
+      }
+    });
+    this._config.blocks[key] = block;
+    this.config = this._config;
+  }
+
+  removeBlock(name: string): void {
+    const blockToRemove = this._config.blocks[name];
+    if (!blockToRemove) return;
+    const orderOfRemovedBlock = blockToRemove.order;
+    delete this._config.blocks[name];
+    Object.keys(this._config.blocks).forEach(blockKey => {
+      let currentBlock = this._config.blocks[blockKey];
+      if (currentBlock.order > orderOfRemovedBlock) {
+        currentBlock.order--;
+      }
+    });
+    this.config = this._config;
+    this.content = this.pack();
+  }
 }
 
 function deepClone(obj: any) {

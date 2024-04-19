@@ -15,8 +15,6 @@ export class MRPConfig extends MRPData {
   private _type: string; //operator, user 
   private pubkey: string | undefined;
   private relay: string | undefined
-  private _changed: boolean = false;
-  private _configHash: string | undefined;
   
   public event: AppConfig;
 

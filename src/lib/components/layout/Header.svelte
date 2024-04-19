@@ -11,10 +11,6 @@
   import Login from '$lib/components/partials/login.svelte';
   import ThemeMode from '$lib/components/partials/theme-mode.svelte';
   import ToggleRelay from '$lib/components/partials/toggle-relay.svelte';
-  import Nips from '$lib/components/partials/nips.svelte';
-  import LimitationsBoolean from '$lib/components/partials/limitations.boolean.svelte';
-  import LimitationsNumber from '$lib/components/partials/limitations.number.svelte';
-  import Software from '$lib/components/partials/software.svelte';
   import PayRelay from '$lib/components/partials/pay-relay.svelte';
 
   const MRP = getContext(MY_RELAY_PAGE);
@@ -46,16 +42,6 @@
       </span>
     </h1>
   {/if}
-
-  {#if $relay?.info?.description}
-    <p class="text-lg md:text-xl text-muted-foreground mb-4">
-      { $relay?.info?.description }
-    </p>
-  {/if}
-  <LimitationsBoolean />
-  <LimitationsNumber />  
-  <Nips />
-  <Software />
   <div class="absolute -top-16 -right-7 sm:-right-3 sm:mb-3 flex items-center space-x-4 text-right min-w-40">
     <Login />
     <ThemeMode class="inline-block" />

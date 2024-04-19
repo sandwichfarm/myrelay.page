@@ -8,7 +8,7 @@
 
     import Block from "$lib/components/wrappers/block.svelte";
     import UserAvatar from "$lib/components/partials/avatar.svelte";
-    import ProfileSkeleton from "$lib/components/blocks/operator-profile/operator-profile.skeleton.svelte";
+    import ProfileSkeleton from "$lib/components/blocks/unique/operator-profile/operator-profile.skeleton.svelte";
 
     import * as nip19 from 'nostr-tools/nip19'
     

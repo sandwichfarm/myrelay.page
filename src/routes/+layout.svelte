@@ -18,10 +18,10 @@
   export const prerender = true;
   export const trailingSlash = 'always';
 
-  let mrp: Writable<MyRelayPage> = writable()
+  let MRP: Writable<MyRelayPage> = writable()
   let start: Writable<number> = writable(Date.now())
 
-  setContext(MY_RELAY_PAGE, mrp);
+  setContext(MY_RELAY_PAGE, MRP);
   setContext(THEME_CSS, theme);
 
   const mount = async () => {
@@ -34,31 +34,30 @@
 
     await import('nostr-zap')
     let url: string | undefined;
-    if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page')){
+    if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page') || window.location.host.includes('netlify')){
       const params = new URLSearchParams(window.location.search);
-      url = params.get('url') || "wss://relaypag.es"
+      url = params.get('url') || "wss://lunchbox.sandwich.farm"
     };
 
-    const _mrp = new MyRelayPage(url);
+    MRP.set(new MyRelayPage(url))
 
-    _mrp.$.signal.on('state:changed', function(){ 
+    $MRP.$.signal.on('state:changed', function(){ 
       // console.log('state:changed', ...arguments)
-      mrp.set(_mrp);
+      MRP.set($MRP);
     });
 
-    _mrp.$.signal.on('root:pending', function(timestamp: number){ 
+    $MRP.$.signal.on('root:pending', function(timestamp: number){ 
       document.body.classList.add('loading')
     })
 
-    _mrp.$.signal.on('root:completed', function(timestamp: number){ 
+    $MRP.$.signal.on('root:completed', function(timestamp: number){ 
       document.body.classList.remove('loading')
       document.body.classList.add('loaded')
       console.log(`loaded in ${Date.now()-$start}ms`)
     })
 
-    mrp.set(_mrp);
-    await _mrp.init();
-    // mrp.set(_mrp);  
+    MRP.set($MRP);
+    await $MRP.init();
   }
   onMount(async () => {
     if(browser) {
@@ -79,7 +78,7 @@
         <Header></Header>
         
         <slot></slot>
-        {#if !$mrp?.nostr?.relay?.config?.isComplete}
+        {#if !$MRP?.nostr?.relay?.config?.isComplete}
           <span class="mt-5 text-center block text-black/20 dark:text-white/20 italic text-lg"> 
             loading operator config...  
           </span>

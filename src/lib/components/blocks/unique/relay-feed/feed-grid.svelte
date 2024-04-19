@@ -15,6 +15,7 @@
   {minColWidth}
   {maxColWidth}
   {gap}
+  animate={true}
   let:item 
   >
   <Note note={item} pointer={pointers[item.id]} />

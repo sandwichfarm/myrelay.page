@@ -65,7 +65,7 @@ export class MRPRelay extends MRPData {
     const exclude = { pubkey: this.owner?.pubkey as string }
     const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), this.$.ndk)
     const feedOptions: MRPFeedOptions = { 
-      filter: { kinds: [1], limit: 10 },
+      filter: { kinds: [1], limit: 15 },
       relays, 
       pointerRelays: relays, 
       exclude

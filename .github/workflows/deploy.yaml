@@ -1,37 +1,53 @@
 name: deploy
 on: 
- - push
+  push
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: build 
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: install
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
-            ls -la 
-            yarn install
-            yarn build
+          yarn install
+          
+      - name: build 
+        run: yarn build
 
       - name: get-npm-version
+        if: github.ref == 'refs/heads/main'
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
 
       - name: Install SSH Key
+        if: github.ref == 'refs/heads/main'
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
       - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hostsa
+        if: github.ref == 'refs/heads/main'
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy with rsync
+        if: github.ref == 'refs/heads/main'
         run: | 
           TARGET_DIR="/var/www/html/${{ steps.package-version.outputs.current-version}}"
           rsync -a --rsync-path="mkdir -p $TARGET_DIR && rsync" ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$TARGET_DIR
 
       - name: Update symlink 
+        if: github.ref == 'refs/heads/main'
         run: | 
           sudo rm -f /var/www/html/latest
           sudo ln -sf /var/www/html/${{ steps.package-version.outputs.current-version}} /var/www/html/latest

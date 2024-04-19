@@ -52,7 +52,7 @@
         </span>
         {/if}
         <Avatar.Root class="inline-block border-slate-500 border-2">
-          <Avatar.Image src="{$MRP?.nostr?.user?.profile?.image}" alt="@{$MRP?.nostr?.user?.profile?.name || 'anonymous'}" />
+          <Avatar.Image src={$MRP?.nostr?.user?.profile?.image} alt="@{$MRP?.nostr?.user?.profile?.name || 'anonymous'}" />
           <Avatar.Fallback>@{$MRP?.nostr?.user?.profile?.name || 'anonymous'}</Avatar.Fallback>
         </Avatar.Root>
         <span>
