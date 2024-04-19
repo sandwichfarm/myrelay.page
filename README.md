@@ -21,13 +21,17 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [x] progressive load w/skeletons
   - [x] NIP-07 support
   - [ ] NIP-46 support
-  - [ ] mobile compat
-- blocks
+  - [x] mobile compat
+- unique blocks
   - [x] nip-11
   - [x] operator profile/feed
   - [x] map
   - [x] relay feed
   - [ ] speed test (need to patch @nostrwatch/nocap)
+- repeatable blocks
+  - [ ] html
+  - [ ] image
+  - [ ] md  
 - stateful meta-data 
   - [x] nip-11
   - [x] operator profile
