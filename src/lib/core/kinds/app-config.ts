@@ -138,7 +138,6 @@ export class AppConfig extends NDKEvent {
     this.config = deepClone(this._configDefault)
     this._configUnchanged = deepClone(this.config)
     this.content = jsonpack.pack(this.config);
-    this.commitChanges()
   }
 
   configDiffersFromDefault(): boolean {

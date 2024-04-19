@@ -15,7 +15,7 @@
   const STATIC_ORDER = -100
 
   let lastUpdate: number;
-  const updateEvery: number = 2000
+  const updateEvery: number = 500
   const updates = {}
   let updateTimeout = undefined
 
@@ -30,7 +30,7 @@
   }
   
   $: isRepeatable = key.includes(':')
-  $: blockChangeFn = (optionKey: string, optionValue: any): undefined => {
+  $: blockChangeFn = async (optionKey: string, optionValue: any): undefined => {
     //TODO: remove after storification.
     if(Date.now() - lastUpdate < updateEvery) {
       updateTimeout = setTimeout(commitChanges, updateEvery)

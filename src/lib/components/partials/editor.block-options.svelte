@@ -61,6 +61,16 @@
     optionsConfig.set(config)
   }
 
+  const changeOnEnter = (event: KeyboardEvent) => {
+    if(event.key === 'Enter'){
+      _change(camelizeHyphenated(event.target.name), event.target.value)
+    }
+  }
+
+  const changeOnBlur = (event: KeyboardEvent) => {
+    _change(camelizeHyphenated(event.target.name), event.target.value)
+  }
+
   const stringArrAdd = (optionKey: string, value: string) => {
     if(inputValue(optionKey).includes(value)) return
     _change(optionKey, [...inputValue(optionKey), value])
@@ -104,7 +114,7 @@
                 <Label for={inputName(optionKey)} class="inline-block">{inputLabel(optionKey)}</Label>
               </svelte:fragment>
               <svelte:fragment slot="input">
-                <Input type="text" name={inputName(optionKey)} value={inputValue(optionKey)} on:keyup={event => _change(optionKey, event?.target?.value)} />
+                <Input type="text" name={inputName(optionKey)} value={inputValue(optionKey)} on:keyup={changeOnEnter} on:blur={changeOnBlur} />
               </svelte:fragment>
             </FormInput>
             {/if}
@@ -132,7 +142,7 @@
                 <Label for={inputName(optionKey)} class="inline-block">{inputLabel(optionKey)}</Label>
               </svelte:fragment>
               <svelte:fragment slot="input">
-                <Textarea name={inputName(optionKey)} value={inputValue(optionKey)} on:change={keyup => _change(optionKey, event?.target?.value)}></Textarea>
+                <Textarea name={inputName(optionKey)} value={inputValue(optionKey)} on:change={keyup => _change(optionKey, event?.target?.value)} on:blur={changeOnBlur} ></Textarea>
               </svelte:fragment>
             </FormInput>
             {/if}
@@ -194,7 +204,7 @@
               </svelte:fragment>
               <svelte:fragment slot="input">
                 <!-- <Switch checked={checked} on:change={handleToggle} /> -->
-                <Input type="number" name={inputName(optionKey)} value={inputValue(optionKey)} on:change={event => _change(optionKey, event?.target?.value)} />
+                <Input type="number" name={inputName(optionKey)} value={inputValue(optionKey)} on:keyup={changeOnEnter} on:blur={changeOnBlur} />
               </svelte:fragment>
             </FormInput>
             {/if}
