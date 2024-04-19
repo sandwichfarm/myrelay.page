@@ -40,14 +40,10 @@
     if($initialized === true || editor) return console.warn('already initialized')
     if(attempts > 10) return console.error('Failed to initialize feed')
     if(!relay?.owner?.isComplete || !options) return setTimeout(initialize, 1000)
-
-    console.log('initializing feed...', options)
     
     const exclude = options?.excludeOperator? { pubkey: this.owner?.pubkey as string }: {}
     const filter: NDKFilter = generateFilter()
     const relays: NDKRelaySet = new NDKRelaySet(new Set([new NDKRelay(relay.url as string)]), ndk)
-
-    console.log('filter', filter)
     
     const feedOptions: MRPFeedOptions = { 
       filter,
@@ -57,11 +53,8 @@
     }
 
     Feed.set(new MRPFeed(state, key, feedOptions))
-    console.log('fetching...')
     await $Feed.fetch()
     Feed.set($Feed)
-
-    console.log('notes', $Feed?.notes?.length)
 
     initialized.set(true)
   }

@@ -46,7 +46,6 @@ export class BlockLoader extends MRPData {
 
   async getComponentOptionConfig(key: string): Promise<{optionsConfig: any, defaultOptions: any}> {
     const type = this.getType(key)
-    console.log('getComponentOptionConfig', key, type)
     return import(
       `../components/blocks/${this.isRepeatable(key)
         ? 'repeatable'
@@ -80,9 +79,7 @@ export class BlockLoader extends MRPData {
 
   async loadRepeatableComponents(){
     for (let key in this.config.event.blocks){
-      console.log('do that shit', key, this.isRepeatable(key))
       if(!this.isRepeatable(key)) continue
-      console.log('shit is repeatable', key)
       await this.loadRepeatableComponent(key).catch(BlockLoader.errorHandler)
     }
   }
@@ -126,7 +123,6 @@ export class BlockLoader extends MRPData {
       this.config.event.insertBlockAt(key, { enabled: true, order, options: {} })
     else
       this.config.event.setBlock(key, { enabled: true, order: totalBlocks, options: {} })
-      // console.log(`${name} component`, this?._components?.[name])
     this.changed()
     return key
   }
@@ -144,12 +140,10 @@ export class BlockLoader extends MRPData {
   }
 
   private async loadRepeatableComponent(key: string): Promise<NodeModule | undefined> {
-    console.log('load this shit', key)
     const type = this.getType(key)
     let $component = this?._components?.[type]
     if(typeof $component === 'undefined'){
       $component = await import(`../components/blocks/repeatable/${type}/${type}.svelte`).catch(BlockLoader.errorHandler)
-      console.log('wtf', key, $component)
       this._components[type] = $component?.default? $component.default: $component
       this.changed()
     }

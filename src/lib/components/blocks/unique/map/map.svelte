@@ -115,7 +115,6 @@
   const setMonitors = async (): void => {
     resetMonitors()
 
-    console.log(`show monitors? ${showMonitors}`)
     if(!showMonitors) {
       return console.log('no monitor points added to map')
     }
@@ -153,11 +152,9 @@
   }
 
   const setMapPoints = async (): void => {
-    console.log(`dd`, $MRP.dd)
     setRelayMapPoint()
     if(monitorVis === 'always') setMonitors()
     updateMapData()
-    console.log('data', $data)
   }
 
   const addUserLocationToMap = (e: CustomEvent): void => {

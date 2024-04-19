@@ -19,7 +19,6 @@
   const hovered = (monitor: MRPMonitor | boolean): undefined => {
     if(monitorVis !== 'onhover') return 
     if(!monitor) return resetMonitors()
-    console.log('hovered', monitor?.profile?.name)
     resetMonitors()
     setMonitor(monitor)
     updateMapData()

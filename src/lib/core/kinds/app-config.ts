@@ -370,7 +370,6 @@ export class AppConfig extends NDKEvent {
   private shiftOrder(key: string, direction: 'decrement' | 'increment'): void {
     const block = this.config.blocks[key];
     let targetOrder = block.order + (direction === 'decrement' ? -1 : 1);
-    console.log(key, block? 'block exists': 'block does not exist',  block, targetOrder)
     for (let key in this.config.blocks) {
       if (this.config.blocks[key].order === targetOrder) {
         this.config.blocks[key].order = block.order;
@@ -378,7 +377,6 @@ export class AppConfig extends NDKEvent {
         break;
       }
     }
-    console.log('new order', key, '=', this.config.blocks[key].order, 'should be', targetOrder, 'reordered?', targetOrder === block.order)
     this.config = this._config;
     this.content = this.pack();
   }
@@ -392,9 +390,7 @@ export class AppConfig extends NDKEvent {
   shiftBlockDown(key: string): undefined {
     const block = this.config.blocks[key];
     const maxOrder = Object.keys(this.config.blocks).length - 1;
-    console.log(key, block.order, maxOrder)
     if (block.order < maxOrder) {
-      console.log('shifting', key)
       this.shiftOrder(key, 'increment');
     }
   }

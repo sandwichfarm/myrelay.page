@@ -19,7 +19,6 @@
   export let key: string; 
 
   const _change = (optionKey: string, optionValue: any) => {
-    // console.log(optionKey, optionValue, $optionsConfig[optionKey]?.setter(optionValue)  )
     if($optionsConfig[optionKey]?.setter)
       optionValue = $optionsConfig[optionKey].setter(optionValue)
     options.set({...$options, [optionKey]: optionValue });
@@ -56,7 +55,6 @@
   }
 
   const loadBlockOptions = async (key: string) => {
-    console.log('loading block options', key)
     await $MRP?.loader?.loadComponentOptions(key)
     const {options:_options, optionsConfig:config} = await $MRP?.loader?.loadComponentOptions(key)
     options.set(_options)
@@ -64,7 +62,6 @@
   }
 
   const stringArrAdd = (optionKey: string, value: string) => {
-    console.log('value', optionKey, inputValue(optionKey))
     if(inputValue(optionKey).includes(value)) return
     _change(optionKey, [...inputValue(optionKey), value])
   }
