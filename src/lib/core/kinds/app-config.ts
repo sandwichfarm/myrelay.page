@@ -107,11 +107,15 @@ export class AppConfig extends NDKEvent {
   private _configUnchanged: ConfigObj;
   private _configHash: string | undefined;  
   private _configHashUnchanged: string | undefined;  
+  private _configDefault: ConfigObj = deepClone(defaults);
+  private _configDefaultHash: string = '';
 
   constructor( ndk: NDK, event?: NostrEvent ){
     super(ndk, event)
     this.kind = NDKKind.AppSpecificData
-    this.config = deepMerge(defaults, this.parseConfig(this.content))
+
+    this._configDefaultHash = objectHash(this._configDefaultHash, { algorithm: 'sha1' });
+    this.config = deepMerge(this._configDefault, this.parseConfig(this.content))
     this._configUnchanged = deepClone(this.config)
     this.content = jsonpack.pack(this.config);
   }
@@ -121,19 +125,25 @@ export class AppConfig extends NDKEvent {
   }
 
   private parseConfig(content: string): ConfigObj {
-    if (!content) return defaults;
+    if (!content) return this._configDefault;
     try {
       return jsonpack.unpack(content);
     } catch (e) {
       console.error(`Error parsing content: ${e}`);
-      return defaults;
+      return this._configDefault;
     }
   }
 
   reset(){
-    this.config = deepMerge({}, defaults)
+    this.config = deepClone(this._configDefault)
     this._configUnchanged = deepClone(this.config)
     this.content = jsonpack.pack(this.config);
+    this.commitChanges()
+  }
+
+  configDiffersFromDefault(): boolean {
+    console.log(this.configHash, this._configDefaultHash, this.configHash !== this._configDefaultHash)
+    return this.configHash !== this._configDefaultHash;
   }
 
   commitChanges(){

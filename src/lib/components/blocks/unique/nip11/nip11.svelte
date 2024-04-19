@@ -29,22 +29,22 @@
 {#if browser}
 <Block noClass={true} sortable={false} {key}>a
   <svelte:fragment slot="content">
-    {#if info?.description && options.showDescription}
+    {#if info?.description && options?.showDescription}
     <p class="text-lg md:text-xl text-muted-foreground mb-4">
-      {#if options.descriptionAlternateText.length}
-        {options.descriptionAlternateText}
+      {#if options?.descriptionAlternateText.length}
+        {options?.descriptionAlternateText}
       {:else}
         {info?.description}
       {/if}
     </p>
     {/if}
-    {#if options.showRestrictionsBoolean}
+    {#if options?.showRestrictionsBoolean}
     <LimitationsBoolean />
     {/if}
-    {#if options.showRestrictionsInteger}
+    {#if options?.showRestrictionsInteger}
     <LimitationsNumber />  
     {/if}
-    {#if options.showSupportedNips}
+    {#if options?.showSupportedNips}
     <Nips />
     {/if}
     <Software {options} />

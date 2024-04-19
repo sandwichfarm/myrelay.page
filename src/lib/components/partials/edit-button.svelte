@@ -29,6 +29,7 @@
   const resetConfig = async () => {
     $MRP?.loader?.config?.event?.reset()
     MRP.set($MRP)
+    toggleEdit()
   }
   
   $: text = $MRP?.editor?.enabled 
@@ -42,14 +43,18 @@
         ? 'bg-red-500'
         : '' 
       : ''
+  
+  $: showReset = $MRP?.loader?.config?.event?.configDiffersFromDefault()
 
   
 </script>
 {#if browser }
-  {#if $MRP?.loader?.config?.event.changed } 
+  {#if showReset}
   <Button variant="outline" class="bg-red-700" on:click={resetConfig}>
     reset config
   </Button>
+  {/if}
+  {#if $MRP?.loader?.config?.event.changed } 
   <Button variant="outline" class="bg-green-600" on:click={publish}>
     publish edits
   </Button>

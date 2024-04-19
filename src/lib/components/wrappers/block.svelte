@@ -14,10 +14,35 @@
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   const STATIC_ORDER = -100
 
+  let lastUpdate: number;
+  const updateEvery: number = 2000
+  const updates = {}
+  let updateTimeout = undefined
+
+  //TODO: remove after storification.
+  const commitChanges = () => {
+    Object.keys(updates).forEach( key => {
+      const value = updates[key]
+      if(typeof value === 'undefined') return
+      $MRP.loader.config.event.setBlockOption(key, value)
+      updates[key] = undefined
+    })
+  }
+  
   $: isRepeatable = key.includes(':')
   $: blockChangeFn = (optionKey: string, optionValue: any): undefined => {
-    console.log('change', key, optionKey, optionValue)
+    //TODO: remove after storification.
+    if(Date.now() - lastUpdate < updateEvery) {
+      updateTimeout = setTimeout(commitChanges, updateEvery)
+      updates[optionKey] = optionValue
+    }
+    clearTimeout(updateTimeout)
+    if(updates.length) {
+      commitChanges()
+      updates.length = 0
+    }
     $MRP.loader.config.event.setBlockOption(key, optionKey, optionValue)
+    lastUpdate = Date.now()
     MRP.set($MRP)
   }
 
