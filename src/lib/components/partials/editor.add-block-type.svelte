@@ -22,20 +22,26 @@
 </script>
 {#if $MRP.editor.enabled}
 <div class="grid grid-cols-4 gap-4">
-  <a href="#html" class="col-span-1" tabindex="-10" on:click={addRepeatableComponent('html', order)}>
+  <span class="editor-add-block" tabindex="-10" on:click={addRepeatableComponent('html', order)}>
     <pre>{`<html />`}</pre>
-  </a>
-  <a href="#img" class="col-span-1" tabindex="-10" on:click={addRepeatableComponent('image', order)}>
+  </span>
+  <span class="editor-add-block" tabindex="-10" on:click={addRepeatableComponent('image', order)}>
     <pre>{`<img />`}</pre>
-  </a>
-  <a href="#md" class="col-span-1" tabindex="-10" on:click={addRepeatableComponent('markdown', order)}>
+  </span>
+  <span class="editor-add-block" tabindex="-10" on:click={addRepeatableComponent('markdown', order)}>
     <pre>{`markdown`}</pre>
-  </a>
-  <a href="#feed" class="col-span-1" tabindex="-10" on:click={addRepeatableComponent('feed', order)}>
+  </span>
+  <span class="editor-add-block" tabindex="-10" on:click={addRepeatableComponent('feed', order)}>
     feed
-  </a>
-  <a href="#html" class="col-span-1" tabindex="-10">
+  </span>
+  <!-- <span href="#html" class="col-span-1" tabindex="-10">
     component
-  </a>
+  </span> -->
 </div>
 {/if}
+
+<style>
+  .editor-add-block {
+    @apply bg-black/10 hover:bg-black/15 dark:bg-white/10 dark:hover:bg-white/15 col-span-1 py-5 text-center cursor-pointer
+  }
+</style>

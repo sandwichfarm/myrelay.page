@@ -24,11 +24,13 @@
 
     $: noteClass = noClass? '': 'mrp-note mrp-note-bg mrp-note-content block'
     $: noteTitle = () => note?.tags?.find(t => t[0] === 'title')?.[1]
+    $: content = summaryTruncate 
+      ? parseMP4s(parseImages(truncate(note.content, summaryWordsLength))) 
+      : parseMP4s(parseImages(note.content))
 </script>
 
 <div class="{noteClass} {$$props.class} transition-colors ease-in-out">
-  {#if noteTitle(note)}
-
+  {#if noteTitle()}
   <h2 class="text-xl mb-4 font-bold {headingClass}">
     <a 
       href="https://nostr.at/{ nip19.neventEncode( pointer ) }" 
@@ -43,7 +45,7 @@
 
   {#if showSummary}
     <p class="mt-2">
-      {@html summaryTruncate ? parseMP4s(parseImages(truncate(note.content, summaryWordsLength))) : parseMP4s(parseImages(note.content)) }
+      {@html content }
     </p>
   {/if}
 
@@ -55,7 +57,7 @@
   {/each}
   </span>
 
-  {#if note?.id}
+  {#if note?.id && showJump}
     <a href="https://nostr.at/{ nip19.neventEncode( pointer ) }" 
        target="_blank" 
        class="mrp-note-jump mrp-note-jump-bg mrp-note-jump-text duration-100">
