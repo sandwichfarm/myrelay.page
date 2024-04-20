@@ -13,6 +13,7 @@
   export let maxColWidth: number = 800;
   export let gap: number = 20;
   export let animate: boolean = true;
+
 </script>
 
 <Masonry
@@ -22,5 +23,18 @@
   {gap}
   {animate}
   let:item >
-  <Note note={item} pointer={pointers[item.id]} />
+  <Note 
+    note={item} 
+    pointer={pointers[item.id]}
+
+    timeAgoClass="text-gray-800 dark:text-purple-50/70 font-normal tracking-widest text-xs uppercase"
+
+    headingClass="mb-4 
+              text-2xl font-bold uppercase tracking-tighter
+              text-black/95 dark:text-purple-200/70"
+
+    contentClass="tracing-wide leading-loose
+                  text-black/80 hover:text-black/90
+                  dark:text-white/80 hover:dark:text-white/90"
+ />
 </Masonry>

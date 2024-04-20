@@ -21,7 +21,7 @@
 <span class="inline-flex items-center border rounded-full px-2.5 py-0.5 
               text-italic font-semibold transition-colors focus:outline-none select-none 
               focus:ring-2 focus:ring-ring focus:ring-offset-2
-               bg-slate-500/5 text-black/80 dark:text-white/80 border-transparent text-primary-foreground text-sm mr-1">
+              bg-slate-500/5 text-black/50 dark:text-white/80 border-transparent text-sm mr-1">
   nips
 </span>
   {#each $relay?.info?.nips as nip}
@@ -32,7 +32,7 @@
             focus:ring-ring focus:ring-offset-2 
             bg-slate-500/20 hover:bg-slate-500/30
             text-black/80 dark:text-white/30 hover:text-white/100 
-            border-transparent text-primary-foreground text-sm mr-1 mb-2"
+            border-transparent text-sm mr-1 mb-2"
       >
       { nip }
     </a>
