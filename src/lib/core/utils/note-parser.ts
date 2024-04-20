@@ -1,44 +1,53 @@
 import NDK from "@nostr-dev-kit/ndk";
+import { marked } from "marked";
+import * as DOMPurify from 'dompurify';
 
-export const parseNote = (text: string, ndk?: NDK): string => {
-  text = parseImages(text);
-  text = parseMP4s(text);
-  if(ndk) 
-    text = parseNip19(text, ndk);
-  return text;
+interface ParseConfig {
+  nip19?: boolean,
+  markdown?: boolean,
+  markdownOptions?: marked.MarkedOptions,
+  images?: boolean,
+  videos?: boolean,
+  truncate?: boolean,
+  truncateLength?: number,
+  sanitize?: boolean, 
 }
 
-export const parseNip19 = (text: string, ndk: NDK): string => {
-  const encoded = /(nevent:|nprofile:|naddr:|nrelay:)\b/gi;
-  return text.replace(encoded, (match: string): string  => {  
-    if(match.startsWith('nevent'))
-      return parseNEvent(match, ndk);
-    if(match.startsWith('nprofile'))
-      return parseNProfile(match, ndk);
-    if(match.startsWith('naddr'))
-      return parseNAddr(match, ndk);
-    if(match.startsWith('nrelay'))
-      return parseNRelay(match, ndk);
-    return match
-  });
+const defaultConfig: ParseConfig = {
+  nip19: true,
+  markdown: true,
+  markdownOptions: { breaks: true },
+  images: true,
+  videos: true,
+  truncate: false,
+  truncateLength: 50,
+  sanitize: false,
 }
 
-export const parseNEvent = (encoded: string, ndk: NDK): string => {
-  return encoded
-}
 
-export const parseNProfile = (encoded: string, ndk: NDK): string => {
-  return encoded
-}
+export const parseNote = async (text: string, config: ParseConfig): Promise<string> => {
+  config = {...defaultConfig, ...config}
 
-export const parseNAddr = (texencodedt: string, ndk: NDK): string => {
-  return encoded
-}
+  if(config?.images)
+    text = parseImages(text);
 
-export const parseNRelay = (encoded: string, ndk: NDK): string => {
-  return encoded
-}
+  if(config?.videos)
+    text = parseMP4s(text);
+  
+  if(config?.nip19) 
+    text = parseNip19(text);
 
+  if(config?.truncate)
+    text = truncate(text, config?.truncateLength);
+
+  if(config?.markdown)
+    text = await marked(text, config?.markdownOptions)
+
+  if(config?.sanitize)
+    text = DOMPurify.sanitize(text);
+  
+  return text
+}
 
 export const parseImages = (text: string): string => {
   const imageURLPattern = /https?:\/\/\S+\.(png|gif|jpg|jpeg|webp|svg|bmp)\b/gi;
@@ -58,3 +67,43 @@ export const parseMP4s = (text: string): string => {
 
   return videoHTML + text;
 }
+
+export const parseNip19 = (text: string): string => {
+  const encoded = /(nevent:|nprofile:|naddr:|nrelay:)\b/gi;
+  return text.replace(encoded, (match: string): string  => {  
+    if(match.startsWith('nevent'))
+      return parseNEvent(match);
+    if(match.startsWith('nprofile'))
+      return parseNProfile(match);
+    if(match.startsWith('naddr'))
+      return parseNAddr(match);
+    if(match.startsWith('nrelay'))
+      return parseNRelay(match);
+    return match
+  });
+}
+
+export const parseNEvent = (encoded: string): string => {
+  return encoded
+}
+
+export const parseNProfile = (encoded: string): string => {
+  return encoded
+}
+
+export const parseNAddr = (encoded: string): string => {
+  return encoded
+}
+
+export const parseNRelay = (encoded: string): string => {
+  return encoded
+}
+
+
+
+
+export const truncate = (str, max = 10) => {
+  const array = str.trim().split(' ');
+  const ellipsis = array.length > max ? '...' : '';
+  return array.slice(0, max).join(' ') + ellipsis;
+};
