@@ -48,6 +48,11 @@ jobs:
 
       - name: Update symlink 
         if: github.ref == 'refs/heads/main'
-        run: | 
-          sudo rm -f /var/www/html/latest
-          sudo ln -sf /var/www/html/${{ steps.package-version.outputs.current-version}} /var/www/html/latest
+        env:
+          WEB_PATH: "/var/www/html"
+        run: |
+          LATEST_PATH="${WEB_PATH}/latest"
+          VERSIONED_PATH="${WEB_PATH}/${{ steps.package-version.outputs.current-version }}"
+          rm -f "$LATEST_PATH"
+          ln -s "$VERSIONED_PATH" "$LATEST_PATH"
+          
