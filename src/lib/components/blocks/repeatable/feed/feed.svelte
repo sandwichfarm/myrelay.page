@@ -92,12 +92,14 @@
         <FeedGridSkeleton />
       {/if}
     {/if}
+
     {#if layout === 'list' }
       <FeedList 
         {notes} 
         {pointers}
         />
     {/if}
+    
   </svelte:fragment>
 </Block>
 <!-- {/if} -->
