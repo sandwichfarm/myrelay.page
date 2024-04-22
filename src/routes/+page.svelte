@@ -13,6 +13,7 @@
   $: showComponent = (key: string) => $MRP?.editor?.enabled || $MRP.loader?.config.event.isBlockEnabled(key)
   $: componentType = (key: string) => key.split(':')[0]
   $: componentOrder = (key: string) => $MRP?.loader?.config.event.getBlock(key)?.order
+  $: componentIsSortable = (key: string) => componentOrder(key) >= 0
   $: type  = (key: string) => key.split(':')[0]
 
   let order: number = 0
@@ -27,7 +28,7 @@
     {/if}
     {#if Component && showComponent(Component.key)}    
       <svelte:component this={Component.component} key={Component.key} id={id}  />
-      {#if componentOrder(Component.key) >= 0}
+      {#if componentIsSortable(Component.key)}
       <EditorAddBlock order={componentOrder(Component.key)+1} bind:id />
       {/if}
     {/if}

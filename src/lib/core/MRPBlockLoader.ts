@@ -80,7 +80,7 @@ export class BlockLoader extends MRPData {
   async loadRepeatableComponents(){
     for (let key in this.config.event.blocks){
       if(!this.isRepeatable(key)) continue
-      await this.loadRepeatableComponent(key).catch(BlockLoader.errorHandler)
+      this.loadRepeatableComponent(key).catch(BlockLoader.errorHandler)
     }
   }
 

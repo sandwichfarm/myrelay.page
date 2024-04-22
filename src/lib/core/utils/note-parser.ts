@@ -3,6 +3,7 @@ import { marked } from "marked";
 import * as DOMPurify from 'dompurify';
 
 interface ParseConfig {
+  removeHashtags?: boolean,
   nip19?: boolean,
   markdown?: boolean,
   markdownOptions?: marked.MarkedOptions,
@@ -14,6 +15,7 @@ interface ParseConfig {
 }
 
 const defaultConfig: ParseConfig = {
+  removeHashtags: true,
   nip19: true,
   markdown: true,
   markdownOptions: { breaks: true },
@@ -45,8 +47,18 @@ export const parseNote = async (text: string, config: ParseConfig): Promise<stri
 
   if(config?.sanitize)
     text = DOMPurify.sanitize(text);
+
+  if(config?.removeHashtags)
+    text = removeHashtags(text);
+
+  text = text.replace('&;', "'")
   
   return text
+}
+
+export const removeHashtags = (input: string): string => {
+  const hashtagRegex = /#[\w\-]+/g;
+  return input.replace(hashtagRegex, '');
 }
 
 export const parseImages = (text: string): string => {
@@ -98,9 +110,6 @@ export const parseNAddr = (encoded: string): string => {
 export const parseNRelay = (encoded: string): string => {
   return encoded
 }
-
-
-
 
 export const truncate = (str, max = 10) => {
   const array = str.trim().split(' ');
