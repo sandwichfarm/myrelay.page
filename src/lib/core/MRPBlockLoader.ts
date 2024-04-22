@@ -35,7 +35,7 @@ export class BlockLoader extends MRPData {
   async init(){
     if(this.isPending) return
     this.begin()
-    await this.loadAllComponents().catch(BlockLoader.errorHandler)
+    this.loadAllComponents().catch(BlockLoader.errorHandler)
   }
 
   async loadComponentOptions(key: string): Promise<ComponentOptions> {
@@ -64,16 +64,16 @@ export class BlockLoader extends MRPData {
   }
 
   async loadAllComponents(){
-    await this.loadUniqueComponents().catch(BlockLoader.errorHandler)
-    await this.loadRepeatableComponents().catch(BlockLoader.errorHandler)
-    await this.loadRemoteComponents().catch(BlockLoader.errorHandler)
+    this.loadUniqueComponents().catch(BlockLoader.errorHandler)
+    this.loadRepeatableComponents().catch(BlockLoader.errorHandler)
+    // this.loadRemoteComponents().catch(BlockLoader.errorHandler)
   }
 
   async loadUniqueComponents(){
     for (let key in this.config.event.blocks){
+      if(this.isRepeatable(key)) continue
       if(this._components?.[key] !== undefined) continue;
-      if(this.config.event.blocks[key].custom === true) continue;
-      await this.loadUniqueComponent(key).catch(BlockLoader.errorHandler)
+      this.loadUniqueComponent(key).catch(BlockLoader.errorHandler)
     }
   }
 
@@ -129,9 +129,8 @@ export class BlockLoader extends MRPData {
 
   private async loadUniqueComponent(key: string): Promise<NodeModule | undefined> {
     const block = this.config.event.blocks?.[key]
-    const isUnique = !this.isRepeatable(key)
     let $component;
-    if(block && isUnique){
+    if(block){
       $component = await import(`../components/blocks/unique/${key}/${key}.svelte`).catch(BlockLoader.errorHandler)
       this._components[key] = $component?.default? $component.default: $component
     }
