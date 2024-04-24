@@ -23,7 +23,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
   - [ ] NIP-46 support
   - [x] mobile compat
   - [x] options generic
-  - [ ] manually set URL for explicit control and unhandled edge-cases
+  - [ ] manually set URL via `.env` for build-time URL setting for explicit control and unhandled edge-cases
 - unique blocks
   - [x] nip-11
   - [x] operator profile/feed
