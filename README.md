@@ -15,7 +15,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 **Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
 
 ## Try it without build/deploy
-You can preview your relay on myrelay.page and even edit it without building or deploying it through the netlify build (which is always latest). **Important: Works for `wss` relays only!** Also see [requirements for editing](https://github.com/sandwichfarm/myrelay.page/edit/main/README.md#important-notes)
+You can preview your relay on myrelay.page and even edit it without building or deploying it through the netlify build (which is always latest). **Important: Works for `wss` relays only!** Also see [requirements for editing](#important-notes)
 
 `https://relaypage.netlify.app/?url=$YOUR_RELAY_URL`
 
