@@ -14,6 +14,17 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 
 **Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
 
+## Try it without build/deploy
+You can preview your relay on myrelay.page and even edit it without building or deploying it through the netlify build (which is always latest). **Important: Works for `wss` relays only!** Also see [requirements for editing](https://github.com/sandwichfarm/myrelay.page/edit/main/README.md#important-notes)
+
+`https://relaypage.netlify.app/?url=$YOUR_RELAY_URL`
+
+for example
+- [snort](https://relaypage.netlify.app/?url=wss://relay.snort.social)
+- [damus](https://relaypage.netlify.app/?url=wss://relay.damus.io)
+- [damus](https://relaypage.netlify.app/?url=wss://purplepag.es)
+- [nostr.land](https://relaypage.netlify.app/?url=wss://nostr.land)
+
 ## todo 
 - general
   - [x] `tailwind`  
@@ -114,17 +125,6 @@ _Image is not available on a registry yet_
   - If you run a `wss` relay, you must serve _myrelay.page_ from `https`, 
   - if you run a `ws` (unsecured) relay, for instance from onion or a local relay, you must serve _myrelay.page_ from `http`
   - You are not serving _myrelay.page_ from the `https` url equivalent of your relay, see below if testing locally. 
-
-## Demo your own relay now
-URL parameters are disabled by default for various reasons (in the future it can be enabled build-time for novel cases). However, you can preview your relay on myrelay.page and even edit it without building or deploying it through the netlify build (which is always latest). **Important: Works for `wss` relays only!**
-
-`https://relaypage.netlify.app/?url=$YOUR_RELAY_URL`
-
-for example
-- [snort](https://relaypage.netlify.app/?url=wss://relay.snort.social)
-- [damus](https://relaypage.netlify.app/?url=wss://relay.damus.io)
-- [damus](https://relaypage.netlify.app/?url=wss://purplepag.es)
-- [nostr.land](https://relaypage.netlify.app/?url=wss://nostr.land)
 
 ## dev 
 
