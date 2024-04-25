@@ -88,7 +88,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
     - [ ] i18n mapped language
     - [ ] NIP-78 overrides
 
-## dev
+## Deploy
 
 _early alpha_, things will change, history will be full of haphazard commit messages, force pushes to reset history eminent ... but have at it. 
 
@@ -105,16 +105,34 @@ Artifacts will end up in the `build` directory. You just neeed to serve them.
 ```
 docker build .
 ```
+_Image is not available on a registry yet_
 
-### notes
-You can test relays on localhost by appending `?url=wss://relay.snort.social` for instance. 
+### Important Notes
 
-Image is not yet on a registry. 
+1. To use the editor, you need to login with the pubkey listed in your NIP-11. The pubkey **must be hex in alignment with NIP-11, not your NIP-9 encoded npub**
+2. `myrelay.page` is self-configuring, you don't need to set a URL. In the event it is not working more than likely, it's one of the following causes:
+  a. If you run a `wss` relay, you must serve _myrelay.page_ from `https`, 
+  b, if you run a `ws` (unsecured) relay, for instance from onion or a local relay, you must serve _myrelay.page_ from `http`
 
-### serving from canonical
+## dev 
+
+```
+pnpm dev
+```
+You can show a myrelay.page for any relay from `localhost` by appending `?url=wss://relay.snort.social` for instance. 
+
+### serving from relay canonical
 
 Depending on your relay software, you'll need to do some proxying to direct websocket, NIP-11 and/or NIP-05 traffic to your relay, and `https` traffic without `application/nostr+json` to a page. 
 
 #### nginx/caddy/haproxy
-_examples soon_, see https://relaypag.es for a live example 
+##### caddy
+- strfry: see `caddy/strfry/Caddyfile`
+- nostream: soon
+
+##### nginx
+soon
+
+##### haproxy
+soon 
 
