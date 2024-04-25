@@ -135,7 +135,7 @@ You can show a myrelay.page for any relay from `localhost` by appending `?url=ws
 
 ### serving from relay canonical
 
-Depending on your relay software, you'll need to do some proxying to direct websocket, NIP-11 and/or NIP-05 traffic to your relay, and `https` traffic without `application/nostr+json` to a page. 
+Depending on your relay software, you'll need to do some proxying to direct websocket, NIP-11 and/or NIP-05 traffic to your relay, and `http(s)` traffic without `application/nostr+json` to the myrelay.page static path or port.
 
 #### nginx/caddy/haproxy
 ##### caddy
