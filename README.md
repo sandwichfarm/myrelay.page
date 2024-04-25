@@ -113,6 +113,7 @@ _Image is not available on a registry yet_
 2. `myrelay.page` is self-configuring, you don't need to set a URL. In the event it is not working more than likely, it's one of the following causes:
   - If you run a `wss` relay, you must serve _myrelay.page_ from `https`, 
   - if you run a `ws` (unsecured) relay, for instance from onion or a local relay, you must serve _myrelay.page_ from `http`
+  - You are not serving _myrelay.page_ from the `https` url equivalent of your relay, see below if testing locally. 
 
 ## dev 
 
