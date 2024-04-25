@@ -129,6 +129,7 @@ Depending on your relay software, you'll need to do some proxying to direct webs
 ##### caddy
 - strfry: see `caddy/strfry/Caddyfile`
 - nostream: soon
+- nostr-rs-relay: soon
 
 ##### nginx
 soon
