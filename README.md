@@ -120,7 +120,7 @@ _Image is not available on a registry yet_
 
 ### Important Notes
 
-1. To use the editor, you need to login with the pubkey listed in your NIP-11. The pubkey **must be hex in alignment with NIP-11, not your NIP-9 encoded npub**
+1. To use the editor, you need to login with the pubkey listed in your NIP-11. The pubkey **must be hex in alignment with NIP-11, not your NIP-19 encoded npub**
 2. `myrelay.page` is self-configuring, you don't need to set a URL. In the event it is not working more than likely, it's one of the following causes:
   - If you run a `wss` relay, you must serve _myrelay.page_ from `https`, 
   - if you run a `ws` (unsecured) relay, for instance from onion or a local relay, you must serve _myrelay.page_ from `http`
