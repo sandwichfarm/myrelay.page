@@ -59,6 +59,7 @@
   const currentUserLink: Writable<MapLink> = writable(undefined);
   const monitorMapPoints: Writable<MapPoint[]> = writable([]);
   const monitorLinks: Writable<MapLink[]> = writable([]);
+  const hasMonitorData = writable(false);
 
   let dd: DD | undefined = { lat: 0, lon: 0 }
   let data: Writable<MapData<MapArea, MapPoint, MapLink>> = writable({ areas: [] as MapArea[], points: [] as MapPoint[], links: [] as MapLink[] })
@@ -76,6 +77,8 @@
   }
 
   const setRelayMapPoint = async(): void => {
+    if(!$MRP?.dd?.lat) return 
+    hasMonitorData.set(true)
     relayMapPoint.set({ 
       id: 'relay', 
       latitude: $MRP.dd.lat, 
@@ -204,7 +207,7 @@
 >
 
 </Geolocation>
-{#if $MRP.nostr.monitors.isComplete}
+{#if $MRP.nostr.monitors.isComplete && $MRP.nostr.monitors.monitorEvents.size && $hasMonitorData}
 <Block class="relative pt-0" headingClass="py-5 absolute top w-full mb-2" {key}>
   <svelte:fragment slot="title">
     geo
