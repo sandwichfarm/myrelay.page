@@ -141,7 +141,7 @@ export class AppConfig extends NDKEvent {
   }
 
   configDiffersFromDefault(): boolean {
-    console.log(this.configHash, this._configDefaultHash, this.configHash !== this._configDefaultHash)
+    // console.log(this.configHash, this._configDefaultHash, this.configHash !== this._configDefaultHash)
     return this.configHash !== this._configDefaultHash;
   }
 

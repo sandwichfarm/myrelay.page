@@ -3,7 +3,9 @@
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
   import { Badge } from "$lib/components/ui/badge/index.js";
   import 'nostr-zap'
-  import type { MRPMonitors } from "$lib/core/monitors";
+  // import type { MRPMonitors } from "$lib/core/monitors";
+  import type { MyRelayPage } from '$lib/core/MRP';
+  import type { Writable } from 'svelte/store';
 
   export let key: string;
   export let mapChange: () => void
@@ -12,9 +14,8 @@
   export let setMonitors: () => void
   export let resetMonitors: () => void
   export let updateMapData: () => void
-
   
-  const MRP = getContext(MY_RELAY_PAGE);
+  const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
 
   const hovered = (monitor: MRPMonitor | boolean): undefined => {
     if(monitorVis !== 'onhover') return 

@@ -37,6 +37,7 @@ export class MRPNostr {
   }
 
   public async init(){
+    await this.ndk.connect();
     await this._relay.init()
     this.monitors.init()
   }
@@ -46,15 +47,15 @@ export class MRPNostr {
     const user = await this.signer.user();
     this.user = new MRPUser(this.$, user, 'currentUser');
     await this.user.init();
-    await this.ndk.connect();
+    
     this._authed = true;
-    this.ndk.emit('mrp:login')
+    this.$.signal.emit('mrp:login')
   }
 
   public logout(){
     this.user = undefined
     this._authed = false
-    this.ndk.emit('mrp:logout')
+    this.$.signal.emit('mrp:logout')
   }
 
   async toggleRelay(relay: string){
@@ -91,8 +92,6 @@ export class MRPNostr {
   get authed(): boolean {
     return this._authed
   }
-
-
 
   get monitors(): MRPMonitors {
     return this._monitors
@@ -149,16 +148,5 @@ export class MRPNostr {
   private set user(user: MRPUser | undefined){
     this._user = user
   }
-
-  // public async sign (kind: NDKKind, event: NDKEvent | NostrEvent ){
-  //   if(event as NostrEvent){
-  //     return this.ndk.sign(kind, event as NostrEvent)
-  //   }
-  //   return this.ndk.sign(kind, event as NDKEvent)
-  // }
-
-  // public async publish ( event: NDKEvent ) {
-  //   return this.ndk.publish(event as NDKEvent)
-  // }
 
 }
