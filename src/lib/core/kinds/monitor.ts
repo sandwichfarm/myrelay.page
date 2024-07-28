@@ -5,13 +5,11 @@ import type { NostrEvent, NDKFilter, NDKUserProfile } from "@nostr-dev-kit/ndk";
 import { NDKEventGeoCoded } from "./geocoded.js";
 
 import type { FetchNearbyRelayOptions } from "./geocoded.js";
-import type { RelayMeta } from "./relay-meta.js";
 import type { RelayDiscovery, RelayDiscoveryFilters } from "./relay-discovery.js";
 
 export type RelayListSet = Set<string> | undefined
 export type RelayMonitorSet = Set<RelayMonitor> | undefined
 export type RelayDiscoveryResult = Set<RelayDiscovery> | undefined
-export type RelayMetaSet = Set<RelayMeta> | undefined
 
 export type RelayMonitorCriterias = {
     kinds: number[], 
@@ -242,9 +240,6 @@ export class RelayMonitor extends NDKEventGeoCoded {
         if(this.kinds.includes(NDKKind.RelayDiscovery)) { 
             kinds.push(NDKKind.RelayDiscovery);
         }
-        if(this.kinds.includes(NDKKind.RelayMeta)) { 
-            kinds.push(NDKKind.RelayMeta);
-        }
 
         const filter: NDKFilter = this._nip66Filter(kinds, { limit: 1 } as NDKFilter);
 
@@ -307,11 +302,8 @@ export class RelayMonitor extends NDKEventGeoCoded {
      */
     async fetchOnlineRelays( filter?: NDKFilter ): Promise<RelayListSet> {
         this._maybeWarnInvalid();
-        if( ![NDKKind.RelayMeta, NDKKind.RelayDiscovery].some(value => this.kinds.includes(value)) ) { 
-            return this._invalidRelayFetch(`RelayMonitor.fetchOnlineRelays()`, `${this.pubkey} does not publish kind ${NDKKind.RelayMeta} or ${NDKKind.RelayDiscovery}`);
-        }
 
-        const kinds: NDKKind[] = [this.kinds.includes(NDKKind.RelayDiscovery )? NDKKind.RelayDiscovery: NDKKind.RelayMeta];
+        const kinds: NDKKind[] = [  NDKKind.RelayDiscovery ];
         const _filter: NDKFilter = this._nip66Filter(kinds, filter);
 
         return new Promise((resolve, reject) => { 
@@ -335,11 +327,8 @@ export class RelayMonitor extends NDKEventGeoCoded {
      */
     async fetchOnlineRelaysBy( indexedTags: RelayDiscoveryFilters, filter?: NDKFilter ): Promise<RelayListSet> {
         this._maybeWarnInvalid();
-        if( ![NDKKind.RelayMeta, NDKKind.RelayDiscovery].some(value => this.kinds.includes(value)) ) { 
-            return this._invalidRelayFetch(`RelayMonitor.fetchOnlineRelaysBy()`, `${this.pubkey} does not publish kind ${NDKKind.RelayMeta} or ${NDKKind.RelayDiscovery}`);
-        }
 
-        const kinds = [this.kinds.includes(NDKKind.RelayDiscovery )? NDKKind.RelayDiscovery: NDKKind.RelayMeta];
+        const kinds = [NDKKind.RelayDiscovery];
         const _filter: NDKFilter = this._nip66Filter(kinds, filter, indexedTags as NDKFilter);
 
         return new Promise((resolve, reject ) => { 
@@ -352,57 +341,27 @@ export class RelayMonitor extends NDKEventGeoCoded {
     }
 
     /**
-     * Fetches metadata for a specific relay or relays.
-     * 
-     * @param {string[] | string} relays A string or array of strings representing the relay(s) to fetch metadata for.
-     * @returns A promise that resolves to the `RelayMetasResult` object(s)
-     * 
-     * @public
-     * @async
-     */
-    async fetchRelayMeta( relays: string[] | string ): Promise<RelayMetaSet>  {
-        this._maybeWarnInvalid();
-        if( !this.kinds.includes(NDKKind.RelayMeta) ) { 
-            return this._invalidRelayFetch(`RelayMonitor.fetchRelayMetaData()`, `${this.pubkey} does not publish kind ${NDKKind.RelayMeta}`);
-        }
-
-        if(!Array.isArray(relays)) { 
-            relays = [relays];
-        }
-        const kinds: NDKKind[] = [NDKKind.RelayMeta];
-        const filter: NDKFilter = this._nip66Filter(kinds, undefined, { "#d": relays } as NDKFilter);
-
-        return new Promise((resolve, reject) => {
-            this.ndk?.fetchEvents(filter)
-                .then((events: Set<NDKEvent>) => {
-                    resolve(new Set(Array.from(events)) as RelayMetaSet);
-                })
-                .catch(reject);
-        });
-    }
-
-    /**
      * Fetches metadata for online relays, optionally applying an additional filter.
      * 
      * @param {NDKFilter} filter An optional `NDKFilter` object to apply additional filtering criteria.
-     * @returns A promise that resolves to a `RelayMetaSet` or undefined if the operation fails.
+     * @returns A promise that resolves to a `Set<RelayDiscovery>` or undefined if the operation fails.
      * 
      * @public
      * @async
      */
-    async fetchOnlineRelaysMeta( filter?: NDKFilter ): Promise<RelayMetaSet> {
+    async fetchOnlineDiscovery( filter?: NDKFilter ): Promise<Set<RelayDiscovery>> {
         this._maybeWarnInvalid();
-        if( !this.kinds.includes(NDKKind.RelayMeta) ) { 
-            return this._invalidRelayFetch(`RelayMonitor.fetchOnlineRelaysMeta()`, `${this.pubkey} does not publish kind ${NDKKind.RelayMeta}`);
+        if( !this.kinds.includes(NDKKind.RelayDiscovery) ) { 
+            return this._invalidRelayFetch(`RelayMonitor.fetchOnlineRelaysMeta()`, `${this.pubkey} does not publish kind ${NDKKind.RelayDiscovery}`);
         }
 
-        const kinds: NDKKind[] = [NDKKind.RelayMeta];
+        const kinds: NDKKind[] = [NDKKind.RelayDiscovery];
         const _filter: NDKFilter = this._nip66Filter(kinds, filter);
 
         return new Promise((resolve, reject) => {
           this.ndk?.fetchEvents(_filter)
               .then((events: Set<NDKEvent>) => {
-                  resolve(new Set(Array.from(events) as RelayMeta[]));
+                  resolve(new Set(Array.from(events) as RelayDiscovery[]));
               })
               .catch(reject);
         });
@@ -413,18 +372,18 @@ export class RelayMonitor extends NDKEventGeoCoded {
      * 
      * @param {RelayDiscoveryFilters} indexedTags A `RelayDiscoveryTags` value representing the tag to filter by.
      * @param {NDKFilter} filter A string or array of strings representing the key(s) to filter by.
-     * @returns Promise resolves to an array of `RelayMeta` objects.
+     * @returns Promise resolves to an array of `RelayDiscovery` objects.
      * 
      * @public
      * @async
      */
-    async fetchOnlineRelaysMetaBy( indexedTags: RelayDiscoveryFilters, filter?: NDKFilter ): Promise<RelayMetaSet> {
+    async fetchOnlineRelaysDiscoveryBy( indexedTags: RelayDiscoveryFilters, filter?: NDKFilter ): Promise<Set<RelayDiscovery>> {
         this._maybeWarnInvalid();
         
-        const _filter = this._nip66Filter([NDKKind.RelayMeta], filter, indexedTags as NDKFilter);
+        const _filter = this._nip66Filter([NDKKind.RelayDiscovery], filter, indexedTags as NDKFilter);
 
         return new Promise((resolve, reject) => {
-            this.fetchOnlineRelaysMeta(_filter)
+            this.fetchOnlineDiscovery(_filter)
                 .then( ( events ) => {
                     resolve( events );
                 })
@@ -436,7 +395,7 @@ export class RelayMonitor extends NDKEventGeoCoded {
      * Fetches relay discovery events for online relays, optionally applying an additional filter.
      * 
      * @param {NDKFilter} filter An optional `NDKFilter` object to apply additional filtering criteria.
-     * @returns Promise resolves to a `RelayMetaSet` or undefined if the operation fails.
+     * @returns Promise resolves to a `Set<RelayDiscovery>` or undefined if the operation fails.
      * 
      * @public 
      * @async
@@ -444,7 +403,7 @@ export class RelayMonitor extends NDKEventGeoCoded {
     async fetchOnlineRelaysDiscovery( filter?: NDKFilter ): Promise<RelayDiscoveryResult> {
         this._maybeWarnInvalid();
         if( !this.kinds.includes(NDKKind.RelayDiscovery) ) { 
-            return this._invalidRelayFetch(`RelayMonitor.fetchOnlineRelaysMeta()`, `${this.pubkey} does not publish kind ${NDKKind.RelayMeta}`);
+            return this._invalidRelayFetch(`RelayMonitor.fetchOnlineRelaysMeta()`, `${this.pubkey} does not publish kind ${NDKKind.RelayDiscovery}`);
         }
 
         const kinds: NDKKind[] = [NDKKind.RelayDiscovery];
@@ -494,12 +453,12 @@ export class RelayMonitor extends NDKEventGeoCoded {
     /**
      * Reduces a set of `NDKEvent` objects to a list of relay strings.
      * 
-     * @param {Set<RelayDiscovery | RelayMeta | NDKEvent>} events A set of `NDKEvent` objects.
+     * @param {Set<RelayDiscovery | NDKEvent>} events A set of `NDKEvent` objects.
      * @returns Promise resolves to a list of relay strings or undefined.
      * 
      * @private
      */
-    private _reduceRelayEventsToRelayStrings( events: Set<RelayDiscovery | RelayMeta | NDKEvent> ): RelayListSet {
+    private _reduceRelayEventsToRelayStrings( events: Set<RelayDiscovery | NDKEvent> ): RelayListSet {
         if(typeof events === 'undefined') {
                 return new Set() as RelayListSet;
         }

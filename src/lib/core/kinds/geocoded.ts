@@ -40,7 +40,7 @@ export class NDKEventGeoCoded extends NDKEvent {
     private static readonly EARTH_RADIUS: number = 6371; // km
     private static readonly GEOHASH_PRECISION: number = 12;
     private static readonly BASE32: string = '0123456789bcdefghjkmnpqrstuvwxyz';  
-    private static readonly geohashFilterFn = (tag: NDKTag) => tag[0] === 'g' && (tag[2] === "gh" || tag[2] === "geohash" || tag.length === 2); //`g` tags with a length of 2 are NIP-52 geohashes
+    private static readonly geohashFilterFn = (tag: NDKTag) => tag[0] === 'g' && (tag.length === 2 || tag['2'] === 'gh' || tag['2'] === 'geohash'); //`g` tags with a length of 2 are NIP-52 geohashes
 
     private _dd: DD | undefined;
 
@@ -181,18 +181,18 @@ export class NDKEventGeoCoded extends NDKEvent {
     }
 
     get countryCode(): string[] | undefined {
-        return this.tagValuesByMarker("g", "countryCode");
+        return this.tagValuesByMarker("l", "countryCode");
     }
 
     set countryCode(values: string[]) {
-        this.removeTagByMarker("g", "countryCode");
+        this.removeTagByMarker("l", "countryCode");
         values.forEach(value => {
-            this._setGeoTag("countryCode", value);
+            this.addTag("l", value, "countryCode"); 
         });
     }
 
     get countryName(): string | undefined {
-        return this.tagValueByMarker("g", "countryName");
+        return this.tagValueByMarker("l", "countryName");
     }
 
     set countryName(value: string) {
@@ -200,7 +200,7 @@ export class NDKEventGeoCoded extends NDKEvent {
     }
 
     get regionCode(): string | undefined {
-        return this.tagValueByMarker("g", "regionCode");
+        return this.tagValueByMarker("l", "regionCode");
     }
 
     set regionCode(value: string) {
@@ -212,26 +212,27 @@ export class NDKEventGeoCoded extends NDKEvent {
     }
 
     get regionName(): string | undefined {
-        return this.tagValueByMarker("g", "regionName");
+        return this.tagValueByMarker("l", "regionName");
     }
 
     set continentName(value: string) {
+        
         this._setGeoTag("continentName", value);
     }
 
     get continentName(): string | undefined {
-        return this.tagValueByMarker("g", "continentName");
+        return this.tagValueByMarker("l", "continentName");
     }
 
-    get geo(): NDKTag[] {
-        return [...this.getMatchingTags("G"), ...this.getMatchingTags("g")];
-    }
+    // get geo(): NDKTag[] {
+    //     return [...this.getMatchingTags("G"), ...this.getMatchingTags("g")];
+    // }
 
-    set geo(tags: NDKTag[]) {
-        this.removeTag("G");
-        this.removeTag("g");
-        tags.forEach(tag => this.tags.push(tag));
-    }
+    // set geo(tags: NDKTag[]) {
+    //     this.removeTag("G");
+    //     this.removeTag("g");
+    //     tags.forEach(tag => this.tags.push(tag));
+    // }
 
     private set lat(value: number) {
         if(!this._dd) this._dd = { lat: 0, lon: 0 } as DD;

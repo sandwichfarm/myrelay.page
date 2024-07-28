@@ -46,6 +46,24 @@ export class RelayDiscovery extends NDKEventGeoCoded {
         return new RelayDiscovery(event.ndk, event.rawEvent());
     }
 
+    get rttOpen(): number | undefined {
+        const rtt = this.tags.find(tag => tag[0] === 'rtt-open')?.[1]
+        if(!rtt) return
+        return parseInt(rtt);
+    }
+
+    get rttRead(): number | undefined {
+        const rtt = this.tags.find(tag => tag[0] === 'rtt-read')?.[1]
+        if(!rtt) return
+        return parseInt(rtt);
+    }
+
+    get rttWrite(): number | undefined {
+        const rtt = this.tags.find(tag => tag[0] === 'rtt-write')?.[1]
+        if(!rtt) return
+        return parseInt(rtt);
+    }
+
     get url(): string | undefined { 
         return this.tagValue("d");
     }

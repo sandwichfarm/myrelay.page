@@ -83,10 +83,10 @@
         <FeedGrid 
           {notes} 
           {pointers}
-          maxColWidth={options.gridMaxColWidth}
-          minColWidth={options.gridMinColWidth}
-          gap={options.gridGap}
-          animate={options.gridAnimate}
+          maxColWidth={options?.gridMaxColWidth}
+          minColWidth={options?.gridMinColWidth}
+          gap={options?.gridGap}
+          animate={options?.gridAnimate}
           /> 
       {:else}
         <FeedGridSkeleton />

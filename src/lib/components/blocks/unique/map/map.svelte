@@ -86,7 +86,7 @@
 
   const setMonitor = (monitor: MRPMonitor) => {
     const dd = monitor.dd
-    const rtt = $MRP.nostr?.monitors?.metaEventsFor(monitor.pubkey)?.[0].rtt?.open || undefined
+    const rtt = $MRP.nostr?.monitors?.discoveryEventsFor(monitor.pubkey)?.[0]?.rttOpen || undefined
 
     const point: MapPoint = { 
       id: monitor.geohash, 
@@ -98,12 +98,12 @@
       brightness: 0.1 
     }
 
-    const link: MapLink = { 
+    const link: MapLink = {
       source: $relayMapPoint.id || $relayMapPoint, 
       target: point.id || point, 
       color: 'black', 
       cursor: 'crosshair'
-    } 
+    }
 
     $monitorMapPoints.push(point)
     $monitorLinks.push(link)
@@ -180,7 +180,8 @@
     updateMapData()
   }
 
-  $MRP.signal.on('monitors:ready', setMapPoints)
+  $MRP?.$.signal.on('monitors:ready', setMapPoints)
+  
   onMount( () => {
     if($MRP.nostr.monitors.isComplete) {
       setMapPoints()
