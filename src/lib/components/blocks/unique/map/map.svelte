@@ -66,6 +66,7 @@
   let getPosition = false;
   let coords: [number, number] | [] = [];
   export let key: string = ""
+  export let id: string = ""
 
   const pointLabel = (d: MapPoint) => d?.label
   const pointLabelPosition = (d: MapPoint): MapPointLabelPosition => d.position || MapPointLabelPosition.Bottom
@@ -219,7 +220,7 @@
       />
     </VisSingleContainer>
     {#if showMonitors}
-    <Monitors {key} {setMonitor} {resetMonitors} {setMapPoints} {updateMapData} />
+    <Monitors {key} {setMonitor} {resetMonitors} {updateMapData} />
     {/if}
   </svelte:fragment>
 </Block>

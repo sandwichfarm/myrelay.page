@@ -25,6 +25,7 @@
   const attempts: Writable<number> = writable(0)
 
   export let key: string = "";
+  export let id: string = ""; 
 
   const generateFilter = (): NDKFilter => {
     const filter: NDKFilter = {}

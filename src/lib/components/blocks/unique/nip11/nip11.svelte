@@ -13,6 +13,8 @@
   import type { MyRelayPage } from '$lib/core/MRP';
 
   export let key: string;
+  export let id: string | undefined
+
 
   const STATIC_ORDER = -100
   
@@ -27,7 +29,7 @@
 
 </script>
 {#if browser}
-<Block noClass={true} sortable={false} {key}>a
+<Block noClass={true} sortable={false} {key}>
   <svelte:fragment slot="content">
     {#if info?.description && options?.showDescription}
     <p class="text-md md:text-xl text-muted-foreground mb-3 mt-0 pt-0">

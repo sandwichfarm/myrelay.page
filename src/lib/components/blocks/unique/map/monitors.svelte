@@ -8,25 +8,26 @@
   import type { Writable } from 'svelte/store';
 
   export let key: string;
-  export let mapChange: () => void
 
   export let setMonitor: (monitor: MRPMonitor) => void
-  export let setMonitors: () => void
   export let resetMonitors: () => void
   export let updateMapData: () => void
   
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
 
-  const hovered = (monitor: MRPMonitor | boolean): undefined => {
+  const hovered = (monitor: MRPMonitor | boolean): undefined | void => {
     if(monitorVis !== 'onhover') return 
     if(!monitor) return resetMonitors()
     resetMonitors()
     setMonitor(monitor)
-    updateMapData()
+    updateMapData() 
   }
+
   $: monitorVis = $MRP.loader.config.event.blocks?.[key]?.options?.showMonitors
   $: monitors = $MRP?.nostr?.monitors
   $: hoverClass = monitorVis !== 'onhover' ? 'cursor-pointer' : ''
+
+
 </script>
 
 <div class="text-center mt-10">

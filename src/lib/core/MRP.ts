@@ -15,7 +15,7 @@ export interface MRPState {
 }
 
 export class MyRelayPage extends MRPData {
-  private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://user.kindpag.es', 'wss://history.nostr.watch'] as string[])
+  private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://user.kindpag.es', 'wss://history.nostr.watch', 'wss://relaypag.es', 'wss://relay.nostr.watch'] as string[])
   private _url: string;
   private _nostr: MRPNostr;
   private _editor: MRPEditor;

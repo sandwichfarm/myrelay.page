@@ -13,6 +13,9 @@
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   const MAX_LENGTH = 72
 
+  export let key: string | undefined
+  export let id: string | undefined
+
   $: authed = $MRP?.nostr?.authed
   $: followsOnRelay = $MRP?.userFollowsOnRelay > 500? "500+": $MRP.userFollowsOnRelay
 

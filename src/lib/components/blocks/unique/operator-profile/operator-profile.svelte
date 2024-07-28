@@ -22,6 +22,8 @@
     import Skeleton from '$lib/components/ui/skeleton2/Skeleton.svelte';
 
     export let key: string;
+    export let id: string | undefined
+
 
     const mrp_context: Writable<MRPRelay>  = getContext(MY_RELAY_PAGE);
 
