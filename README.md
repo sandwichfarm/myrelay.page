@@ -10,7 +10,7 @@ _**A nostr.watch R&D project made possible by [OpenSats](https://opensats.org)**
 That websocket URI representing your relay is floating all over the internet now. Its canonical `https` shouldn't be a `500`, a blank page or some random page. + I both need to do this to eat my own dog food and it's something I've wanted to do since early 2023.  
 
 ## overview 
-SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-115`. 
+SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-32`. 
 
 **Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
 
