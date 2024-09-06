@@ -41,7 +41,8 @@
     $: wrapperClass = noClass? '': 'mrp-note mrp-note-bg mrp-note-content block'
     $: noteTitle = () => note?.tags?.find(t => t[0] === 'title')?.[1]
 
-    $: parse = async (): Promise<string> => parseNote(note.content, parseOptions)  
+    $: summary = note.tags.find(t => t[0] === 'summary')?.[1]
+    $: parse = async (): Promise<string> => parseNote(summary && summary?.length? summary: note.content, parseOptions)  
 
     onMount(async () => {
       content.set(await parse())
@@ -52,7 +53,7 @@
     //   : parseMP4s(parseImages(note.content))
 </script>
 
-<div class="{wrapperClass} {$$props.class} transition-colors ease-in-out">
+<div class="{wrapperClass} {$$props.class} overflow-hidden transition-colors ease-in-out">
 
   <slot name="header" />
   
