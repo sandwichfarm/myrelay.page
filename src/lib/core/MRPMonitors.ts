@@ -9,7 +9,7 @@ type RelayDiscoveryDictionary = Record<string, RelayDiscovery[]>
 
 export class MRPMonitors extends MRPData {
   private readonly monitorEventRelays: string[] = ['wss://history.nostr.watch', 'wss://relaypag.es', 'wss://relay.nostr.watch']
-  private readonly livenessThreshold: number = Math.round(Date.now()/1000)-60*60*2
+  private readonly livenessThreshold: number = Math.round(Date.now()/1000)-60*60*6
 
   private ndk: NDK;
   private $: MRPState;
