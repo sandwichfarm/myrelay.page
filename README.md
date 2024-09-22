@@ -13,12 +13,12 @@ That websocket URI representing your relay is floating all over the internet now
 SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-32`. 
 
 ## live demos
-- wss://lunchbox.sandwich.farm
-- wss://wot.sandwich.farm
-- wss://relay.nostr.watch
-- wss://relaypag.es
-- wss://user.kindpag.es
-- wss://appdata.kindpag.es
+- [wss://lunchbox.sandwich.farm](https://lunchbox.sandwich.farm)
+- [wss://wot.sandwich.farm](https://wot.sandwich.farm)
+- [wss://relay.nostr.watch](https://relay.nostr.watch)
+- [wss://relaypag.es](https://relaypag.es)
+- [wss://user.kindpag.es](https://user.kindpag.es)
+- [wss://appdata.kindpag.es](https://appdata.kindpag.es)
 
 ## "try before you buy"
 `https://relaypage.netlify.app/?url=wss://your.relay`
