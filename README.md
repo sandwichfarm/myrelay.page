@@ -12,12 +12,16 @@ That websocket URI representing your relay is floating all over the internet now
 ## overview 
 SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-32`. 
 
-**Why SvelteKit if no SSR?**: No justification other than habit. Convert it in a PR and I won't complain. 
+## live demos
+- wss://lunchbox.sandwich.farm
+- wss://wot.sandwich.farm
+- wss://relay.nostr.watch
+- wss://relaypag.es
+- wss://user.kindpag.es
+- wss://appdata.kindpag.es
 
-## Try it without build/deploy
-You can preview your relay on myrelay.page and even edit it without building or deploying it through the netlify build (which is always latest). **Important: Works for `wss` relays only!** Also see [requirements for editing](#important-notes)
-
-`https://relaypage.netlify.app/?url=$YOUR_RELAY_URL`
+## "try before you buy"
+`https://relaypage.netlify.app/?url=wss://your.relay`
 
 for example
 - [snort](https://relaypage.netlify.app/?url=wss://relay.snort.social)
