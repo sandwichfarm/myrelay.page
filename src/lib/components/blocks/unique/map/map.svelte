@@ -213,10 +213,9 @@
     geo
   </svelte:fragment>
   <svelte:fragment slot="content">
-    <VisSingleContainer data={$data} class="mrp-map-light dark:mrp-map-dark">
+    <VisSingleContainer data={$data} style="width:100%;" class="mrp-map-light dark:mrp-map-dark">
       <VisTopoJSONMap 
         topojson={WorldMapTopoJSON} 
-        mapFitToPoints={monitorVis === 'always'? true: false} 
         disableZoom={true}
         {pointLabel} 
         {pointLabelTextBrightnessRatio}

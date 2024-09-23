@@ -23,7 +23,7 @@ export class MyRelayPage extends MRPData {
   private _loader: BlockLoader | undefined;
   private _userFollowsOnRelay: NDKUser[] = []
   private _promises: Promise<any>[] = []
-
+  
   public $: MRPState;
 
   constructor(url?: string){

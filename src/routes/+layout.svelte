@@ -2,14 +2,20 @@
 
 <script lang="ts">
   import "../app.pcss";
+
+  import { setContext, onMount, tick } from 'svelte';
+	import { slide, fade } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
+  import { writable, type Writable } from 'svelte/store'
+
   import { browser } from '$app/environment';
   import { theme, loadTheme } from '$lib/stores/themeStore';
 
   import Header from '$lib/components/layout/Header.svelte';
   import Footer from '$lib/components/layout/Footer.svelte';
 
-  import { setContext, onMount, tick } from 'svelte';
-  import { writable, type Writable } from 'svelte/store'
+  // import LoadingAnimation from '$lib/components/animations/char-chaos.svelte';
+  import LoadingAnimation from '$lib/components/animations/squares.svelte';
 
   import { MY_RELAY_PAGE, THEME_CSS } from '$lib/contextKeys';
   import { MyRelayPage } from '$lib/core/MRP.ts';
@@ -24,6 +30,13 @@
   setContext(MY_RELAY_PAGE, MRP);
   setContext(THEME_CSS, theme);
 
+  // const [send, receive] = crossfade({
+	// 	duration: 1500,
+	// 	easing: quintOut
+	// });
+
+  // const key = 'LOADER'
+
   const mount = async () => {
 
     await loadTheme();
@@ -36,7 +49,8 @@
     let url: string | undefined;
     if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page') || window.location.host.includes('netlify')){
       const params = new URLSearchParams(window.location.search);
-      url = params.get('url') || "wss://lunchbox.sandwich.farm"
+      // url = params.get('url') || "wss://lunchbox.sandwich.farm"
+      url = params.get('url') || "wss://appdata.kindpag.es"
     };
 
     MRP.set(new MyRelayPage(url))
@@ -81,14 +95,29 @@
 <div id="mrp-bg-tint" class="flex flex-col min-h-screen relative overflow-hidden">
   <div class="flex-grow">
     <div class="flex flex-col items-center justify-center">
-      <div id="mrp-wrapper" class="mrp-wrapper-bg mrp-wrapper-content transition-colors duration-200 ease-in-out">
+      <div id="mrp-wrapper" class="w-full md:w-auto mrp-wrapper-bg mrp-wrapper-content transition-colors duration-200 ease-in-out">
         <Header></Header>
-        
-        <slot></slot>
+        <!-- <div transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}>
+          <LoadingAnimation />
+        </div> -->
+        <!-- {#if !$MRP?.nostr?.relay?.config?.isComplete}
+          <div transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}>
+            <LoadingAnimation />
+          </div>
+        {:else}
+        <div transition:fade>
+          <slot></slot>
+        </div>
+        {/if} -->
+
         {#if !$MRP?.nostr?.relay?.config?.isComplete}
-          <span class="mt-5 text-center block text-black/20 dark:text-white/20 italic text-lg"> 
-            loading operator config...  
-          </span>
+          <div transition:slide={{ delay: 0, duration: 1000, easing: quintOut, axis: 'y' }}>
+            <LoadingAnimation />
+          </div>
+        {:else}
+        <div>
+          <slot></slot>
+        </div>
         {/if}
       </div>
       <Footer></Footer>
