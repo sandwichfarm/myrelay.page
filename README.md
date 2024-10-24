@@ -26,7 +26,7 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 for example
 - [snort](https://relaypage.netlify.app/?url=wss://relay.snort.social)
 - [damus](https://relaypage.netlify.app/?url=wss://relay.damus.io)
-- [damus](https://relaypage.netlify.app/?url=wss://purplepag.es)
+- [purplepag.es](https://relaypage.netlify.app/?url=wss://purplepag.es)
 - [nostr.land](https://relaypage.netlify.app/?url=wss://nostr.land)
 
 ## todo 
