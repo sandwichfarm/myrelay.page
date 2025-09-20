@@ -14,7 +14,6 @@ SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@no
 
 ## live demos
 - [wss://lunchbox.sandwich.farm](https://lunchbox.sandwich.farm)
-- [wss://wot.sandwich.farm](https://wot.sandwich.farm)
 - [wss://relay.nostr.watch](https://relay.nostr.watch)
 - [wss://relaypag.es](https://relaypag.es)
 - [wss://user.kindpag.es](https://user.kindpag.es)
