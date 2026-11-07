@@ -125,7 +125,10 @@ async function setup({ name, mobile = false, compact = false, dark = false, redu
     ...(record ? { recordVideo: { dir: recordingDirectory, size: { width: 1440, height: 1100 } } } : {}),
   });
   await context.addInitScript(instrument, { unavailable });
-  await context.addInitScript(({ dark }) => localStorage.setItem('theme', dark ? 'dark' : 'light'), { dark });
+  await context.addInitScript(({ dark, origin }) => {
+    // Hosted preview toolbars may contain sandboxed frames without storage access.
+    if (location.origin === origin) localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }, { dark, origin: new URL(base).origin });
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.origin === new URL(base).origin) return route.continue();
