@@ -1,10 +1,10 @@
 <script lang="ts">
   import Masonry from 'svelte-bricks';
   import Note from '$lib/components/partials/note.svelte';
-  import { NDKEvent } from '@nostr-dev-kit/ndk';
+  import type { NostrEvent } from 'nostr-tools';
   import type { EventPointer } from 'nostr-tools/nip19';
 
-  export let notes: NDKEvent[] = []; // Initialize to an empty array
+  export let notes: NostrEvent[] = []; // Initialize to an empty array
   export let pointers: Record<string, EventPointer> = {}; // Initialize to an empty array
 
   let [minColWidth, maxColWidth, gap] = [200, 800, 20];

@@ -7,23 +7,19 @@
 
   export let MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
   export let key: string = ""
-  
-  let mrp: MyRelayPage | undefined;
-
-  MRP.subscribe(async (_mrp: MyRelayPage) => { mrp = _mrp });
 
   const toggle = async () => {
     if(!$MRP?.loader?.config?.event) return
     $MRP.loader.config.event.toggleBlock(key)
     await tick()
-    MRP.set(mrp)
+    MRP.set($MRP)
   }
-  
+
   $: text = $MRP?.loader?.config?.event?.isBlockEnabled(key) ?  'enabled' : 'disabled'
   $: color = $MRP?.loader?.config?.event?.isBlockEnabled(key) ? 'text-green-500' : 'text-red-500'
 
 </script>
 
-<a href="#" on:click={toggle} class="font-bold {color}">
+<button type="button" on:click={toggle} class="font-bold {color}">
   {text}
-</a>
+</button>

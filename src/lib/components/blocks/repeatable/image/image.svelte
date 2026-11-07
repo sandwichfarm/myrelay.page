@@ -15,10 +15,10 @@
 <Block key={key} id={id}>
   <svelte:fragment slot="content">
     <img 
-      src={$MRP.loader.config.event.blocks[key]?.options?.imageUrl} 
-      alt={$MRP.loader.config.event.blocks[key]?.options?.imageUrl} 
-      width={$MRP.loader.config.event.blocks[key]?.options?.width || "100%"}
-      height={$MRP.loader.config.event.blocks[key]?.options?.height || "auto"} 
+      src={$MRP.loader?.getOptions(key)?.imageUrl}
+      alt={$MRP.loader?.getOptions(key)?.imageUrl}
+      width={$MRP.loader?.getOptions(key)?.width || "100%"}
+      height={$MRP.loader?.getOptions(key)?.height || "auto"}
       />
   </svelte:fragment>
 </Block>

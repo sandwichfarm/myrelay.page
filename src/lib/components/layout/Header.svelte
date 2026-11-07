@@ -5,22 +5,22 @@
   import type { Writable } from 'svelte/store';
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
-  import type { MRPRelay } from '$lib/core/relay';
-  import type { MRPNostr } from '$lib/core/services/ndk';
+  import type { MRPRelay } from '$lib/core/MRPRelay';
+  import type { MRPNostr } from '$lib/core/MRPNostr';
 
   import Login from '$lib/components/partials/login.svelte';
   import ThemeMode from '$lib/components/partials/theme-mode.svelte';
   import ToggleRelay from '$lib/components/partials/toggle-relay.svelte';
   import PayRelay from '$lib/components/partials/pay-relay.svelte';
 
-  const MRP = getContext(MY_RELAY_PAGE);
+  const MRP = getContext<import("svelte/store").Writable<import("$lib/core/MRP").MyRelayPage>>(MY_RELAY_PAGE);
   const nostr: Writable<MRPNostr> = writable();
-  const relay: Writeable<MRPRelay> = writable();
+  const relay: Writable<MRPRelay> = writable();
 
   let url:string
 
   MRP.subscribe((mrp) => {
-    url = mrp?.url
+    url = mrp?.url || ''
     nostr.set(mrp?.nostr)
     relay.set($nostr?.relay)
   });
@@ -32,7 +32,7 @@
     <h1 class="scroll-m-20 text-xl md:text-4xl font-extrabold tracking-tight lg:text-5xl mt-5 md:mt-0 md:mb-6 px-4 md:px-0 truncate text-ellipsis overflow-hidden">
       <span class="flex items-center space-x-4">
         {#if $relay?.info?.icon}
-          <img src={ $relay?.info.icon } class="max-w-20 max-h-20"/>
+          <img alt="Relay icon" src={ $relay?.info.icon } class="max-w-20 max-h-20"/>
         {/if}
         <span class="truncate text-ellipsis overflow-hidden max-w-full inline-block pb-3">
           { url }

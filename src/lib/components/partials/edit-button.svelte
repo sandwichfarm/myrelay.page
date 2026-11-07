@@ -16,20 +16,29 @@
   const toggleEdit = async () => {
     if(!$MRP?.editor) return
     $MRP?.editor?.toggle()
-    if($MRP?.loader?.config?.event?.changed) $MRP.loader.config.event.discardChanges()
+    if($MRP?.loader?.config?.event?.changed) $MRP.loader?.config.event.discardChanges()
     MRP.set($MRP)
   }
 
+  let publishing = false;
+  let publishError = '';
   const publish = async () => {
-    $MRP?.editor.toggle()
-    await $MRP?.loader?.config?.publish()
-    setTimeout(location.reload(), 1000)
+    if (publishing) return;
+    publishing = true;
+    publishError = '';
+    try {
+      await $MRP?.loader?.config?.publish();
+      if (!$MRP?.config?.event.changed) $MRP?.editor.toggle();
+      MRP.set($MRP);
+    } catch (error) {
+      publishError = error instanceof Error ? error.message : String(error);
+    } finally { publishing = false; }
   }
 
   const resetConfig = async () => {
     $MRP?.loader?.config?.event?.reset()
     MRP.set($MRP)
-    toggleEdit()
+
   }
   
   $: text = $MRP?.editor?.enabled 
@@ -49,13 +58,14 @@
   
 </script>
 {#if browser }
+  {#if publishError}<span role="alert">{publishError}</span>{/if}
   {#if showReset}
   <Button variant="outline" class="bg-red-700" on:click={resetConfig}>
     reset config
   </Button>
   {/if}
   {#if $MRP?.loader?.config?.event.changed } 
-  <Button variant="outline" class="bg-green-600" on:click={publish}>
+  <Button variant="outline" class="bg-green-600" disabled={publishing} on:click={publish}>
     publish edits
   </Button>
   {/if}

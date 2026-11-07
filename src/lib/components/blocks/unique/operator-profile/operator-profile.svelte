@@ -15,9 +15,9 @@
     import { MY_RELAY_PAGE } from '$lib/contextKeys';
 
     import type { Writable } from 'svelte/store';
-    import type { MRPRelay } from "$lib/core/MRPRelay";
+    import type { MyRelayPage } from "$lib/core/MRP";
     import { MRPUser } from '$lib/core/MRPUser';
-    import type { NDKUserProfile } from '@nostr-dev-kit/ndk';
+    import type { UserProfile } from '$lib/core/MRPUser';
     import Note from '$lib/components/partials/note.svelte';
     import Skeleton from '$lib/components/ui/skeleton2/Skeleton.svelte';
 
@@ -25,11 +25,11 @@
     export let id: string | undefined
 
 
-    const mrp_context: Writable<MRPRelay>  = getContext(MY_RELAY_PAGE);
+    const mrp_context: Writable<MyRelayPage>  = getContext(MY_RELAY_PAGE);
 
     let url: string,
         owner: MRPUser | undefined,
-        profile: NDKUserProfile | undefined, 
+        profile: UserProfile | undefined,
         pubkey: string | undefined,
         relays: string[] | undefined,
         picture: string | undefined,
@@ -48,8 +48,8 @@
     }
 
     mrp_context.subscribe(async (_mrp) => {
-      url = _mrp?.url;
-      if(_mrp.nostr?.relay) owner = _mrp.nostr?.relay?.owner;
+      url = _mrp?.url || '';
+      if(_mrp?.nostr?.relay) owner = _mrp.nostr?.relay?.owner;
       if(owner?.pubkey) pubkey = owner?.pubkey;
       if(owner?.profile) profile = owner?.profile;
       if(owner?.relays) relays = owner?.relays;
@@ -81,7 +81,7 @@
 {#if browser}
   
   {#if profile}
-  <Block headingClass="col-span-5" {key}>
+  <Block headingClass="col-span-5" {key} {id}>
     <svelte:fragment slot="title">
       relay operator
     </svelte:fragment>
@@ -102,7 +102,7 @@
             {#if profile?.lud16 || profile?.lud06}
               <button
                 id="relay-operator-zap"
-                data-npub="{ nip19.npubEncode(pubkey) }"
+                data-npub="{ nip19.npubEncode(pubkey || '') }"
                 data-relays="{ relays }"
                 class="px-1 py-0.5 rounded-xl text-xs bg-black/50 hover:bg-black text-purple-700">
               ⚡️
@@ -118,11 +118,13 @@
             { profile?.about }
           </div>
 
+          {#if profile.website}
           <div>
             <a class="hover:text-black hover:opacity-80 text-black opacity-50 mt-2 truncate text-ellipsis overflow-hidden max-w-full block" href="{ profile?.website }" target="_blank">
-              { profile?.website }
+              { profile.website }
             </a>
           </div>
+          {/if}
         </div>
       </div>
 
@@ -131,7 +133,7 @@
           <div class="feed w-full">
             {#each feedArray as note, index}  
               {#if index === activeIndex}
-                <Note note={note} pointer={owner?.feedPointers?.[note.id]} />
+                <Note note={note} pointer={owner?.feedPointers?.[note.id] || { id: note.id, author: note.pubkey }} />
               {/if}
             {/each}
           </div>
@@ -148,7 +150,7 @@
     </div>
     </svelte:fragment>
   </Block>
-  {:else}
+  {:else if owner && !owner.isComplete}
     <ProfileSkeleton {key} />
   {/if} <!-- /!profile -->
 {/if} <!-- /browser -->

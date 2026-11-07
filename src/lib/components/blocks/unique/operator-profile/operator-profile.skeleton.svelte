@@ -30,9 +30,9 @@
         </div>
 
         <div>
-          <a class="hover:text-black hover:opacity-80 text-black opacity-50 mt-2 truncate text-ellipsis overflow-hidden max-w-full block" href="#" target="_blank">
+          <span class="hover:text-black hover:opacity-80 text-black opacity-50 mt-2 truncate text-ellipsis overflow-hidden max-w-full block">
             <Skeleton count={1} />
-          </a>
+          </span>
         </div>
       </div>
     </div>

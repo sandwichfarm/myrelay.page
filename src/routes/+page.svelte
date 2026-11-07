@@ -10,10 +10,10 @@
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
 
-  $: showComponent = (key: string) => $MRP?.editor?.enabled || $MRP.loader?.config.event.isBlockEnabled(key)
+  $: showComponent = (key: string) => $MRP?.editor?.enabled || $MRP?.loader?.config.event.isBlockEnabled(key)
   $: componentType = (key: string) => key.split(':')[0]
   $: componentOrder = (key: string) => $MRP?.loader?.config.event.getBlock(key)?.order
-  $: componentIsSortable = (key: string) => componentOrder(key) >= 0
+  $: componentIsSortable = (key: string) => (componentOrder(key) ?? -1) >= 0
   $: type  = (key: string) => key.split(':')[0]
 
   let order: number = 0
@@ -22,14 +22,14 @@
 </script>
 
 {#if browser && $MRP?.loader?.sortedKeys?.length}
-  {#each $MRP?.loader?.sortedComponents as Component}
+  {#each ($MRP?.loader?.sortedComponents || []) as Component}
     {#if componentOrder(Component.key) === 0}
     <EditorAddBlock {order} bind:id />
     {/if}
     {#if Component && showComponent(Component.key)}    
       <svelte:component this={Component.component} key={Component.key} id={id}  />
       {#if componentIsSortable(Component.key)}
-      <EditorAddBlock order={componentOrder(Component.key)+1} bind:id />
+      <EditorAddBlock order={(componentOrder(Component.key) ?? 0)+1} bind:id />
       {/if}
     {/if}
   {/each}

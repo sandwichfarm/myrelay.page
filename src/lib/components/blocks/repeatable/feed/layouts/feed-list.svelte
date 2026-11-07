@@ -1,17 +1,17 @@
 <script lang="ts">
   import Masonry from 'svelte-bricks';
-  import type { NDKEvent } from '@nostr-dev-kit/ndk';
+  import type { NostrEvent } from 'nostr-tools';
   import type { EventPointer } from 'nostr-tools/nip19';
   //
   import Note from '$lib/components/partials/note.svelte';
   //
   //content settings
-  export let notes: NDKEvent[] = []; // Initialize to an empty array
+  export let notes: NostrEvent[] = []; // Initialize to an empty array
   export let pointers: Record<string, EventPointer> = {}; // Initialize to an empty array
   //list settings
 
   $: notes = notes.filter(note => typeof note !== 'undefined')
-  $: image = (note: NDKEvent) => note.tags.find(t => t[0] === 'image')?.[1]
+  $: image = (note: NostrEvent) => note.tags.find(t => t[0] === 'image')?.[1]
 </script>
 
 <!-- {JSON.stringify(notes)} -->
@@ -42,7 +42,7 @@
   <svelte:fragment slot="belowTitle">
     {#if image(note)}
       <div class="overflow-hidden rounded-lg max-h-32 shadow-inner mb-4">
-        <img src="{ image(note) }" />
+        <img src="{ image(note) }" alt="Note attachment" />
       </div>
     {/if}
   </svelte:fragment>

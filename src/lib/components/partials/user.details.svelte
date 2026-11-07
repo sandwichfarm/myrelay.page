@@ -2,7 +2,7 @@
   import { getContext, tick } from 'svelte';
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
 
-  const MRP = getContext(MY_RELAY_PAGE);
+  const MRP = getContext<import("svelte/store").Writable<import("$lib/core/MRP").MyRelayPage>>(MY_RELAY_PAGE);
 
   MRP.subscribe(async (mrp) => {
     await tick()

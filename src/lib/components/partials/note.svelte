@@ -6,7 +6,7 @@
     import Time from "svelte-time";
 
     // import { browser } from '$app/environment';
-    import { NDKEvent } from '@nostr-dev-kit/ndk';
+    import type { NostrEvent } from 'nostr-tools';
     import type { EventPointer } from 'nostr-tools/nip19';
     import * as nip19 from 'nostr-tools/nip19'
     import { parseNote } from '$lib/core/utils/note-parser'
@@ -14,7 +14,7 @@
     import { Badge } from "$lib/components/ui/badge/index.js";
     import Skeleton from '$lib/components/ui/skeleton2';
 
-    export let note: NDKEvent;
+    export let note: NostrEvent;
     export let pointer: EventPointer;
     export let noClass: boolean = false;
     export let showJump: boolean = true;
@@ -35,7 +35,7 @@
       videos: true,
       truncate: summaryTruncate,
       truncateLength: summaryWordsLength,
-      sanitize: false
+      sanitize: true
     }
 
     $: wrapperClass = noClass? '': 'mrp-note mrp-note-bg mrp-note-content block'
@@ -102,8 +102,8 @@
 
 </div>
 
-<style>
-  :global code {
+<style lang="postcss">
+  :global(code) {
     @apply bg-gray-100 dark:bg-gray-950 font-mono border border-gray-200 dark:border-gray-800 rounded px-1;
   }
 </style>

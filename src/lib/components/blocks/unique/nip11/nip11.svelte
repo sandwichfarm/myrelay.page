@@ -20,16 +20,13 @@
   
   const MRP: Writable<MyRelayPage>  = getContext(MY_RELAY_PAGE);
   
-  onMount( () => {
-    $MRP.loader.config.event.blocks[key].order = STATIC_ORDER
-  })
 
-  $: options = $MRP.loader.config.event.blocks[key]?.options
+  $: options = $MRP.loader?.getOptions(key)
   $: info = $MRP.nostr?.relay?.info
 
 </script>
 {#if browser}
-<Block noClass={true} sortable={false} {key}>
+<Block noClass={true} sortable={false} {key} {id}>
   <svelte:fragment slot="content">
     {#if info?.description && options?.showDescription}
     <p class="text-md md:text-xl text-muted-foreground mb-3 mt-0 pt-0">

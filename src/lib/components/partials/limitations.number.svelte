@@ -7,7 +7,7 @@
   import type { Writable } from 'svelte/store';
 
   import { Badge } from "$lib/components/ui/badge";
-  import type { MRPRelay } from '$lib/core/relay';
+  import type { MRPRelay } from '$lib/core/MRPRelay';
   import type { MyRelayPage } from '$lib/core/MRP';
   import Skeleton from '../ui/skeleton2/Skeleton.svelte';
 

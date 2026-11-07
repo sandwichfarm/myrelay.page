@@ -2,11 +2,12 @@
   import { getContext, onMount, tick } from 'svelte';
 
   import { VisSingleContainer, VisTopoJSONMap } from '@unovis/svelte'
-  import type { ColorAccessor } from '@unovis/svelte'
+  import type { ColorAccessor } from '@unovis/ts'
   import { WorldMapTopoJSON } from '@unovis/ts/maps'
-  import { MapPointLabelPosition, type MapData, type MapLink } from '@unovis/ts'
+  import { MapPointLabelPosition, type MapData, type MapLink as UnovisMapLink } from '@unovis/ts'
 
   import type {DD} from '$lib/core/kinds/geocoded'
+  import type { RelayMonitor } from '$lib/core/kinds/monitor'
   
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
 
@@ -54,9 +55,9 @@
   // type ColorAccessor<LinkDatum> = ((d: LinkDatum) => string | null) | string;
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
-  const relayMapPoint: Writable<MapPoint> = writable({});
-  const currentUserPoint: Writable<MapPoint> = writable(undefined);
-  const currentUserLink: Writable<MapLink> = writable(undefined);
+  const relayMapPoint: Writable<MapPoint> = writable({ latitude: 0, longitude: 0 });
+  const currentUserPoint: Writable<MapPoint | undefined> = writable(undefined);
+  const currentUserLink: Writable<MapLink | undefined> = writable(undefined);
   const monitorMapPoints: Writable<MapPoint[]> = writable([]);
   const monitorLinks: Writable<MapLink[]> = writable([]);
   const hasMonitorData = writable(false);
@@ -76,8 +77,8 @@
     return d?.color ?? 'gray'
   }
 
-  const setRelayMapPoint = async(): void => {
-    if(!$MRP?.dd?.lat) return 
+  const setRelayMapPoint = (): void => {
+    if(!$MRP?.dd) return
     hasMonitorData.set(true)
     relayMapPoint.set({ 
       id: 'relay', 
@@ -88,8 +89,9 @@
     })
   }
 
-  const setMonitor = (monitor: MRPMonitor) => {
+  const setMonitor = (monitor: RelayMonitor) => {
     const dd = monitor.dd
+    if (!dd) return
     const rtt = $MRP.nostr?.monitors?.discoveryEventsFor(monitor.pubkey)?.[0]?.rttOpen || undefined
 
     const point: MapPoint = { 
@@ -116,7 +118,7 @@
     monitorLinks.set($monitorLinks)
   }
 
-  const setMonitors = async (): void => {
+  const setMonitors = (): void => {
     resetMonitors()
 
     if(!showMonitors) {
@@ -124,7 +126,7 @@
     }
 
     const monitors = $MRP.nostr?.monitors?.all
-    for ( const monitor of monitors) {
+    for ( const monitor of monitors || []) {
       setMonitor(monitor)
     }
   }
@@ -139,7 +141,7 @@
       if($currentUserLink) links.push($currentUserLink)
       if($monitorLinks.length) links.push(...$monitorLinks)
 
-      const areas = []
+      const areas: MapArea[] = []
 
       return {
         areas,
@@ -149,13 +151,13 @@
     });
   }
 
-  const resetMonitors = async (): void => {
+  const resetMonitors = (): void => {
     monitorMapPoints.set([])
     monitorLinks.set([])
     updateMapData()
   }
 
-  const setMapPoints = async (): void => {
+  const setMapPoints = (): void => {
     setRelayMapPoint()
     if(monitorVis === 'always') setMonitors()
     updateMapData()
@@ -172,10 +174,10 @@
       label: 'you',
       radius: 10
     })
-    if($currentUserPoint.id && $relayMapPoint.id) {
+    if($currentUserPoint?.id && $relayMapPoint.id) {
       currentUserLink.set({
-        source: relayMapPoint.id,
-        target: point.id,
+        source: $relayMapPoint.id,
+        target: $currentUserPoint.id,
         color: 'black',
         cursor: 'crosshair',
         width: 10
@@ -192,7 +194,7 @@
     }
   })
 
-  $: monitorVis = $MRP.loader.config.event.blocks?.[key]?.options?.showMonitors
+  $: monitorVis = $MRP.loader?.getOptions(key)?.showMonitors
   $: showMonitors = monitorVis === 'always' || monitorVis === 'onhover'
 </script>
 
@@ -208,12 +210,12 @@
 
 </Geolocation>
 {#if $MRP.nostr.monitors.isComplete && $MRP.nostr.monitors.monitorEvents.size && $hasMonitorData}
-<Block class="relative pt-0" headingClass="py-5 absolute top w-full mb-2" {key}>
+<Block class="relative pt-0" headingClass="py-5 absolute top w-full mb-2" {key} {id}>
   <svelte:fragment slot="title">
     geo
   </svelte:fragment>
   <svelte:fragment slot="content">
-    <VisSingleContainer data={$data} style="width:100%;" class="mrp-map-light dark:mrp-map-dark">
+    <VisSingleContainer data={$data} class="w-full mrp-map-light dark:mrp-map-dark">
       <VisTopoJSONMap 
         topojson={WorldMapTopoJSON} 
         disableZoom={true}

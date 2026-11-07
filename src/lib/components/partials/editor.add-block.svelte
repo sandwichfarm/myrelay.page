@@ -18,8 +18,8 @@
   }
 
   export let order: number = 0;
-  let loading: Writable<boolean>;
-  export let id: string;
+  let loading: Writable<boolean> = writable(false);
+  export let id: string = '';
 </script>
 
 {#if $MRP?.editor?.enabled}

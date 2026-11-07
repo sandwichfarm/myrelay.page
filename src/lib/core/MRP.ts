@@ -2,7 +2,7 @@ import { MRPEditor } from './MRPEditor'
 import { MRPConfig } from './MRPConfig'
 import { MRPNostr } from './MRPNostr'
 import { BlockLoader } from './MRPBlockLoader';
-import NDK, { NDKRelay, NDKRelaySet, NDKUser } from '@nostr-dev-kit/ndk';
+import { NostrClient } from './nostr';
 import { EventEmitter } from 'tseep';
 import { MRPData, MRPStage, MRPStatus } from './MRPData';
 
@@ -11,108 +11,93 @@ import type { DD } from './kinds/geocoded';
 
 export interface MRPState {
   signal: EventEmitter<any>;
-  ndk?: NDK;
+  client: NostrClient;
 }
 
 export class MyRelayPage extends MRPData {
-  private readonly defaultRelays: Set<string> = new Set(['wss://purplepag.es', 'wss://user.kindpag.es', 'wss://history.nostr.watch', 'wss://relaypag.es', 'wss://relay.nostr.watch'] as string[])
-  private _url: string;
+
+  private _url!: string;
   private _nostr: MRPNostr;
   private _editor: MRPEditor;
-  private _config: MRPConfig;
   private _loader: BlockLoader | undefined;
-  private _userFollowsOnRelay: NDKUser[] = []
-  private _promises: Promise<any>[] = []
+  private _userFollowsOnRelay: MRPUser[] = []
+  private initialized?: Promise<void>;
+  private handlersBound = false;
+  private closed = false;
+  private followsGeneration = 0;
   
   public $: MRPState;
 
-  constructor(url?: string){
+  constructor(url?: string, client = new NostrClient()){
     const signal = new EventEmitter()
     super(signal, 'root')
     this.begin()
-    this.$ = { signal }
+    this.$ = { signal, client }
     this.url = url
     if(!this.url) throw new Error(`No valid URL provided/detected: ${this.url}`)
-    this._nostr = new MRPNostr(this.$.signal, this.defaultRelays, this.url)
-    this.$.ndk = this._nostr.ndk
+    this._nostr = new MRPNostr(this.$.signal, new Set(), this.url, this.$.client)
     this._editor = new MRPEditor()
     this.bindHandlers()
   }
 
-  async init(){
-    this.bindHandlers()
-    await this.nostr?.connect()
-    await this.nostr?.init()
-    // await this.editor?.init()
-    this.$.signal.once('relay:completed', () => { this.complete() })
+  init(): Promise<void> {
+    return this.initialized ??= this.initialize();
+  }
+
+  private async initialize() {
+    this.begin();
+    await this.nostr.init();
+    await this.loader?.init();
+    this.complete();
+  }
+
+  close() {
+    this.closed = true;
+    this.nostr.close();
+    this.$.signal.removeAllListeners();
   }
 
   bindHandlers(){
+    if (this.handlersBound) return;
+    this.handlersBound = true;
+    const clearFollows = () => {
+      this.followsGeneration++;
+      this._userFollowsOnRelay = [];
+      this.changed();
+    };
+    this.$.signal.on('mrp:login', clearFollows);
+    this.$.signal.on('mrp:logout', clearFollows);
     this.$.signal.once('config:completed', async (stage: MRPStage, status: MRPStatus) => {
       if(status === MRPStatus.Failure || typeof this._loader !== "undefined" ) return
       this._loader = new BlockLoader(this.$, this.nostr?.relay?.config as MRPConfig)
-      await this.loader.init()
+      await this.loader?.init()
     })
   }
 
   async getUserFollowsOnRelay() {
-    await this.nostr.user?.getFollows();
-    if (!this.nostr.user?.follows) return;
-
-    console.log(`you follow ${this.nostr.user?.follows?.size} nostriches`)
-  
-    const relay = new NDKRelaySet(new Set([new NDKRelay(this.url as string)]), new NDK({explicitRelayUrls:[this.url as string]}));
-    
-    const promises = Array.from(this.nostr.user.follows).map(follow => {
-      return this.nostr.$.ndk.fetchEvent({
-        kinds: [10002, 3],
-        authors: [follow.pubkey]
-      }, { groupable: true, closeOnEose: false });
-    }, relay);
-  
-    const results = await Promise.allSettled(promises);
-    
-    let pubkeyResults = results
-      .filter( result => result.value !== null)
-      .filter( ( result) => {
-        if(result.value.kind === 10002) {
-          try {
-          return result?.value?.tags.find(tag => {
-            const url = new URL(tag[1]).toString()
-            return tag[0] === 'r' && url === this.url
-          })
-        }
-        catch(e){ return false }
-        }
-        if(result.value.kind === 3 && result.value.content.length > 0){
-          try {
-            const json = JSON.parse(result.value.content)
-            return Object.keys(json).find(key => {
-              const url = new URL(key).toString()
-              return url === this.url
-            })
-          }
-          catch(e){ return false }
-        } 
-      })
-      .map(result => result.value.pubkey);
-      
-    pubkeyResults = Array.from(new Set(pubkeyResults))
-
-    console.log(`${pubkeyResults?.length} of them are lurking on ${this.url}`)
-  
-    for (const follow of this.nostr.user.follows) {
-      if (!pubkeyResults.includes(follow.pubkey)) continue;
+    const user = this.nostr.user;
+    if (!user || this.closed) return;
+    const generation = ++this.followsGeneration;
+    const isCurrent = () => !this.closed && this.nostr.user === user && this.followsGeneration === generation;
+    await user.getFollows();
+    if (!isCurrent()) return;
+    const follows = [...(user.follows ?? [])];
+    const present = await Promise.all(follows.map(async follow => {
+      await follow.fetchRelayList();
+      if (!isCurrent() || !follow.hasRelay(this.url!)) return undefined;
       await follow.fetchProfile();
-      this._userFollowsOnRelay.push(follow);
-    }
+      return follow;
+    }));
+    if (!isCurrent()) return;
+    this._userFollowsOnRelay = present.filter((follow): follow is MRPUser => !!follow);
+    this.changed();
   }
 
   isEditorEnabled(): boolean {
     return this.editor?.enabled
   }
   
-  get userFollowsOnRelay(): NDKUser[] | undefined {
+  get userFollowsOnRelay(): MRPUser[] | undefined {
     return this._userFollowsOnRelay
   }
 
@@ -120,7 +105,8 @@ export class MyRelayPage extends MRPData {
     const _url = url ? new URL(url) : new URL(window.location.href);
     if(_url.protocol !== 'wss:' && _url.protocol !== 'ws:'){
       if(_url.protocol === 'https:') _url.protocol = 'wss:';
-      else _url.protocol = 'ws:';
+      else if (_url.protocol === 'http:') _url.protocol = 'ws:';
+      else throw new Error('Invalid relay URL');
     }
     _url.hash = '';
     _url.search = '';
@@ -147,8 +133,8 @@ export class MyRelayPage extends MRPData {
     return this._nostr
   }
 
-  get ndk (): NDK {
-    return this._nostr.ndk
+  get client(): NostrClient {
+    return this._nostr.client
   }
 
   get editor (): MRPEditor {
@@ -159,7 +145,7 @@ export class MyRelayPage extends MRPData {
     return this?.nostr?.relay?.config
   }
 
-  get loader(): BlockLoader {
+  get loader(): BlockLoader | undefined {
     return this._loader
   }
 
@@ -173,18 +159,14 @@ export class MyRelayPage extends MRPData {
       info = {
         name: this.nostr?.relay?.info?.name,
         description: this.nostr?.relay?.info?.description,
-        owner: this.nostr?.relay?.owner,
+        owner: this.nostr?.relay?.owner?.pubkey,
         limitations: this.nostr?.relay?.info?.limitations,
         fees: this.nostr?.relay?.info?.fees,
         is: {
           paymentRequired: this.nostr?.relay?.info?.isPaymentRequired,
           authRequired: this.nostr?.relay?.info?.isAuthRequired
         },
-        limits: {
-          maxFileSize: this.nostr?.relay?.info?.maxFileSize,
-          maxFileCount: this.nostr?.relay?.info?.maxFileCount,
-          maxFileStorage: this.nostr?.relay?.info?.maxFileStorage
-        }
+
       }
     }
     return {
@@ -195,7 +177,7 @@ export class MyRelayPage extends MRPData {
 
   session(): any{
     return removeUndefinedKeys({
-      user: this.nostr?.user?.user,
+      user: this.nostr?.user?.pubkey,
       profile: this.nostr?.user?.profile,
       relays: this.nostr?.user?.relays
     })

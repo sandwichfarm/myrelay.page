@@ -1,12 +1,11 @@
-import NDK from "@nostr-dev-kit/ndk";
-import { marked } from "marked";
-import * as DOMPurify from 'dompurify';
+import { marked, type MarkedOptions } from "marked";
+import DOMPurify from 'dompurify';
 
 interface ParseConfig {
   removeHashtags?: boolean,
   nip19?: boolean,
   markdown?: boolean,
-  markdownOptions?: marked.MarkedOptions,
+  markdownOptions?: MarkedOptions,
   images?: boolean,
   videos?: boolean,
   truncate?: boolean,
@@ -23,7 +22,7 @@ const defaultConfig: ParseConfig = {
   videos: true,
   truncate: false,
   truncateLength: 50,
-  sanitize: false,
+  sanitize: true,
 }
 
 
@@ -111,7 +110,7 @@ export const parseNRelay = (encoded: string): string => {
   return encoded
 }
 
-export const truncate = (str, max = 10) => {
+export const truncate = (str: string, max = 10) => {
   const array = str.trim().split(' ');
   const ellipsis = array.length > max ? '...' : '';
   return array.slice(0, max).join(' ') + ellipsis;

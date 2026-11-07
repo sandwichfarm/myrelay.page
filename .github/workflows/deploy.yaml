@@ -1,28 +1,29 @@
 name: deploy
-on: 
-  push
+on:
+  push:
+    branches: [main]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache node modules
-        uses: actions/cache@v2
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+          node-version: '22'
+          cache: npm
 
       - name: install
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
-          yarn install
+          npm ci
           
+      - name: tests
+        run: npm test && npm run lint
+
       - name: build 
-        run: yarn build
+        run: npm run build
 
       - name: get-npm-version
         if: github.ref == 'refs/heads/main'

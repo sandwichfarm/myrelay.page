@@ -11,16 +11,16 @@
   import type { Writable } from 'svelte/store';
   import type { MyRelayPage } from '$lib/core/MRP';
 
-  import NDK, { NDKEvent } from '@nostr-dev-kit/ndk';
+  import type { NostrEvent } from 'nostr-tools';
   import type { EventPointer } from 'nostr-tools/nip19';
   import { MRPStage, MRPStatus } from '$lib/core/MRPData';
   import Block from '$lib/components/wrappers/block.svelte';
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
 
-  const notes: Writable<NDKEvent[]> = writable([]);
+  const notes: Writable<NostrEvent[]> = writable([]);
   const pointers: Writable<Record<string, EventPointer>> = writable({});
-  let feed: NDKEvent[] = []
+  let feed: NostrEvent[] = []
 
   export let key: string = "";
 
@@ -33,7 +33,7 @@
         let $feed = relay?.feed 
         feed = $feed?.notes || []
         notes.set(feed || [])
-        pointers.set($feed?.pointers)
+        pointers.set($feed?.pointers || {})
       }   
     });
   });

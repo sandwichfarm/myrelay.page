@@ -1,32 +1,23 @@
-import { render } from '@testing-library/svelte';
-import { expect } from 'vitest';
-import YourComponent from './note.svelte'; // Adjust the path to your Svelte component
+import { cleanup, render, waitFor } from '@testing-library/svelte';
+import { afterEach, describe, expect, it } from 'vitest';
+import { neventEncode } from 'nostr-tools/nip19';
+import Note from './note.svelte';
 
-describe('YourComponent', () => {
-  it('renders content, time, and badge correctly', async () => {
-    const note = {
-      created_at: Math.floor(Date.now() / 1000),
-      content: 'This is a test note content.',
-      tags: [['t', 'testTag']],
-      id: 'testNoteId'
-    };
-
-    const pointer = { r: 'testR', s: 'testS', k: 'testK' };
-
-    const { getByText, container } = render(YourComponent, { note, pointer });
-
-    // Check if the timestamp is rendered
+afterEach(cleanup);
+const note = { created_at: 1710000000, content: 'A relay note.', tags: [['t', 'nostr']], id: 'a'.repeat(64), pubkey: 'b'.repeat(64), kind: 1, sig: 'c'.repeat(128) };
+const pointer = { id: note.id, author: note.pubkey, kind: 1, relays: ['wss://relay.example/'] };
+describe('note', () => {
+  it('renders content, time, topics and a valid NIP-19 jump link', async () => {
+    const { getByText, container } = render(Note, { note, pointer });
+    await waitFor(() => expect(getByText('A relay note.')).toBeTruthy());
     expect(container.querySelector('time')).not.toBeNull();
-
-    // Check if the content is rendered
-    expect(container.innerHTML).toContain('This is a test note content.');
-
-    // Check if the badge for the tag is rendered
-    expect(getByText('#testTag')).toBeInTheDocument();
-
-    // Check if the link is correctly formed
-    const encodedPointer = encodeURIComponent(JSON.stringify(pointer));
-    const expectedHref = `https://nostr.at/${encodedPointer}`;
-    expect(container.querySelector(`a[href="${expectedHref}"]`)).not.toBeNull();
+    expect(getByText('#nostr')).toBeTruthy();
+    expect(container.querySelector('a')?.href).toBe(`https://nostr.at/${neventEncode(pointer)}`);
+  });
+  it('sanitizes untrusted relay HTML before rendering', async () => {
+    const { container, getByText } = render(Note, { note: { ...note, content: '<img src=x onerror="alert(1)"><script>alert(1)</script>Safe text' }, pointer });
+    await waitFor(() => expect(getByText('Safe text')).toBeTruthy());
+    expect(container.querySelector('script')).toBeNull();
+    expect(container.querySelector('[onerror]')).toBeNull();
   });
 });

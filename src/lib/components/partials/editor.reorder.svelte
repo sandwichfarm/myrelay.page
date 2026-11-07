@@ -9,24 +9,24 @@
   export let key: string = ""
 
   const up = () => {
-    $MRP.loader.config.event.shiftBlockUp(key)
+    $MRP.loader?.config.event.shiftBlockUp(key)
     MRP.set($MRP)
   }
   const down = () => {
-    $MRP.loader.config.event.shiftBlockDown(key)
+    $MRP.loader?.config.event.shiftBlockDown(key)
     MRP.set($MRP)
   }
 </script>
 
 {#if !$MRP?.loader?.config?.event?.blockIsFirst(key)}
-<a href="{'#'}" on:click={up}>
+<button type="button" aria-label="Move block up" on:click={up}>
   ▲
-</a>
+</button>
 {/if}
 
 {#if !$MRP?.loader?.config?.event?.blockIsLast(key)}
-<a href="{'#'}" on:click={down}>
+<button type="button" aria-label="Move block down" on:click={down}>
   ▼
-</a>
+</button>
 {/if}
 

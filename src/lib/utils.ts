@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { cubicOut } from "svelte/easing";
 import type { TransitionConfig } from "svelte/transition";
-import type { MRPRelay } from "./core/relay";
+import type { MRPRelay } from "./core/MRPRelay";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));

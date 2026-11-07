@@ -6,7 +6,7 @@
   import { Badge } from "$lib/components/ui/badge";
   
   import type { MyRelayPage } from '$lib/core/MRP';
-  import type { MRPRelay } from '$lib/core/relay';
+  import type { MRPRelay } from '$lib/core/MRPRelay';
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
     import Skeleton from '../ui/skeleton2/Skeleton.svelte';
@@ -22,7 +22,7 @@
 </script>
 
 <div class="mb-4">
-  {#if $relay?.info}
+  {#if $relay?.info?.loaded}
     {#if $relay?.info?.isPaymentRequired }
       <Badge class="border-transparent bg-orange-600 text-destructive-foreground hover:bg-orange-600/80">Payment Required</Badge>
     {:else}
@@ -34,7 +34,7 @@
     {:else}
       <Badge class="border-transparent bg-green-600 text-destructive-foreground hover:bg-green-600/80">No Auth Challenge</Badge>
     {/if}
-  {:else}
+  {:else if !$relay?.info?.isComplete}
     <Skeleton count={1} width={300} />
   {/if}
 </div>
