@@ -1,0 +1,194 @@
+{
+  "scenarios": [
+    {
+      "name": "desktop",
+      "draws": 1050,
+      "frames": 105,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "mobile",
+      "draws": 460,
+      "frames": 46,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "compact",
+      "draws": 480,
+      "frames": 48,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "dark",
+      "draws": 460,
+      "frames": 46,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "reduced-motion",
+      "draws": 50,
+      "frames": 5,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "fallback",
+      "draws": 0,
+      "frames": 0,
+      "drawCallsPerFrame": 0,
+      "pendingFrames": 0,
+      "created": {
+        "program": 0,
+        "buffer": 0,
+        "shader": 0,
+        "texture": 0,
+        "vertexArray": 0
+      },
+      "deleted": {
+        "program": 0,
+        "buffer": 0,
+        "shader": 0,
+        "texture": 0,
+        "vertexArray": 0
+      }
+    },
+    {
+      "name": "context-loss",
+      "draws": 240,
+      "frames": 24,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "visibility",
+      "draws": 470,
+      "frames": 47,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    },
+    {
+      "name": "network-error",
+      "draws": 430,
+      "frames": 43,
+      "drawCallsPerFrame": 10,
+      "pendingFrames": 0,
+      "created": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      },
+      "deleted": {
+        "program": 1,
+        "buffer": 4,
+        "shader": 2,
+        "texture": 0,
+        "vertexArray": 2
+      }
+    }
+  ],
+  "notes": "WebGL call instrumentation runs only in the browser test. Rendering is real; relay responses are signed deterministic fixtures. No claim of hardware GPU throughput."
+}

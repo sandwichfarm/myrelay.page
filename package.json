@@ -19,7 +19,8 @@
     "scn": "cross-env COMPONENTS_REGISTRY_URL=http://localhost:5173 pnpm shadcn-svelte",
     "reset": "node ./reset.js",
     "build:themes": "node ./scripts/build-themes.js",
-    "test:browser": "node tests/browser.mjs"
+    "test:browser": "node tests/browser.mjs",
+    "test:loading": "node tests/loading-browser.mjs"
   },
   "dependencies": {
     "@emotion/css": "11.11.2",
