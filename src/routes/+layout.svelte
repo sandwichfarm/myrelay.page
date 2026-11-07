@@ -3,9 +3,8 @@
 <script lang="ts">
   import "../app.pcss";
 
-  import { setContext, onMount, tick } from 'svelte';
-	import { slide, fade } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
+  import { setContext, onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
   import { writable, type Writable } from 'svelte/store'
 
   import { browser } from '$app/environment';
@@ -14,7 +13,7 @@
   import Header from '$lib/components/layout/Header.svelte';
   import Footer from '$lib/components/layout/Footer.svelte';
 
-  import LoadingAnimation from '$lib/components/animations/squares.svelte';
+  import LoadingAnimation from '$lib/components/animations/RelayLoading.svelte';
 
   import { MY_RELAY_PAGE, THEME_CSS } from '$lib/contextKeys';
   import { MyRelayPage } from '$lib/core/MRP';
@@ -24,21 +23,20 @@
   export const trailingSlash = 'always';
 
   let MRP: Writable<MyRelayPage> = writable()
-  let start: Writable<number> = writable(Date.now())
 
   setContext(MY_RELAY_PAGE, MRP);
   setContext(THEME_CSS, theme);
 
-  // const [send, receive] = crossfade({
-	// 	duration: 1500,
-	// 	easing: quintOut
-	// });
-
-  // const key = 'LOADER'
-
   let startupError = '';
+  let reducedMotion = false;
+  let loadingStage: 'info' | 'config' | 'content';
+  $: loadingStage = !$MRP?.nostr?.relay?.info?.isComplete ? 'info' : !$MRP?.config?.isComplete ? 'config' : 'content';
   onMount(() => {
     let disposed = false;
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateMotion = () => { reducedMotion = motionPreference.matches; };
+    updateMotion();
+    motionPreference.addEventListener('change', updateMotion);
     let app: MyRelayPage | undefined;
     const stopTheme = theme.subscribe(value => { void loadTheme(value).catch(console.error); });
     const start = async () => {
@@ -66,6 +64,7 @@
     return () => {
       disposed = true;
       stopTheme();
+      motionPreference.removeEventListener('change', updateMotion);
       app?.close();
     };
   });
@@ -88,24 +87,12 @@
     <div class="flex flex-col items-center justify-center">
       <div id="mrp-wrapper" class="w-full md:w-auto mrp-wrapper-bg mrp-wrapper-content transition-colors duration-200 ease-in-out">
         <Header></Header>
-        <!-- <div transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}>
-          <LoadingAnimation />
-        </div> -->
-        <!-- {#if !$MRP?.nostr?.relay?.config?.isComplete}
-          <div transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}>
-            <LoadingAnimation />
-          </div>
-        {:else}
-        <div transition:fade>
-          <slot></slot>
-        </div>
-        {/if} -->
-
+        <div class="page-stage">
         {#if startupError}
           <p role="alert" class="p-6">Unable to load this relay: {startupError}</p>
-        {:else if !$MRP?.nostr?.relay?.config?.isComplete}
-          <div transition:slide={{ delay: 0, duration: 1000, easing: quintOut, axis: 'y' }}>
-            <LoadingAnimation />
+        {:else if !$MRP?.loader?.isComplete}
+          <div out:fade={{ duration: reducedMotion ? 0 : 140 }} class="loading-layer">
+            <LoadingAnimation stage={loadingStage} />
           </div>
         {:else}
         <div>
@@ -115,6 +102,7 @@
           <slot></slot>
         </div>
         {/if}
+        </div>
       </div>
       <Footer></Footer>
     </div>
@@ -122,5 +110,7 @@
 </div>
 
 <style>
-
+  .page-stage { display: grid; }
+  .page-stage > :global(*) { grid-area: 1 / 1; min-width: 0; }
+  .loading-layer { background: inherit; pointer-events: none; }
 </style>
