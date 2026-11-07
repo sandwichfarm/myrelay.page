@@ -59,7 +59,7 @@ async function scenario({mobile=false,offline=false,rejectPublish=false,noConfig
   });
   await page.goto(`${base}/?url=${encodeURIComponent(relay)}`);
   await page.waitForFunction(()=>document.body.classList.contains('loaded'),{},{timeout:20000});
-  await page.locator('.loader').waitFor({state:'detached'});
+  await page.getByTestId('relay-loading').waitFor({state:'detached'});
   await page.evaluate(()=>document.fonts.ready);
   const loginContrast = await page.getByRole('button',{name:'login',exact:true}).evaluate(e=>({text:getComputedStyle(e).color,background:getComputedStyle(e).backgroundColor}));
   assert.notEqual(loginContrast.text,loginContrast.background,'login text must remain visible in production');
