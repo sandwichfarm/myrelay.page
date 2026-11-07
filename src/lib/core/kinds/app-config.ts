@@ -2,29 +2,8 @@ import jsonpack from 'jsonpack';
 import objectHash from 'object-hash';
 import deepMerge from 'deepmerge';
 
-import NDK, { NDKEvent, NDKKind } from '@nostr-dev-kit/ndk';
-
-import type { NDKTag, NostrEvent } from '@nostr-dev-kit/ndk';
-
-
-type Colors = {
-  background?: string,
-  foreground?: string,
-  primary?: string,
-  secondary?: string,
-  accent?: string,
-  muted?: string,
-}
-type ColorKeys = keyof Colors;
-type ColorTuple = ['color', ColorKeys, string];
-
-type Font = {
-  [key: string]: string
-}
-
-type Json = {
-  [key: string]: any
-}
+import type { Event as NostrEvent } from 'nostr-tools';
+import { z } from 'zod';
 
 type Theme = string
 
@@ -101,137 +80,113 @@ const defaults: ConfigObj = {
   }
 }
 
-export class AppConfig extends NDKEvent {
-  private _changed: boolean = false;
-  private _config: ConfigObj;
-  private _configUnchanged: ConfigObj;
-  private _configHash: string | undefined;  
-  private _configHashUnchanged: string | undefined;  
-  private _configDefault: ConfigObj = deepClone(defaults);
-  private _configDefaultHash: string = '';
+const configSchema = z.object({
+  general: z.object({
+    login: z.object({ enabled: z.boolean().optional() }).passthrough().optional(),
+    join: z.object({ enabled: z.boolean().optional() }).passthrough().optional(),
+    theme: z.object({
+      native: z.string().optional(), custom: z.boolean().optional(),
+      customUrl: z.string().optional(), customType: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough().optional(),
+  blocks: z.record(z.object({
+    enabled: z.boolean(), order: z.number().finite(), options: z.record(z.unknown()).optional(),
+  }).passthrough()).optional(),
+}).passthrough();
 
-  constructor( ndk: NDK, event?: NostrEvent ){
-    super(ndk, event)
-    this.kind = NDKKind.AppSpecificData
+export class AppConfig {
+  readonly kind = 30078;
+  id = '';
+  pubkey = '';
+  created_at = 0;
+  sig = '';
+  tags: string[][] = [];
+  content = '';
+  private _config!: ConfigObj;
+  private _configUnchanged!: ConfigObj;
 
-    this._configDefaultHash = objectHash(this._configDefaultHash, { algorithm: 'sha1' });
-    this.config = deepMerge(this._configDefault, this.parseConfig(this.content))
-    this._configUnchanged = deepClone(this.config)
-    this.content = jsonpack.pack(this.config);
-  }
-
-  static from( ndk: NDK, rawEvent: NostrEvent ){
-    return new AppConfig(ndk, rawEvent)
-  }
-
-  private parseConfig(content: string): ConfigObj {
-    if (!content) return this._configDefault;
-    try {
-      return jsonpack.unpack(content);
-    } catch (e) {
-      console.error(`Error parsing content: ${e}`);
-      return this._configDefault;
+  constructor(event?: Partial<NostrEvent>) {
+    if (event) {
+      this.id = event.id ?? '';
+      this.pubkey = event.pubkey ?? '';
+      this.created_at = event.created_at ?? 0;
+      this.sig = event.sig ?? '';
+      this.tags = deepClone(event.tags ?? []);
     }
+    this.config = deepMerge(deepClone(defaults), this.parseConfig(event?.content ?? ''));
+    this.commitChanges();
   }
 
-  reset(){
-    this.config = deepClone(this._configDefault)
-    this._configUnchanged = deepClone(this.config)
-    this.content = jsonpack.pack(this.config);
+  static from(event: NostrEvent) {
+    return new AppConfig(event);
   }
 
-  configDiffersFromDefault(): boolean {
-    // console.log(this.configHash, this._configDefaultHash, this.configHash !== this._configDefaultHash)
-    return this.configHash !== this._configDefaultHash;
-  }
-
-  commitChanges(){
-    this._configUnchanged = { ...this.config }
-    this.setConfigHash(true)
-  }
-
-  discardChanges(){
-    // console.log(`hash of unchanged config`, objectHash(this._configUnchanged, { algorithm: 'sha1' }))  
-    // console.log('discarding changes', this.deterministicHash)
-    this.config = deepClone( this._configUnchanged )
-    this.configHash = this.configHashUnchanged as string;
-    // console.log('hash after', this.deterministicHash)
-  }  
-
-  set config(config: ConfigObj) {
-    this._config = this.deepProxy(config, () => {
-      this.content = this.pack();
-      // console.log('content packed', this.content)  
-    });
-    this.setConfigHash(this?._configHashUnchanged? false: true)
-  }
-
-  get config(): ConfigObj {
-    return this._config;
-  }
-
-  set changed(changed: boolean) {
-    this._changed = changed;
-  }
-
-  get changed(): boolean {
-    return this._changed
-  }
-  
-  get configHash(): string | undefined {
-    return this._configHash;
-  }
-
-  private set configHash(hash: string) {
-    this._configHash = hash;
-  }
-
-  private get configHashUnchanged(): string | undefined {
-    return this._configHashUnchanged;
-  }
-
-  private set configHashUnchanged(hash: string) {
-    this._configHashUnchanged = hash;
-  }
-
-  get contentUnpacked(): Json {
+  private parseConfig(content: string): Partial<ConfigObj> {
+    if (!content) return {};
     try {
-      return jsonpack.unpack(this.content);
-    } catch (e) {
-      console.error(`Error unpacking content: ${e}`);
+      return configSchema.parse(jsonpack.unpack(content)) as Partial<ConfigObj>;
+    } catch {
       return {};
     }
   }
 
-  setConfigHash(setOriginal: boolean = false) {
-    const newHash = objectHash(this.config, { algorithm: 'sha1' });
-    if (setOriginal) {
-      this.configHashUnchanged = newHash;
-    }
-    this.configHash = newHash;
-    this.changed = this.configHash !== this.configHashUnchanged;
-    // console.log(this.changed ? 'changed' : 'unchanged', this.configHash, this.configHashUnchanged);
+  reset() {
+    this.config = deepClone(defaults);
   }
 
-  private deepProxy(obj: any, callback: () => void): any {
+  configDiffersFromDefault(): boolean {
+    return this.configHash !== objectHash(defaults);
+  }
+
+  // A publish can finish after the editor has changed again. Commit the exact
+  // acknowledged snapshot while leaving those newer edits dirty.
+  commitChanges(snapshot: ConfigObj = this.config) {
+    this._configUnchanged = deepClone(snapshot);
+  }
+
+  discardChanges() {
+    this.config = deepClone(this._configUnchanged);
+  }
+
+  set config(config: ConfigObj) {
+    this._config = this.deepProxy(deepClone(config));
+    this.content = this.pack();
+  }
+
+  get config(): ConfigObj { return this._config; }
+  get changed(): boolean { return this.configHash !== objectHash(this._configUnchanged); }
+  get configHash(): string { return objectHash(deepClone(this.config)); }
+  get deterministicHash(): string { return this.configHash; }
+  get contentUnpacked(): ConfigObj { return deepClone(this.config); }
+
+  setConfigHash(setOriginal = false) {
+    if (setOriginal) this.commitChanges();
+  }
+
+  private deepProxy(obj: any): any {
     return new Proxy(obj, {
-        get: (target, property, receiver) => {
-            const value = Reflect.get(target, property, receiver);
-            return value && typeof value === 'object' ? this.deepProxy(value, callback) : value;
-        },
-        set: (target, property, value, receiver) => {
-            if (typeof value === 'boolean' || target[property] !== value) {
-                target[property] = value;
-                callback(); // Trigger callback only on actual change
-                return true;
-            }
-            return Reflect.set(target, property, value, receiver);
-        }
+      get: (target, key, receiver) => {
+        const value = Reflect.get(target, key, receiver);
+        return value && typeof value === 'object' ? this.deepProxy(value) : value;
+      },
+      set: (target, key, value) => {
+        target[key] = value;
+        this.content = this.pack();
+        return true;
+      },
+      deleteProperty: (target, key) => {
+        delete target[key];
+        this.content = this.pack();
+        return true;
+      },
     });
   }
 
-  get deterministicHash(){
-    return objectHash(this.config, { algorithm: 'sha1' });
+  rawEvent(): NostrEvent {
+    return {
+      id: this.id, pubkey: this.pubkey, created_at: this.created_at,
+      kind: this.kind, tags: deepClone(this.tags), content: this.pack(), sig: this.sig,
+    };
   }
 
   get theme(): ConfigTheme {
@@ -246,18 +201,10 @@ export class AppConfig extends NDKEvent {
     return this.config.general
   }
 
-  private updateConfig(path: string[], value: any) {
-        let current = this._config;
-      for (let i = 0; i < path.length - 1; i++) {
-          current = current[path[i]];
-      }
-      if(!current?.[path?.[path.length - 1]]) throw new Error(`${path} does not exist`) 
-      current[path[path.length - 1]] = value;
-      this.config = this._config;
-  }
+  get d(): string | undefined { return this.tags.find(tag => tag[0] === 'd')?.[1]; }
 
   set d(key: string) {
-    this.tags = this.tags.filter( (tag: NDKTag) => tag[0]!== 'd' )
+    this.tags = this.tags.filter( (tag: string[]) => tag[0]!== 'd' )
     this.tags.push(["d",`${key}`])
   }
 
@@ -272,7 +219,7 @@ export class AppConfig extends NDKEvent {
   }
 
   setJoinEnabled(enabled: boolean) {
-    this._config.general.login.join.enabled = enabled;
+    this._config.general.join.enabled = enabled;
     this.config = this._config;
     this.content = this.pack();
   }
@@ -357,7 +304,7 @@ export class AppConfig extends NDKEvent {
   }
 
   isJoinEnabled(): boolean {
-    return this.config.general?.login?.join?.enabled
+    return this.config.general?.join?.enabled
   }
 
   getBlock(key: string): ConfigBlock {

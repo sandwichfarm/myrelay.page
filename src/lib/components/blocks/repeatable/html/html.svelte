@@ -14,6 +14,6 @@
 </script>
 <Block key={key} id={id}>
   <svelte:fragment slot="content">
-    {@html $MRP.loader.config.event.blocks[key]?.options?.html || ""}
+    {@html $MRP.loader?.getOptions(key)?.html || ""}
   </svelte:fragment>
 </Block>

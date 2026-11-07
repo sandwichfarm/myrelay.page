@@ -14,11 +14,10 @@
   import Header from '$lib/components/layout/Header.svelte';
   import Footer from '$lib/components/layout/Footer.svelte';
 
-  // import LoadingAnimation from '$lib/components/animations/char-chaos.svelte';
   import LoadingAnimation from '$lib/components/animations/squares.svelte';
 
   import { MY_RELAY_PAGE, THEME_CSS } from '$lib/contextKeys';
-  import { MyRelayPage } from '$lib/core/MRP.ts';
+  import { MyRelayPage } from '$lib/core/MRP';
 
   export const ssr = false;
   export const prerender = true;
@@ -37,46 +36,38 @@
 
   // const key = 'LOADER'
 
-  const mount = async () => {
-
-    await loadTheme();
-    await tick()
-    theme.subscribe((value) => {
-      loadTheme(value);
-    });
-
-    await import('nostr-zap')
-    let url: string | undefined;
-    if(window.location.host.includes('localhost') || window.location.host.includes('myrelay.page') || window.location.host.includes('netlify')){
+  let startupError = '';
+  onMount(() => {
+    let disposed = false;
+    let app: MyRelayPage | undefined;
+    const stopTheme = theme.subscribe(value => { void loadTheme(value).catch(console.error); });
+    const start = async () => {
+      // Optional decoration must not prevent the relay page from loading.
+      void import('nostr-zap').catch(console.error);
       const params = new URLSearchParams(window.location.search);
-      // url = params.get('url') || "wss://lunchbox.sandwich.farm"
-      url = params.get('url') || "wss://appdata.kindpag.es"
+      const previewHost = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)
+        || window.location.hostname === 'myrelay.page'
+        || window.location.hostname.endsWith('.netlify.app');
+      const url = params.get('url') || (previewHost ? 'wss://relay.damus.io' : undefined);
+      app = new MyRelayPage(url);
+      MRP.set(app);
+      const update = () => { if (!disposed && app) MRP.set(app); };
+      app.$.signal.on('state:changed', update);
+      await app.init();
+      if (!disposed) {
+        document.body.classList.remove('loading');
+        document.body.classList.add('loaded');
+        update();
+      }
     };
-
-    MRP.set(new MyRelayPage(url))
-
-    $MRP.$.signal.on('state:changed', function(){ 
-      // console.log('state:changed', ...arguments)
-      MRP.set($MRP);
+    void start().catch(error => {
+      if (!disposed) startupError = error instanceof Error ? error.message : String(error);
     });
-
-    $MRP.$.signal.on('root:pending', function(timestamp: number){ 
-      document.body.classList.add('loading')
-    })
-
-    $MRP.$.signal.on('root:completed', function(timestamp: number){ 
-      document.body.classList.remove('loading')
-      document.body.classList.add('loaded')
-      console.log(`loaded in ${Date.now()-$start}ms`)
-    })
-
-    MRP.set($MRP);
-    await $MRP.init();
-  }
-  onMount(async () => {
-    if(browser) {
-      await mount().catch(console.error)
-    }
+    return () => {
+      disposed = true;
+      stopTheme();
+      app?.close();
+    };
   });
 
 </script>
@@ -110,12 +101,17 @@
         </div>
         {/if} -->
 
-        {#if !$MRP?.nostr?.relay?.config?.isComplete}
+        {#if startupError}
+          <p role="alert" class="p-6">Unable to load this relay: {startupError}</p>
+        {:else if !$MRP?.nostr?.relay?.config?.isComplete}
           <div transition:slide={{ delay: 0, duration: 1000, easing: quintOut, axis: 'y' }}>
             <LoadingAnimation />
           </div>
         {:else}
         <div>
+          {#if !$MRP?.nostr?.relay?.info?.loaded}
+            <p role="status" class="p-4 text-muted-foreground">Relay information is unavailable. The relay may be offline or may not allow browser requests.</p>
+          {/if}
           <slot></slot>
         </div>
         {/if}

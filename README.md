@@ -10,14 +10,13 @@ _**A nostr.watch R&D project made possible by [OpenSats](https://opensats.org)**
 That websocket URI representing your relay is floating all over the internet now. Its canonical `https` shouldn't be a `500`, a blank page or some random page. + I both need to do this to eat my own dog food and it's something I've wanted to do since early 2023.  
 
 ## overview 
-SvelteKit CSR site with SSR disabled that implements `ndk`, `nostr-zap` and `@nostrwatch/nocap`. Utilizes `NIP-65`, `NIP-66`, `NIP-78` and `NIP-32`. 
+SvelteKit client-rendered site using Applesauce v7 for Nostr connections, event validation, discovery, and NIP-07 signing. Uses NIP-11, NIP-65, NIP-66, and NIP-78.
 
 ## live demos
 - [wss://lunchbox.sandwich.farm](https://lunchbox.sandwich.farm)
 - [wss://relay.nostr.watch](https://relay.nostr.watch)
 - [wss://relaypag.es](https://relaypag.es)
 - [wss://user.kindpag.es](https://user.kindpag.es)
-- [wss://appdata.kindpag.es](https://appdata.kindpag.es)
 
 ## "try before you buy"
 `https://relaypage.netlify.app/?url=wss://your.relay`
@@ -109,8 +108,8 @@ _early alpha_, things will change, history will be full of haphazard commit mess
 ### build 
 
 ```
-pnpm install
-pnpm build
+npm ci
+npm run build
 ```
 
 Artifacts will end up in the `build` directory. You just neeed to serve them. 
@@ -132,7 +131,7 @@ _Image is not available on a registry yet_
 ## dev 
 
 ```
-pnpm dev
+npm run dev
 ```
 You can show a myrelay.page for any relay from `localhost` by appending `?url=wss://relay.snort.social` for instance. 
 
@@ -152,3 +151,60 @@ soon
 ##### haproxy
 soon 
 
+
+## Operator configuration and relay discovery
+
+The page reads the operator's hex public key from NIP-11, discovers their latest
+kind 10002 relay list on discovery relays and broad indexing relays, then requests
+kind 30078 configuration from their **write relays**. The target relay and broad
+relays are also checked for replicas. Read-only NIP-65 entries are not used as an
+outbox. Discovery currently includes purplepag.es, index.hzrd149.com, Ditto,
+Damus, and nos.lol; see `src/lib/core/nostr.ts` for the lists and deadlines.
+
+The original address (`myrelay.page/<normalized relay URL>operator@<hex pubkey>`)
+and jsonpack payload are preserved. No data conversion is needed. A copy that
+existed only on an unavailable relay cannot be recovered: the operator can use
+the editor to republish from an available copy or recreate the configuration.
+Missing config falls back to defaults; unavailable NIP-11 finishes with an
+explanatory message instead of leaving a loading screen.
+
+Publishing requires the NIP-11 operator's NIP-07 signer and at least one NIP-65
+write relay. Edits are committed only after at least one relay acknowledges the
+event. Concurrent saves share one request, unchanged saves do nothing, and a
+failed save retries the same signed event. Edits made during a save stay dirty.
+Signing cancellation, logout, and rejected publishes leave an actionable error
+and preserve the draft. No public events are published by the tests.
+
+## Verification
+
+Node 22 or newer is recommended. Dependencies are locked with npm.
+
+```sh
+npm ci
+npm test
+npm run check
+npm run lint
+npm run build
+```
+
+Tests cover signed relay responses, invalid events, deterministic replacement,
+timeouts, teardown, discovery fallback and write markers, legacy configuration,
+config editing, publish acknowledgements/retries, login races, join/leave,
+feeds, profiles, follows, monitor projections, and component rendering.
+
+For browser integration tests, install Playwright separately (it is a test tool,
+not an application dependency), start `npm run preview -- --host 127.0.0.1 --port 5193`,
+and run:
+
+```sh
+npm install --prefix /tmp/myrelay-browser-tools playwright@1.64.1
+/tmp/myrelay-browser-tools/node_modules/.bin/playwright install chromium
+PLAYWRIGHT_MODULE=/tmp/myrelay-browser-tools/node_modules/playwright/index.mjs npm run test:browser
+```
+
+The browser suite intercepts NIP-11 and WebSocket traffic with signed fixtures,
+verifies that config is found only in the discovered owner outbox, checks mobile
+and missing-data rendering, and exercises owner login plus rejected/successful
+save retries. Screenshots are written to `docs/proofs` (override `PROOF_DIR`).
+`BROWSER_BASE_URL` can point to another local preview. CI runs the same suite
+against the production build and uploads screenshots.

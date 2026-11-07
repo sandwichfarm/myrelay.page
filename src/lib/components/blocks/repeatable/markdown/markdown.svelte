@@ -18,6 +18,6 @@
 
 <Block key={key} id={id}>
   <svelte:fragment slot="content">
-    <SvelteMarkdown source={$MRP.loader.config.event.blocks[key]?.options?.markdown || ""} />
+    <SvelteMarkdown source={$MRP.loader?.getOptions(key)?.markdown || ""} />
   </svelte:fragment>
 </Block>

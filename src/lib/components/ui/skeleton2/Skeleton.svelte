@@ -1,4 +1,5 @@
-<script type="ts">
+<script lang="ts">
+  import type { ComponentType } from "svelte";
   import createEmotion from "@emotion/css/create-instance";
   const { css, keyframes } = createEmotion({ key: "some-key" });
 
@@ -6,12 +7,12 @@
   export const defaultHighlightColor = "#f5f5f5";
 
   let customClassName = "";
-  let Wrapper = null;
+  let Wrapper: ComponentType | null = null;
   export let count = 1;
   export let duration = 1.2;
-  export let width = null;
+  export let width: number | null = null;
   export { Wrapper as wrapper };
-  export let height = null;
+  export let height: number | null = null;
   export let circle = false;
   
   export { customClassName as class };
@@ -44,10 +45,10 @@
     animation: ${skeletonKeyframes} ${duration}s ease-in-out infinite;
   `;
 
-  const elements = [];
+  const elements: { className: string; defaultStyles: string; style: Record<string, string> }[] = [];
 
   for (let i = 0; i < count; i++) {
-    let style = {};
+    let style: Record<string, string> = {};
 
     if (width !== null) {
       style.width = `${width}px`;

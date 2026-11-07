@@ -1,163 +1,92 @@
-import NDK, { NDKUser, NDKKind, NDKRelayList, NDKRelaySet, type EventPointer } from '@nostr-dev-kit/ndk';
-import { type NDKUserProfile, NDKRelay, type NDKEvent } from '@nostr-dev-kit/ndk';
+import type { Filter, NostrEvent } from 'nostr-tools';
+import type { EventPointer } from 'nostr-tools/nip19';
 import type { MRPState } from './MRP';
 import { MRPData } from './MRPData';
+import { normalizeRelays } from './nostr';
 
+export interface UserProfile {
+  name?: string;
+  displayName?: string;
+  display_name?: string;
+  about?: string;
+  picture?: string;
+  image?: string;
+  photo?: string;
+  banner?: string;
+  nip05?: string;
+  lud16?: string;
+  lud06?: string;
+  website?: string;
+}
 
 export class MRPUser extends MRPData {
-  private ndk: NDK;
-  private $: MRPState; 
-  private _user: NDKUser;
-  private _follows: Set<NDKUser> | undefined;
-  private _relayList: NDKRelayList | undefined;
-  private _feed: NDKEvent[] = new Set();
-  private _feedPointers: Record<string, EventPointer> = {}
-  private _readRelays: string[] | undefined;
-  private _writeRelays: string[] | undefined;
-
-  constructor( $state: MRPState, user: string | NDKUser, slug?: string ){
-    const _slug: string = slug || (typeof user === 'string' ? user : user.pubkey as string)
-    super($state.signal, _slug);
-    this.$ = $state;
-    this.ndk = $state.ndk;
-    if(typeof user === 'string') {
-      this.user = this.ndk.getUser({ pubkey: user })
-    } else {
-      this.user = this.ndk.getUser({ pubkey: user.pubkey })
+  readonly pubkey: string;
+  profile?: UserProfile;
+  follows?: Set<MRPUser>;
+  relayList?: NostrEvent;
+  readRelays: string[] = [];
+  writeRelays: string[] = [];
+  feed: NostrEvent[] = [];
+  feedPointers: Record<string, EventPointer> = {};
+  private initialized?: Promise<void>;
+  constructor(private state: MRPState, user: string | { pubkey: string }, slug?: string) {
+    const pubkey = typeof user === 'string' ? user : user.pubkey;
+    super(state.signal, slug ?? pubkey);
+    this.pubkey = pubkey;
+  }
+  get user() { return this; }
+  get relays() { return normalizeRelays([...this.readRelays, ...this.writeRelays]); }
+  get photo() { return this.profile?.image ?? this.profile?.picture ?? this.profile?.photo; }
+  get lud16() { return this.profile?.lud16; }
+  get lud06() { return this.profile?.lud06; }
+  hasPhoto() { return !!this.photo; }
+  init(): Promise<void> { return this.initialized ??= this.load(); }
+  private async load() {
+    this.begin();
+    try {
+      await this.fetchRelayList();
+      await this.fetchProfile();
+      this.complete();
+    } catch (error) { this.error(error as Error); this.complete(false); }
+  }
+  async fetchProfile(): Promise<UserProfile | undefined> {
+    const [event] = await this.state.client.queryOwner(this.pubkey, { kinds: [0], authors: [this.pubkey] });
+    if (event) {
+      try {
+        const profile = JSON.parse(event.content);
+        if (profile && typeof profile === 'object' && !Array.isArray(profile)) {
+          this.profile = Object.fromEntries(Object.entries(profile).filter(([, value]) => typeof value === 'string'));
+          this.profile.displayName ??= this.profile.display_name;
+          this.profile.image ??= this.profile.picture;
+        }
+      } catch { /* A malformed metadata event must not prevent the relay page loading. */ }
     }
+    return this.profile;
   }
-
-  async init(){
-    this.begin()
-    if(!this.user) return this.complete(false)
-    await this.setRelays()
-    await this.user.fetchProfile()
-    await this.fetchRelayList()
-    this.complete(true)
+  async fetchRelayList() {
+    const relays = await this.state.client.discoverRelays(this.pubkey);
+    this.relayList = relays.event;
+    this.readRelays = relays.read;
+    this.writeRelays = relays.write;
   }
-
-  async fetchRelayList(){
-    this.relayList = await NDKRelayList.forUser(this.pubkey as string, this.$.ndk)
+  async getFollows() {
+    const [event] = await this.state.client.queryOwner(this.pubkey, { kinds: [3], authors: [this.pubkey] });
+    const pubkeys = new Set(event?.tags.filter(tag => tag[0] === 'p' && /^[a-f0-9]{64}$/.test(tag[1])).map(tag => tag[1]));
+    this.follows = new Set([...pubkeys].map(pubkey => new MRPUser(this.state, pubkey)));
   }
-
-  async getFollows(){
-    if(!this.user) return
-    this.follows = await this.user.follows()
+  hasRelay(url: string) {
+    const [normalized] = normalizeRelays([url]);
+    return !!normalized && this.relays.includes(normalized);
   }
-
-  hasRelay(url: string): boolean {
-    return this?.relayList?.tags.filter( tag => tag[0] === 'r' && tag[1] === url)?.length > 0? true: false;
+  async fetchNotes(opts?: { relays?: string[]; filter?: Filter }) {
+    const filter: Filter = { ...opts?.filter, kinds: [1], authors: [this.pubkey], limit: opts?.filter?.limit ?? 3 };
+    this.feed = opts?.relays
+      ? await this.state.client.query(filter, opts.relays)
+      : await this.state.client.queryOwner(this.pubkey, filter);
+    this.feed = this.feed.slice().sort((a, b) => b.created_at - a.created_at || a.id.localeCompare(b.id)).slice(0, filter.limit);
+    this.feedPointers = Object.fromEntries(this.feed.map(event => [event.id, {
+      id: event.id, relays: opts?.relays ?? this.writeRelays, pubkey: event.pubkey, kind: event.kind,
+    }]));
+    this.changed();
   }
-
-  async fetchNotes(opts?: any){
-    const relays = new NDKRelaySet(
-      new Set(
-        (opts?.relays || this.relays)
-          .map( (relay: string) => 
-            new NDKRelay(relay)
-          )
-        ), 
-      this.$.ndk
-    )
-    if(!this?.user || !this?.relays) return
-    let filter = { kinds: [1], authors: [this.pubkey as string], limit: 3 }
-    if(opts?.filter) filter = {...opts.filter, ...filter }
-    this._feed = Array.from(await this.ndk.fetchEvents(filter, undefined, relays))
-    this._feed.sort( (a: NDKEvent, b: NDKEvent) => (b.created_at as number) - (a.created_at as number) )
-    this._feed.forEach( (event: NDKEvent) => {
-      this._feedPointers[event.id] = {
-        id: event.id,
-        relays: this.relays,
-        pubkey: this.pubkey,
-        kind: event.kind,
-      } as EventPointer;
-    })
-    this.changed()
-  } 
-
-  get photo(): string | undefined {
-    return this.user?.profile?.image || this.user?.profile?.picture || this.user?.profile?.photo || undefined
-  }
-
-  hasPhoto(): boolean {
-    return typeof this.photo === 'string' ? true : false;
-  } 
-
-  private set follows(follows: Set<NDKUser>){
-    this._follows = follows
-  }
-
-  get follows(): Set<NDKUser> | undefined {
-    return this._follows
-  }
-
-  private set relayList(relayList: NDKRelayList | undefined){
-    this._relayList = relayList
-  }
-
-  get relayList(): NDKRelayList | undefined {
-    return this._relayList
-  }
-
-  set user(user: NDKUser){
-    this._user = user
-  }
-
-  get user(): NDKUser | undefined {
-    return this._user
-  }
-
-  get profile(): NDKUserProfile | undefined{
-    return this._user?.profile
-  }
-
-  get relays(): string[] | undefined {
-    const read = Array.from(this.readRelays || [])
-    const write = Array.from(this.writeRelays || [])
-    return Array.from(new Set([ ...read, ...write]))
-  }
-
-  set readRelays(relays: string[] | undefined){
-    this._readRelays = relays
-  }
-
-  get readRelays():string[]| undefined {
-    return this._readRelays
-  }
-
-  set writeRelays(relays: string[] | undefined){
-    this._writeRelays = relays
-  }
-
-  private async setRelays(){
-    if(!this.user) return
-    let relays = await NDKRelayList.forUser( this.user.pubkey, this.$.ndk )
-    if(!relays) return
-    this.readRelays = relays.readRelayUrls
-    this.writeRelays = relays.writeRelayUrls
-  }
-
-  get writeRelays(): string[] | undefined {
-    return this._writeRelays
-  }
-
-  get pubkey (): string | undefined {
-    return this.user?.pubkey
-  }
-
-  get lud16(): string | undefined {
-    return this.user?.profile?.lud16
-  }
-
-  get lud06(): string | undefined {
-    return this.user?.profile?.lud06
-  }
-
-  get feed(): NDKEvent[] | undefined {
-    return this._feed
-  }
-
-  get feedPointers(): Record<string, EventPointer> | undefined {
-    return this._feedPointers
-  } 
 }

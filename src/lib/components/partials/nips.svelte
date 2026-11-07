@@ -3,7 +3,7 @@
   import { writable, type Writable } from 'svelte/store';
   import { getContext } from 'svelte';
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
-  import type { MRPRelay } from '$lib/core/relay';
+  import type { MRPRelay } from '$lib/core/MRPRelay';
   import type { MyRelayPage } from '$lib/core/MRP';
     import Skeleton from '../ui/skeleton2/Skeleton.svelte';
 
@@ -24,7 +24,7 @@
               bg-slate-500/5 text-black/50 dark:text-white/80 border-transparent text-sm mr-1">
   nips
 </span>
-  {#each $relay?.info?.nips as nip}
+  {#each ($relay?.info?.nips || []) as nip}
     <a 
       href="https://github.com/nostr-protocol/nips/blob/master/{ nip }.md" 
       target="_blank" 
@@ -37,7 +37,7 @@
       { nip }
     </a>
   {/each} 
-{:else}
+{:else if !$relay?.info?.isComplete}
 {#each Array.from({ length: 10 }) as _, i}
   <Skeleton class="mr-2 inline-block dark:hidden" count={1} width={40} />
   <Skeleton class="mr-2 hidden dark:inline-block rounded-lg" count={1} width={40} height={30} color="rgba(10,10,10,0.9)" highlightColor="rgba(20,20,20,0.4)" />

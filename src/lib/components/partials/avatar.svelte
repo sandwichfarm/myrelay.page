@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { NDKUser, NDKUserProfile } from "@nostr-dev-kit/ndk";
+
 
   import * as Tooltip from "$lib/components/ui/tooltip";
   import * as Avatar from "$lib/components/ui/avatar";

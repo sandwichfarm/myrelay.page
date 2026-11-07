@@ -8,25 +8,37 @@ export { MRPData } from "./MRPData";
 export { Nip11 } from "./schemata/nip11";
 
 export class MRPInfoDocument {
+  loaded = false;
   private $: MRPState;
-  private _url: string;
+  private _url!: string;
+  private initialized?: Promise<void>;
+  private controller?: AbortController;
+  icon?: string;
 
   constructor($state: MRPState, url: string) {
     this.$ = $state;
     this.url = url;
     this.slug = 'info'
+    this._signal = $state.signal
   }
 
-  async init(){
+  init(): Promise<void> {
+    return this.initialized ??= this.load();
+  }
+
+  private async load(){
     this.begin()
     await this.fetch()
       .then((json: Nip11Json | undefined) => {
         if(!json) return this.complete(false)
+        this.icon = typeof json.icon === 'string' ? json.icon : undefined;
         this.set(json)
+        this.loaded = true
         this.complete(true, this)
       })
       .catch( (err) => {
         this.error(err)
+        this.complete(false)
       })
   }
 
@@ -48,8 +60,12 @@ export class MRPInfoDocument {
 
     url = `${url}?c=${this.randomHash()}`;
 
+    const controller = this.controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
     const response = await fetch(url, {
         cache: "no-store",
+        signal: controller.signal,
         headers: {
             Accept: 'application/nostr+json'
         },
@@ -60,8 +76,13 @@ export class MRPInfoDocument {
     }
     
     const relayInfo = await response.json();
+    if (!relayInfo || typeof relayInfo !== 'object' || Array.isArray(relayInfo)) throw new Error('Invalid relay information');
+    if (typeof relayInfo.pubkey !== 'string' || !/^[a-f0-9]{64}$/.test(relayInfo.pubkey)) delete relayInfo.pubkey;
     return relayInfo as Nip11Json;
+    } finally { clearTimeout(timeout); this.controller = undefined; }
   }
+
+  close() { this.controller?.abort(); }
 
   private set url(url: string){
     const nip11Url = new URL(url)

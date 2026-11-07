@@ -1,0 +1,40 @@
+name: verify
+on:
+  pull_request:
+  push:
+    branches: [main, 'fix/**']
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - name: Install isolated browser test tool
+        run: |
+          npm install --prefix "$RUNNER_TEMP/browser" playwright@1.64.1
+          "$RUNNER_TEMP/browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Browser tests against production build
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 5193 > "$RUNNER_TEMP/preview.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:5193/ > /dev/null && break
+            sleep 1
+          done
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/browser/node_modules/playwright/index.mjs" npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-proofs
+          path: docs/proofs/*.png

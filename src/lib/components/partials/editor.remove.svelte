@@ -11,14 +11,14 @@
   $: isRepeatable = key.includes(':')
 
   const remove = async () => {
-    $MRP.loader.config.event.removeBlock(key)
+    $MRP.loader?.config.event.removeBlock(key)
     MRP.set($MRP)
   }
 
 </script>
 
 {#if isRepeatable }
-  <a href="{`#remove-${key}`}" class="font-bold text-red-500" on:click={remove}>
+  <button type="button" class="font-bold text-red-500" on:click={remove}>
     remove
-  </a>
+  </button>
 {/if}

@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { getContext, onMount, onDestroy, tick } from 'svelte';
+  import { getContext } from 'svelte';
 
   import { MY_RELAY_PAGE } from '$lib/contextKeys';
-  import { writable } from 'svelte/store';
   import type { Writable } from 'svelte/store';
   import type { MyRelayPage } from '$lib/core/MRP';
 
@@ -12,47 +11,10 @@
   import EditorBlockOptions from '$lib/components/partials/editor.block-options.svelte';
 
   const MRP: Writable<MyRelayPage> = getContext(MY_RELAY_PAGE);
-  const STATIC_ORDER = -100
-
-  let lastUpdate: number;
-  const updateEvery: number = 500
-  const updates = {}
-  let updateTimeout = undefined
-
-  //TODO: remove after storification.
-  const commitChanges = () => {
-    Object.keys(updates).forEach( key => {
-      const value = updates[key]
-      if(typeof value === 'undefined') return
-      $MRP.loader.config.event.setBlockOption(key, value)
-      updates[key] = undefined
-    })
-  }
-  
-  $: isRepeatable = key.includes(':')
-  $: blockChangeFn = async (optionKey: string, optionValue: any): undefined => {
-    //TODO: remove after storification.
-    if(Date.now() - lastUpdate < updateEvery) {
-      updateTimeout = setTimeout(commitChanges, updateEvery)
-      updates[optionKey] = optionValue
-    }
-    clearTimeout(updateTimeout)
-    if(updates.length) {
-      commitChanges()
-      updates.length = 0
-    }
-    $MRP.loader.config.event.setBlockOption(key, optionKey, optionValue)
-    lastUpdate = Date.now()
-    MRP.set($MRP)
-  }
-
-  onMount( () => {
-    if(!sortable){
-      $MRP.loader.config.event.blocks[key].order = STATIC_ORDER
-    }
-  })
-
-  let defaultOptions, optionsConfig;
+  const blockChangeFn = (optionKey: string, optionValue: unknown): void => {
+    $MRP.loader?.config.event.setBlockOption(key, optionKey, optionValue);
+    MRP.set($MRP);
+  };
 
   export let innerClass: string = "";
   export let headingClass: string = "";
@@ -77,7 +39,7 @@
   <div class="inner {innerClass}">
   <slot name="top" />
   <h3 class="mrp-block-title block w-full truncate text-ellipsis overflow-hidden {headingClass}">
-    <slot name="title">{$MRP.loader.config.event.blocks[key]?.options?.blockHeading || ""}</slot>
+    <slot name="title">{$MRP.loader?.getOptions(key)?.blockHeading || ""}</slot>
   </h3>
   <slot name="content"></slot>
   <slot name="bottom" />

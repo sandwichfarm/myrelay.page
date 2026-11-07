@@ -113,6 +113,6 @@ export const optionsConfig = {
   noteTemplate: {
     label: "Note Template",
     type: "dropdown",
-    default: defaultOptions.gridColumns
+    default: 3
   }
 }

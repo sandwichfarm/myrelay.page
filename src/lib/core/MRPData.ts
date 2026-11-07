@@ -14,7 +14,7 @@ export enum MRPStatus {
 
 export class MRPData {
   private stage: MRPStage = MRPStage.Inactive;
-  private status: MRPStatus;
+  private status: MRPStatus = MRPStatus.Failure;
   protected _signal: EventEmitter<any>;
   protected slug: string;
   // protected $: MRPState | null;
@@ -24,8 +24,8 @@ export class MRPData {
     this.slug = slug;
   }
 
-  protected get signal(): EventEmitter<any> | undefined {
-    return this?.$?.signal? this.$.signal: this._signal;
+  protected get signal(): EventEmitter<any> {
+    return this._signal;
   }
 
   protected set signal(signal: EventEmitter<any>){

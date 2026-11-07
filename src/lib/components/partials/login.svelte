@@ -23,13 +23,17 @@
       : false;
   }
 
+  let loginError = "";
   const login = async () => {
+    loginError = "";
+    try {
     if(!$MRP?.nostr) return 
     await $MRP?.nostr.login()
     userIsOperator = _isOperator()
     MRP.set($MRP)
     await $MRP?.getUserFollowsOnRelay()
     MRP.set($MRP)
+    } catch (error) { loginError = error instanceof Error ? error.message : String(error); }
   }
 
   const logout = async () => {
@@ -39,11 +43,12 @@
     MRP.set($MRP)
   }
 </script>
+{#if loginError}<span role="alert">{loginError}</span>{/if}
 {#if browser && window?.nostr}
   <!-- <div class="inline-block"> -->
     {#if $MRP?.nostr && (typeof $MRP?.nostr?.user === 'undefined' || $MRP?.nostr?.user == null)}
       <Button variant="outline" class="relative" on:click={login}>login</Button>
-    {:else if $MRP?.nostr?.user?.profile}
+    {:else if $MRP?.nostr?.authed}
       <!-- <div class="flex items-center space-x-4"> -->
         {#if userIsOperator}
         <EditButton />
@@ -57,7 +62,7 @@
         </Avatar.Root>
         <span>
           <span class="block">{ $MRP?.nostr?.user?.profile?.name }</span>
-          <span class="block cursor-pointer text-xs" on:click={logout}>logout</span>
+          <button type="button" class="block cursor-pointer text-xs" on:click={logout}>logout</button>
         </span>
       <!-- </div> -->
     {/if}
